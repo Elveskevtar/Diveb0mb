@@ -25,7 +25,7 @@ public abstract class Weapon {
 	private int spriteX;
 	private int spriteY;
 
-	public abstract void attack(ArrayList<Player> players);
+	public abstract void attack(ArrayList<Player> players, boolean server);
 
 	public Weapon(Player p) {
 		this.player = p;

@@ -8,20 +8,23 @@ public class Packet00Login extends Packet {
 	private String name;
 	private String race;
 	private String color;
+	private String weapon;
 
 	public Packet00Login(byte[] data) {
 		super(00);
 		String[] dataArray = readData(data).split(",");
-		this.setName(dataArray[0]);
-		this.setRace(dataArray[1]);
-		this.setColor(dataArray[2]);
+		this.name = dataArray[0];
+		this.race = dataArray[1];
+		this.color = dataArray[2];
+		this.weapon = dataArray[3];
 	}
 
-	public Packet00Login(String name, String race, String color) {
+	public Packet00Login(String name, String race, String color, String weapon) {
 		super(00);
-		this.setName(name);
-		this.setRace(race);
-		this.setColor(color);
+		this.name = name;
+		this.race = race;
+		this.color = color;
+		this.weapon = weapon;
 	}
 
 	@Override
@@ -36,7 +39,8 @@ public class Packet00Login extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("00" + name + "," + race + "," + color).getBytes();
+		return ("00" + name + "," + race + "," + color + "," + weapon)
+				.getBytes();
 	}
 
 	public String getName() {
@@ -61,5 +65,13 @@ public class Packet00Login extends Packet {
 
 	public void setColor(String color) {
 		this.color = color;
+	}
+
+	public String getWeapon() {
+		return weapon;
+	}
+
+	public void setWeapon(String weapon) {
+		this.weapon = weapon;
 	}
 }

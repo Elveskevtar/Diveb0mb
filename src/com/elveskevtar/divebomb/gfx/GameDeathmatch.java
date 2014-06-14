@@ -1,193 +1,153 @@
 package com.elveskevtar.divebomb.gfx;
 
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ConcurrentModificationException;
 
 import javax.swing.JFrame;
 
 import com.elveskevtar.divebomb.maps.Map;
-import com.elveskevtar.divebomb.net.GameClient;
-import com.elveskevtar.divebomb.net.GameServer;
-import com.elveskevtar.divebomb.net.packets.Packet00Login;
-import com.elveskevtar.divebomb.net.packets.Packet03Move;
-import com.elveskevtar.divebomb.net.packets.Packet05Health;
-import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
+import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.weapons.Sword;
 
-public class GameDeathmatchMP extends Game {
+public class GameDeathmatch extends Game {
 
-	private static final long serialVersionUID = 1495382359826347033L;
-	private int firstPlaceKills;
-	private int maxKills;
+	private static final long serialVersionUID = -1382236417102373948L;
 
-	private String firstPlaceName;
+	private Player player1;
+	private Player player2;
+	private Player player3;
+	private Player player4;
+	private Player player5;
+	private Player player6;
+	private Player player7;
+	private Player player8;
 
-	public GameDeathmatchMP(String graphicsMapName, String collisionMapName,
-			int id, JFrame frame, String username) {
-		super(01, frame.getWidth(), frame.getHeight(), frame);
-		this.setPlayerSize(2);
-		this.setMaxKills(3);
-		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
-		this.setSocketServer(new GameServer(this));
-		this.getSocketServer().start();
-		this.setHosting(true);
-		this.setServerIP("localhost");
-		this.setSocketClient(new GameClient(this, getServerIP()));
-		this.getSocketClient().start();
-		this.setUserName(username);
-		String weapon = " ";
-		if (getUser().getInHand() instanceof Sword)
-			weapon = "sword";
-		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(),
-				getUserColor(), weapon);
+	public GameDeathmatch(Map map, JFrame frame) {
+		super(00, frame);
+		this.player1 = getUser();
 		try {
-			getSocketClient().setIP(InetAddress.getLocalHost());
+			this.player2 = new Cyborg(this, InetAddress.getLocalHost(), 6768);
+			this.player3 = new Cyborg(this, InetAddress.getLocalHost(), 6769);
+			this.player4 = new Cyborg(this, InetAddress.getLocalHost(), 6770);
+			this.player5 = new Cyborg(this, InetAddress.getLocalHost(), 6771);
+			this.player6 = new Cyborg(this, InetAddress.getLocalHost(), 6772);
+			this.player7 = new Cyborg(this, InetAddress.getLocalHost(), 6773);
+			this.player8 = new Cyborg(this, InetAddress.getLocalHost(), 6774);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		packet.writeData(getSocketClient());
+		this.player2.setInHand(new Sword(player2));
+		this.player3.setInHand(new Sword(player3));
+		this.player4.setInHand(new Sword(player4));
+		this.player5.setInHand(new Sword(player5));
+		this.player6.setInHand(new Sword(player6));
+		this.player7.setInHand(new Sword(player7));
+		this.player8.setInHand(new Sword(player8));
+		this.getPlayers().add(player2);
+		this.getPlayers().add(player3);
+		this.getPlayers().add(player4);
+		this.getPlayers().add(player5);
+		this.getPlayers().add(player6);
+		this.getPlayers().add(player7);
+		this.getPlayers().add(player8);
+		this.setPlayerSize(8);
+		this.startGame(map);
 	}
 
-	public GameDeathmatchMP(String ip, JFrame frame, String username) {
-		super(01, frame.getWidth(), frame.getHeight(), frame);
-		this.setPlayerSize(2);
-		this.setMaxKills(3);
-		this.setServerIP(ip);
-		this.setSocketClient(new GameClient(this, getServerIP()));
-		this.getSocketClient().start();
-		this.setUserName(username);
-		String weapon = " ";
-		if (getUser().getInHand() instanceof Sword)
-			weapon = "sword";
-		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(),
-				getUserColor(), weapon);
+	public GameDeathmatch(JFrame frame, Map map) {
+		super(00, frame.getWidth(), frame.getHeight(), frame);
+		this.player1 = getUser();
 		try {
-			getSocketClient().setIP(InetAddress.getByName(ip));
+			this.player2 = new Cyborg(this, InetAddress.getLocalHost(), 6768);
+			this.player3 = new Cyborg(this, InetAddress.getLocalHost(), 6769);
+			this.player4 = new Cyborg(this, InetAddress.getLocalHost(), 6770);
+			this.player5 = new Cyborg(this, InetAddress.getLocalHost(), 6771);
+			this.player6 = new Cyborg(this, InetAddress.getLocalHost(), 6772);
+			this.player7 = new Cyborg(this, InetAddress.getLocalHost(), 6773);
+			this.player8 = new Cyborg(this, InetAddress.getLocalHost(), 6774);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		packet.writeData(getSocketClient());
+		this.player2.setInHand(new Sword(player2));
+		this.player3.setInHand(new Sword(player3));
+		this.player4.setInHand(new Sword(player4));
+		this.player5.setInHand(new Sword(player5));
+		this.player6.setInHand(new Sword(player6));
+		this.player7.setInHand(new Sword(player7));
+		this.player8.setInHand(new Sword(player8));
+		this.getPlayers().add(player2);
+		this.getPlayers().add(player3);
+		this.getPlayers().add(player4);
+		this.getPlayers().add(player5);
+		this.getPlayers().add(player6);
+		this.getPlayers().add(player7);
+		this.getPlayers().add(player8);
+		this.setPlayerSize(8);
+		this.startGame(map);
 	}
 
-	@Override
-	public void paint(Graphics g) {
-		super.paint(g);
-		Graphics2D g2d = (Graphics2D) g;
-		g2d.translate(
-				(-getWidth() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom()))
-						* -1,
-				(-getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom()))
-						* -1);
-		g2d.setFont(new Font("Arial Black", Font.PLAIN, 20 / getZoom()));
-		g2d.drawString("Health: " + getUser().getHealth(), 0, g2d.getFont()
-				.getSize() * 3 / 4);
-		g2d.drawString("Stamina: " + getUser().getStamina(), 0, g2d.getFont()
-				.getSize() * 15 / 8);
-		g2d.drawString("Kills: " + getUser().getKills(), 0, g2d.getFont()
-				.getSize() * 3);
-		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont()
-				.getSize() * 33 / 8);
+	public Player getPlayer1() {
+		return player1;
 	}
 
-	@Override
-	public void setTimers() {
-		super.setTimers();
-		new Thread(new SendMovePacket()).start();
-		if (getSocketServer() != null) {
-			new Thread(new SendHealthPacket()).start();
-			new Thread(new CheckForEndGame()).start();
-		}
+	public void setPlayer1(Player player1) {
+		this.player1 = player1;
 	}
 
-	public int getFirstPlaceKills() {
-		return firstPlaceKills;
+	public Player getPlayer2() {
+		return player2;
 	}
 
-	public void setFirstPlaceKills(int firstPlaceKills) {
-		this.firstPlaceKills = firstPlaceKills;
+	public void setPlayer2(Player player2) {
+		this.player2 = player2;
 	}
 
-	public String getFirstPlaceName() {
-		return firstPlaceName;
+	public Player getPlayer3() {
+		return player3;
 	}
 
-	public void setFirstPlaceName(String firstPlaceName) {
-		this.firstPlaceName = firstPlaceName;
+	public void setPlayer3(Player player3) {
+		this.player3 = player3;
 	}
 
-	public int getMaxKills() {
-		return maxKills;
+	public Player getPlayer4() {
+		return player4;
 	}
 
-	public void setMaxKills(int maxKills) {
-		this.maxKills = maxKills;
+	public void setPlayer4(Player player4) {
+		this.player4 = player4;
 	}
 
-	private class SendMovePacket extends Thread {
-
-		@Override
-		public void run() {
-			while (isRunning()) {
-				Packet03Move packet = new Packet03Move(getUser().getName(),
-						getUser().getxPosition(), getUser().getyPosition(),
-						getUser().getVeloX(), getUser().getVeloY(), getUser()
-								.isWalking(), getUser().isRunning(), getUser()
-								.isMovingRight(), getUser().isFacingRight());
-				packet.writeData(getSocketClient());
-				try {
-					Thread.sleep(16);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+	public Player getPlayer5() {
+		return player5;
 	}
 
-	private class SendHealthPacket extends Thread {
-
-		@Override
-		public void run() {
-			while (isRunning()) {
-				try {
-					for (Player player : getSocketServer().connectedPlayers) {
-						Packet05Health packet = new Packet05Health(
-								player.getName(), player.getHealth());
-						packet.writeData(getSocketServer());
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
-					}
-				} catch (ConcurrentModificationException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+	public void setPlayer5(Player player5) {
+		this.player5 = player5;
 	}
 
-	private class CheckForEndGame extends Thread {
+	public Player getPlayer6() {
+		return player6;
+	}
 
-		@Override
-		public void run() {
-			while (true) {
-				if (firstPlaceKills >= maxKills) {
-					Packet07Endgame packet = new Packet07Endgame(
-							firstPlaceName, firstPlaceKills);
-					packet.writeData(getSocketServer());
-					break;
-				}
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-			}
-		}
+	public void setPlayer6(Player player6) {
+		this.player6 = player6;
+	}
+
+	public Player getPlayer7() {
+		return player7;
+	}
+
+	public void setPlayer7(Player player7) {
+		this.player7 = player7;
+	}
+
+	public Player getPlayer8() {
+		return player8;
+	}
+
+	public void setPlayer8(Player player8) {
+		this.player8 = player8;
 	}
 }

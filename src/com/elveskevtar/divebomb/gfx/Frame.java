@@ -14,17 +14,17 @@ public class Frame extends JFrame {
 		this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
-		this.add(new GameDeathmatchMP());
+		this.add(new StartMenu(this));
 		this.setVisible(true);
 	}
 
 	public Frame(int width, int height) {
-		super();
+		super("DiveBomb");
 		this.setSize(width, height);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		this.add(new GameDeathmatchMP());
+		this.add(new StartMenu(this));
 		this.setVisible(true);
 	}
 }

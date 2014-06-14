@@ -33,29 +33,22 @@ public class Sword extends Melee {
 	}
 
 	@Override
-	public void attack(ArrayList<Player> players) {
-		ArrayList<Player> attackedPlayers = new ArrayList<Player>();
-		for (Player p : players)
-			if (p != getPlayer()) {
-				if (getPlayer().isMovingRight()
-						&& p.getxPosition() - getPlayer().getxPosition() <= 0
-						&& Math.sqrt(Math.pow((p.getxPosition() - getPlayer()
-								.getxPosition()), 2)
-								+ Math.pow((p.getyPosition() - getPlayer()
-										.getyPosition()), 2)) <= getDistance())
-					attackedPlayers.add(p);
-				if (!getPlayer().isMovingRight()
-						&& p.getxPosition() - getPlayer().getxPosition() >= 0
-						&& Math.sqrt(Math.pow((p.getxPosition() - getPlayer()
-								.getxPosition()), 2)
-								+ Math.pow((p.getyPosition() - getPlayer()
-										.getyPosition()), 2)) <= getDistance())
-					attackedPlayers.add(p);
+	public void attack(ArrayList<Player> players, boolean server) {
+		super.attack(players, server);
+		new Thread(new Animation()).start();
+	}
+
+	private class Animation extends Thread {
+
+		@Override
+		public void run() {
+			setSpriteX(1);
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
 			}
-		for (Player p : attackedPlayers)
-			p.setHealth(p.getHealth() + (Math.random() * -10)
-					+ p.getInHand().getDefense() - getDamage());
-		for (int i = 0; i < attackedPlayers.size(); i++)
-			attackedPlayers.remove(i);
+			setSpriteX(0);
+		}
 	}
 }

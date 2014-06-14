@@ -7,10 +7,12 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Map {
-	
+
 	private BufferedImage map;
 	private BufferedImage collisionMap;
-	
+	private String mapPath;
+	private String collisionMapPath;
+
 	private int id;
 
 	public Map(String map, String collisionMap, int id) {
@@ -20,7 +22,9 @@ public class Map {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setId(id);
+		this.id = id;
+		this.setMapPath(map);
+		this.setCollisionMapPath(collisionMap);
 	}
 
 	public BufferedImage getMap() {
@@ -45,5 +49,21 @@ public class Map {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public String getMapPath() {
+		return mapPath;
+	}
+
+	public void setMapPath(String mapPath) {
+		this.mapPath = mapPath;
+	}
+
+	public String getCollisionMapPath() {
+		return collisionMapPath;
+	}
+
+	public void setCollisionMapPath(String collisionMapPath) {
+		this.collisionMapPath = collisionMapPath;
 	}
 }

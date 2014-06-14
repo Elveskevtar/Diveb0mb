@@ -72,7 +72,7 @@ public class Human extends Player {
 	}
 
 	/*
-	 * 1 = left; 2 = right; 3 = up; 4 = down
+	 * 1 = left; 2 = right; 3 = up; 4 = down; 5 = upper corner;
 	 */
 	@Override
 	public ArrayList<Integer> checkCollisions() {

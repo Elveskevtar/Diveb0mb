@@ -8,12 +8,24 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 
 import com.elveskevtar.divebomb.gfx.Game;
+import com.elveskevtar.divebomb.gfx.GameDeathmatchMP;
+import com.elveskevtar.divebomb.gfx.GameLobbyMenu;
+import com.elveskevtar.divebomb.maps.Map;
 import com.elveskevtar.divebomb.net.packets.Packet;
 import com.elveskevtar.divebomb.net.packets.Packet.PacketTypes;
 import com.elveskevtar.divebomb.net.packets.Packet00Login;
+import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
+import com.elveskevtar.divebomb.net.packets.Packet02Startgame;
+import com.elveskevtar.divebomb.net.packets.Packet03Move;
+import com.elveskevtar.divebomb.net.packets.Packet04Attack;
+import com.elveskevtar.divebomb.net.packets.Packet05Health;
+import com.elveskevtar.divebomb.net.packets.Packet06Kill;
+import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
+import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Sword;
 
 public class GameClient extends Thread {
 
@@ -47,6 +59,7 @@ public class GameClient extends Thread {
 		}
 	}
 
+	@SuppressWarnings("deprecation")
 	private void parsePacket(byte[] data, InetAddress address, int port) {
 		String message = new String(data).trim();
 		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
@@ -60,8 +73,107 @@ public class GameClient extends Thread {
 			handleLogin((Packet00Login) packet, address, port);
 			break;
 		case DISCONNECT:
+			packet = new Packet01Disconnect(data);
+			System.out.println("[" + address.getHostAddress() + ":" + port
+					+ "] " + ((Packet01Disconnect) packet).getName()
+					+ " has left the game...");
+			for (int i = 0; i < game.getPlayers().size(); i++)
+				if (((Packet01Disconnect) packet).getName().equalsIgnoreCase(
+						game.getPlayers().get(i).getName()))
+					game.getPlayers().remove(i);
 			break;
 		case STARTGAME:
+			packet = new Packet02Startgame(data);
+			game.setGraphicsMap(new Map(((Packet02Startgame) packet)
+					.getGraphicsMap(), ((Packet02Startgame) packet)
+					.getCollisionMap(), ((Packet02Startgame) packet).getMapID()));
+			game.getUser().setxPosition(
+					((Packet02Startgame) packet).getStartX());
+			game.getUser().setyPosition(
+					((Packet02Startgame) packet).getStartY());
+			game.startGame(game.getGraphicsMap());
+			break;
+		case MOVE:
+			packet = new Packet03Move(data);
+			Packet03Move movePacket = (Packet03Move) packet;
+			Player player = getPlayer(((Packet03Move) packet).getName());
+			player.setxPosition(movePacket.getX());
+			player.setyPosition(movePacket.getY());
+			player.setVeloX(movePacket.getVeloX());
+			player.setVeloY(movePacket.getVeloY());
+			player.setWalking(movePacket.isWalking());
+			player.setRunning(movePacket.isRunning());
+			player.setMovingRight(movePacket.isMovingRight());
+			player.setFacingRight(movePacket.isFacingRight());
+			break;
+		case ATTACK:
+			packet = new Packet04Attack(data);
+			getPlayer(((Packet04Attack) packet).getName()).getInHand().attack(
+					game.getPlayers(), false);
+			break;
+		case HEALTH:
+			packet = new Packet05Health(data);
+			getPlayer(((Packet05Health) packet).getName()).setHealth(
+					((Packet05Health) packet).getHealth());
+			break;
+		case KILL:
+			packet = new Packet06Kill(data);
+			getPlayer(((Packet06Kill) packet).getMurderer())
+					.setKills(
+							getPlayer(((Packet06Kill) packet).getMurderer())
+									.getKills() + 1);
+			getPlayer(((Packet06Kill) packet).getVictim())
+					.setDeaths(
+							getPlayer(((Packet06Kill) packet).getVictim())
+									.getDeaths() + 1);
+			System.out.println("[" + address.getHostAddress() + ":" + port
+					+ "] " + ((Packet06Kill) packet).getMurderer()
+					+ " has killed " + ((Packet06Kill) packet).getVictim());
+			if (game instanceof GameDeathmatchMP) {
+				if (((GameDeathmatchMP) game).getFirstPlaceName() == null
+						|| ((GameDeathmatchMP) game).getFirstPlaceKills() < getPlayer(
+								((Packet06Kill) packet).getMurderer())
+								.getKills()) {
+					((GameDeathmatchMP) game).setFirstPlaceKills(getPlayer(
+							((Packet06Kill) packet).getMurderer()).getKills());
+					((GameDeathmatchMP) game)
+							.setFirstPlaceName(((Packet06Kill) packet)
+									.getMurderer());
+				}
+			}
+			break;
+		case ENDGAME:
+			packet = new Packet07Endgame(data);
+			System.out.println(((Packet07Endgame) packet).getWinner()
+					+ " is the winner with a score of "
+					+ ((Packet07Endgame) packet).getScore() + "!");
+			game.setVisible(false);
+			game.getFrame().remove(game);
+			game.getTimer().cancel();
+			game.setRunning(false);
+			if (game.getSocketServer() != null) {
+				game.getSocketServer().getSocket().close();
+				game.getSocketServer().stop();
+				game.getFrame().add(
+						new GameLobbyMenu(game.getFrame(), game
+								.getUserName()));
+			} else {
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				game.getFrame().add(
+						new GameLobbyMenu(game.getFrame(), game
+								.getSocketClient().getIP().getHostAddress(),
+								game.getUserName()));
+			}
+			game.getFrame().repaint();
+			stop();
+			break;
+		case GAMELOBBYTIME:
+			packet = new Packet11GameLobbyTime(data);
+			game.setLobbyTime(((Packet11GameLobbyTime) packet).getSeconds());
 			break;
 		}
 	}
@@ -79,14 +191,29 @@ public class GameClient extends Thread {
 		System.out.println("[" + address.getHostAddress() + ":" + port + "] "
 				+ packet.getName() + " has joined the game...");
 		Player player = null;
-		if (packet.getRace() == "human")
-			player = new Human(game, address, port);
-		if (packet.getRace().equals("cyborg") && packet.getColor().equals(""))
+		if (packet.getRace().equalsIgnoreCase("human"))
+			player = new Human(game, packet.getName(), address, port);
+		else if (packet.getRace().equalsIgnoreCase("cyborg")
+				&& packet.getColor().equalsIgnoreCase(" "))
 			player = new Cyborg(game, packet.getName(), -1, address, port);
-		if (packet.getRace().equals("cyborg") && !packet.getColor().equals(""))
+		else if (packet.getRace().equalsIgnoreCase("cyborg")
+				&& !packet.getColor().equalsIgnoreCase(" "))
 			player = new Cyborg(game, packet.getColor(), packet.getName(),
 					address, port);
+		else
+			player = new Human(game, packet.getName(), address, port);
+		if (packet.getWeapon().equalsIgnoreCase("sword"))
+			player.setInHand(new Sword(player));
+		else
+			player.setInHand(new Sword(player));
 		game.getPlayers().add(player);
+	}
+
+	public Player getPlayer(String name) {
+		for (Player player : game.getPlayers())
+			if (player.getName().equalsIgnoreCase(name))
+				return player;
+		return null;
 	}
 
 	public Game getGame() {

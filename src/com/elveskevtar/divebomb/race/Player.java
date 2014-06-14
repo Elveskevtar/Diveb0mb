@@ -1,5 +1,6 @@
 package com.elveskevtar.divebomb.race;
 
+import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -15,6 +16,38 @@ import com.elveskevtar.divebomb.gfx.Game;
 import com.elveskevtar.divebomb.weapons.Weapon;
 
 public abstract class Player {
+
+	private static String[] humanFiles = {"res/img/human_male.png"};
+	private static String[] cyborgFiles = {"res/img/cyborg_blue.png", "res/img/cyborg_purple.png"};
+	private static Color[] cyborgColors = {Color.BLUE, new Color(76, 0, 153)};
+	
+	public static enum PlayerTypes {
+		HUMAN(humanFiles, null), CYBORG(cyborgFiles, cyborgColors);
+
+		private String[] files;
+		private Color[] colors;
+		
+		PlayerTypes(String[] files, Color[] colors) {
+			this.setFiles(files);
+			this.setColors(colors);
+		}
+
+		public String[] getFiles() {
+			return files;
+		}
+
+		public void setFiles(String[] files) {
+			this.files = files;
+		}
+
+		public Color[] getColors() {
+			return colors;
+		}
+
+		public void setColors(Color[] colors) {
+			this.colors = colors;
+		}
+	}
 
 	private Timer timer;
 	private BufferedImage playerSpriteSheet;
@@ -63,10 +96,12 @@ public abstract class Player {
 	private int team;
 	private int level;
 	private int port;
+	private int kills;
+	private int deaths;
 
 	public Player(Game game, InetAddress ip, int port) {
 		this.game = game;
-		this.setName("Bob");
+		this.name = "Bob";
 		this.ip = ip;
 		this.port = port;
 		this.timer = new Timer();
@@ -92,13 +127,13 @@ public abstract class Player {
 
 	public Player(Game game, String name, InetAddress ip, int port) {
 		this.game = game;
-		this.setName(name);
+		this.name = name;
 		this.ip = ip;
 		this.port = port;
 		this.timer = new Timer();
 		try {
 			this.playerSpriteSheet = ImageIO
-					.read(new File("res/img/Player.png"));
+					.read(new File("res/img/player.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -523,6 +558,22 @@ public abstract class Player {
 
 	public void setColor(String color) {
 		this.color = color;
+	}
+
+	public int getKills() {
+		return kills;
+	}
+
+	public void setKills(int kills) {
+		this.kills = kills;
+	}
+
+	public int getDeaths() {
+		return deaths;
+	}
+
+	public void setDeaths(int deaths) {
+		this.deaths = deaths;
 	}
 
 	private class StaminaRegen extends TimerTask {

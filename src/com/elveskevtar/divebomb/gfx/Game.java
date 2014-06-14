@@ -16,12 +16,14 @@ import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import javax.swing.JOptionPane;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import com.elveskevtar.divebomb.maps.Map;
 import com.elveskevtar.divebomb.net.GameClient;
 import com.elveskevtar.divebomb.net.GameServer;
+import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
+import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -30,18 +32,35 @@ import com.elveskevtar.divebomb.weapons.Sword;
 public abstract class Game extends JPanel implements KeyListener,
 		MouseListener, MouseMotionListener {
 
+	public static enum GameTypes {
+		DEATHMATCH(00), DEATHMATCHMP(01);
+
+		private int gameID;
+
+		private GameTypes(int gameID) {
+			this.gameID = gameID;
+		}
+
+		public int getID() {
+			return gameID;
+		}
+	}
+
 	private static final long serialVersionUID = 8757407166624267693L;
 	private boolean hosting;
-	private boolean started;
+	private boolean running;
 	private int speed = 16;
 	private int state;
 	private int zoom;
 	private int playerSize;
+	private int gameID;
+	private int lobbyTime;
 
 	private ArrayList<Rectangle> collisionRecs;
 	private ArrayList<Player> players;
 	private ArrayList<Integer> keys;
 
+	private JFrame frame;
 	private BufferedImage map;
 	private BufferedImage collisionMap;
 	private GameServer socketServer;
@@ -55,14 +74,7 @@ public abstract class Game extends JPanel implements KeyListener,
 	private String userColor;
 	private String serverIP;
 
-	/*
-	 * This is the main constructor; it sets all of the JFrame options, adds
-	 * players, initializes the collision map, loads the map images, and calls
-	 * the setTimers() method; this will likely change A LOT when we start to
-	 * implement different game modes; THIS CONSTRUCTOR IS FOR A FULLSCREEN
-	 * WINDOW
-	 */
-	public Game() {
+	public Game(int gameID, JFrame frame) {
 		super();
 		this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 		this.setDoubleBuffered(true);
@@ -70,41 +82,21 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setBackground(new Color(0, 0, 0));
 		this.players = new ArrayList<Player>();
 		this.timer = new Timer();
+		this.setGameID(gameID);
+		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
 		this.zoom = 2;
-		this.userName = JOptionPane.showInputDialog(this,
-				"Enter your username:");
-		this.userRace = JOptionPane
-				.showInputDialog(this,
-						"Enter what type of race you would like to be (human or cyborg):");
-		this.userColor = JOptionPane.showInputDialog(this,
-				"Enter what color you would like to be (cyborgs only):");
-		if (userRace.equalsIgnoreCase("human"))
-			user = new Human(this, userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg")
-				&& userColor.equalsIgnoreCase("purple"))
-			user = new Cyborg(this, "purple", userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg")
-				&& userColor.equalsIgnoreCase("blue"))
-			user = new Cyborg(this, "blue", userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg"))
-			user = new Cyborg(this, userName, -1, null, -1);
-		else
-			user = new Human(this, userName, null, -1);
-		if (userColor.equals(""))
-			setUserColor("a");
+		this.setFrame(frame);
+		this.userName = "Bob";
+		this.userRace = "human";
+		this.userColor = "";
+		this.updatePlayer();
 		this.user.setInHand(new Sword(user));
+		if (userColor.equalsIgnoreCase(""))
+			setUserColor(" ");
 	}
 
-	/*
-	 * This is the main constructor; it sets all of the JFrame options, adds
-	 * players, initializes the collision map, loads the map images, and calls
-	 * the setTimers() method; this will likely change A LOT when we start to
-	 * implement different game modes; THIS CONSTRUCTOR IS FOR A NON-FULLSCREEN
-	 * WINDOW AND I HAVE NOT CODED FOR TRANSLATION SO DEPENDING ON THE SIZE IT
-	 * MAY LOOK A BIT STRANGE
-	 */
-	public Game(int width, int height) {
+	public Game(int gameID, int width, int height, JFrame frame) {
 		super();
 		this.setSize(width, height);
 		this.setDoubleBuffered(true);
@@ -112,22 +104,21 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setBackground(new Color(0, 0, 0));
 		this.players = new ArrayList<Player>();
 		this.timer = new Timer();
+		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
 		this.zoom = 2;
-		this.userName = JOptionPane.showInputDialog(this,
-				"Enter your username:");
-		this.userRace = JOptionPane
-				.showInputDialog(this,
-						"Enter what type of race you would like to be (human or cyborg):");
-		this.userColor = JOptionPane.showInputDialog(this,
-				"Enter what color you would like to be (cyborgs only):");
-		if (JOptionPane.showConfirmDialog(this,
-				"Do you want to host the server?") == 0) {
-			socketServer = new GameServer(this);
-			socketServer.start();
-			hosting = true;
-		}
+		this.setFrame(frame);
+		this.userName = "Bob";
+		this.userRace = "human";
+		this.userColor = "";
+		this.updatePlayer();
+		this.user.setInHand(new Sword(user));
+		if (userColor.equalsIgnoreCase(""))
+			setUserColor(" ");
+	}
+
+	public void updatePlayer() {
 		if (userRace.equalsIgnoreCase("human"))
 			user = new Human(this, userName, null, -1);
 		else if (userRace.equalsIgnoreCase("cyborg")
@@ -140,23 +131,17 @@ public abstract class Game extends JPanel implements KeyListener,
 			user = new Cyborg(this, userName, -1, null, -1);
 		else
 			user = new Human(this, userName, null, -1);
-		this.user.setInHand(new Sword(user));
 	}
 
-	/*
-	 * This is a special setter method I made to set the timers for the
-	 * subclasses in this class; all of them are currently set to run about 60
-	 * times per second and this method is called in the last statement of both
-	 * constructors
-	 */
 	public void setTimers() {
+		this.timer = new Timer();
 		this.timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Repaint(), 0, speed);
 		this.timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Input(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
 		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
-		this.started = true;
+		this.running = true;
 	}
 
 	public void startGame(Map map) {
@@ -172,14 +157,12 @@ public abstract class Game extends JPanel implements KeyListener,
 			}
 		}
 		this.addKeyListener(this);
+		this.requestFocusInWindow();
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		setTimers();
 	}
 
-	/*
-	 * These are just some regular variable getters/setters; nothing to fancy
-	 */
 	public Timer getTimer() {
 		return timer;
 	}
@@ -212,29 +195,34 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.user = user;
 	}
 
-	/*
-	 * This is a method that is part of the JPanel class and I have enabled it
-	 * to run certain methods depending on the state variable (currently only
-	 * the paintGame(Graphics g) method) but this will be useful when we want to
-	 * add things like a pause menu
-	 */
+	public BufferedImage getMap() {
+		return map;
+	}
+
+	public void setMap(BufferedImage map) {
+		this.map = map;
+	}
+
+	public BufferedImage getCollisionMap() {
+		return collisionMap;
+	}
+
+	public void setCollisionMap(BufferedImage collisionMap) {
+		this.collisionMap = collisionMap;
+	}
+
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-		if (started) {
+		if (running) {
 			if (state == 0)
 				paintGame(g);
 		}
 	}
 
-	/*
-	 * This is the main method for graphics update; it gets called about 60
-	 * times per second to enable a steady frame rate (it draws all of the GUI
-	 * including the HUD)
-	 */
 	public void paintGame(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		font = new Font("Arial Black", 10, 10);
+		font = new Font("Arial Black", Font.PLAIN, 10);
 		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight()
 				* (0.5 * zoom - 0.5));
 		g2d.scale(zoom, zoom);
@@ -243,25 +231,28 @@ public abstract class Game extends JPanel implements KeyListener,
 		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2),
 				(int) (user.getyPosition() + getHeight() / 2), null);
 		for (Player p : players) {
-			if (p != user) {
-				if (!p.isDead()) {
-					g2d.drawImage(p.getPlayerSprite(),
-							(int) (getWidth() / 2 + (user.getxPosition() - p
-									.getxPosition())),
-							(int) (getHeight() / 2 + (user.getyPosition() - p
-									.getyPosition())), null);
-					g2d.drawImage(p.getInHand().getSprite(), getWidth() / 2
-							+ (int) (user.getxPosition() - p.getxPosition())
-							+ p.getWeaponXTweak()
-							+ p.getInHand().getxAdjustment(), getHeight() / 2
-							+ (int) (user.getyPosition() - p.getyPosition())
-							+ p.getWeaponYTweak()
-							+ p.getInHand().getyAdjustment(), null);
-					g2d.drawString(p.getName(), (int) (getWidth() / 2 + (user
-							.getxPosition() - p.getxPosition())),
-							(int) (getHeight() / 2 + (user.getyPosition() - p
-									.getyPosition())) - 10);
-				}
+			if (p != user && !p.isDead()) {
+				g2d.drawImage(p.getPlayerSprite(),
+						(int) (getWidth() / 2 + (user.getxPosition() - p
+								.getxPosition())),
+						(int) (getHeight() / 2 + (user.getyPosition() - p
+								.getyPosition())), null);
+				g2d.drawImage(
+						p.getInHand().getSprite(),
+						getWidth()
+								/ 2
+								+ (int) (user.getxPosition() - p.getxPosition())
+								+ p.getWeaponXTweak()
+								+ p.getInHand().getxAdjustment(),
+						getHeight()
+								/ 2
+								+ (int) (user.getyPosition() - p.getyPosition())
+								+ p.getWeaponYTweak()
+								+ p.getInHand().getyAdjustment(), null);
+				g2d.drawString(p.getName(), (int) (getWidth() / 2 + (user
+						.getxPosition() - p.getxPosition())),
+						(int) (getHeight() / 2 + (user.getyPosition() - p
+								.getyPosition())) - 10);
 			}
 		}
 		if (!user.isDead()) {
@@ -275,77 +266,39 @@ public abstract class Game extends JPanel implements KeyListener,
 							+ user.getWeaponYTweak(), null);
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
 		}
-		g2d.setColor(new Color(0, 0, 255));
-		/*
-		 * g2d.drawString("X: " + -user.getxPosition(), getWidth() / 2 - 475,
-		 * getHeight() / 2 - 250); g2d.drawString("Y: " + -user.getyPosition(),
-		 * getWidth() / 2 - 475, getHeight() / 2 - 240);
-		 * g2d.drawString("Health: " + user.getHealth(), getWidth() / 2 - 475,
-		 * getHeight() / 2 - 230); g2d.drawString("Stamina: " +
-		 * user.getStamina(), getWidth() / 2 - 475, getHeight() / 2 - 220);
-		 * g2d.drawString("X Velocity: " + -user.getVeloX(), getWidth() / 2 -
-		 * 475, getHeight() / 2 - 210); g2d.drawString("Y Velocity: " +
-		 * user.getVeloY(), getWidth() / 2 - 475, getHeight() / 2 - 200);
-		 */
 	}
 
-	/*
-	 * This method is part of the KeyListener interface and I am using it to
-	 * track when keys like W, A, S, D are pressed so I can enable user input
-	 */
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (!keys.contains(e.getKeyCode()))
 			keys.add(e.getKeyCode());
 	}
 
-	/*
-	 * This method is part of the KeyListener interface and I am using it to
-	 * track when keys like W, A, S, D are released so I can enable user input
-	 */
 	@Override
 	public void keyReleased(KeyEvent e) {
 		keys.remove((Integer) e.getKeyCode());
 	}
 
-	/*
-	 * This method is part of the KeyListener interface and it works a bit
-	 * differently from the KeyPressed(KeyEvent e) method because every
-	 * millisecond you hold a key down the keyPressed method will be invoked
-	 * however only every time you type a key will the keyTyped method be
-	 * invoked so I am using it to change the speed of the game
-	 */
 	@Override
 	public void keyTyped(KeyEvent e) {
 		if (keys.contains(KeyEvent.VK_COMMA) && speed - 50 >= 1) {
 			timer.cancel();
-			timer = new Timer();
 			speed -= 50;
 			setTimers();
 		}
 		if (keys.contains(KeyEvent.VK_PERIOD)) {
 			timer.cancel();
-			timer = new Timer();
 			speed += 50;
 			setTimers();
 		}
 	}
 
-	/*
-	 * This method is part of the MouseListener interface and all it does is
-	 * call the attack method of the weapon in the users hand
-	 */
 	@Override
 	public void mousePressed(MouseEvent e) {
-		user.getInHand().attack(players);
+		if (!user.isDead())
+			user.getInHand().attack(players, false);
 	}
 
-	/*
-	 * This method is part of the MouseMotionListener interface and I am using
-	 * it to track which side of the screen the mouse is on (left or right) and
-	 * I have implemented it to change which way the character is facing while
-	 * he moves (the graphics have not been made to support this yet however
-	 */
 	@Override
 	public void mouseMoved(MouseEvent e) {
 		if (e.getX() > getWidth() / 2 + 16) {
@@ -355,14 +308,9 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
-	/*
-	 * All of these empty methods are part of the
-	 * KeyListener/MouseListener/MouseMotionListener interfaces which I have
-	 * implemented but I will likely not get to coding most of these until
-	 * weapons will start to be coded
-	 */
 	@Override
 	public void mouseClicked(MouseEvent e) {
+
 	}
 
 	@Override
@@ -399,6 +347,10 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setGraphicsMap(Map graphicsMap) {
 		this.graphicsMap = graphicsMap;
+	}
+
+	public void setCollisionMap(Map collisionMap) {
+
 	}
 
 	public int getPlayerSize() {
@@ -457,12 +409,12 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.userColor = userColor;
 	}
 
-	public boolean isStarted() {
-		return started;
+	public boolean isRunning() {
+		return running;
 	}
 
-	public void setStarted(boolean started) {
-		this.started = started;
+	public void setRunning(boolean running) {
+		this.running = running;
 	}
 
 	public String getServerIP() {
@@ -473,55 +425,70 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.serverIP = serverIP;
 	}
 
+	public int getGameID() {
+		return gameID;
+	}
+
+	public void setGameID(int gameID) {
+		this.gameID = gameID;
+	}
+
+	public int getLobbyTime() {
+		return lobbyTime;
+	}
+
+	public void setLobbyTime(int lobbyTime) {
+		this.lobbyTime = lobbyTime;
+	}
+
+	public JFrame getFrame() {
+		return frame;
+	}
+
+	public void setFrame(JFrame frame) {
+		this.frame = frame;
+	}
+
 	private class PlayerWeapons extends TimerTask {
 
 		@Override
 		public void run() {
 			for (Player p : players) {
-				boolean change = false;
-				if (!p.isMovingRight()) {
-					if (p.getInHand().getSpriteY() != 0)
-						change = true;
+				if (!p.isFacingRight()) {
 					p.getInHand().setSpriteY(0);
 				} else {
 					if (p.getInHand().getSpriteY() != 1)
-						change = true;
-					p.getInHand().setSpriteY(1);
+						p.getInHand().setSpriteY(1);
 				}
-				if (change) {
-					p.getInHand()
-							.setSprite(
-									p.getInHand()
-											.getImage()
-											.getSubimage(
-													p.getInHand().getSpriteX()
-															* p.getInHand()
-																	.getWidth(),
-													p.getInHand().getSpriteY()
-															* p.getInHand()
-																	.getHeight(),
-													p.getInHand().getWidth(),
-													p.getInHand().getHeight()));
-					if (p.isMovingRight()) {
-						p.getInHand().setxAdjustment(
-								p.getInHand().getHoldingRightX());
-						p.getInHand().setyAdjustment(
-								p.getInHand().getHoldingRightY());
-					} else {
-						p.getInHand().setxAdjustment(
-								p.getInHand().getHoldingLeftX());
-						p.getInHand().setyAdjustment(
-								p.getInHand().getHoldingLeftY());
-					}
+				p.getInHand().setSprite(
+						p.getInHand()
+								.getImage()
+								.getSubimage(
+										p.getInHand().getSpriteX()
+												* p.getInHand().getWidth(),
+										p.getInHand().getSpriteY()
+												* p.getInHand().getHeight(),
+										p.getInHand().getWidth(),
+										p.getInHand().getHeight()));
+				if (p.isFacingRight()) {
+					p.getInHand().setxAdjustment(
+							p.getInHand().getHoldingRightX());
+					p.getInHand().setyAdjustment(
+							p.getInHand().getHoldingRightY());
+				} else {
+					p.getInHand().setxAdjustment(
+							p.getInHand().getHoldingLeftX());
+					p.getInHand().setyAdjustment(
+							p.getInHand().getHoldingLeftY());
 				}
-				if (!p.isWalking() && !p.isRunning() && p.isMovingRight()) {
+				if (!p.isWalking() && !p.isRunning() && p.isFacingRight()) {
 					p.setWeaponXTweak(p.getStandingRightHandX());
 					p.setWeaponYTweak(p.getStandingRightHandY());
 				} else if (!p.isWalking() && !p.isRunning()) {
 					p.setWeaponXTweak(p.getStandingLeftHandX());
 					p.setWeaponYTweak(p.getStandingLeftHandY());
 				} else if ((p.isWalking() || p.isRunning())
-						&& p.isMovingRight()) {
+						&& p.isFacingRight()) {
 					p.setWeaponXTweak(p.getWalkingRightHandX());
 					p.setWeaponYTweak(p.getWalkingRightHandY());
 				} else if ((p.isWalking() || p.isRunning())) {
@@ -532,16 +499,26 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
-	/*
-	 * This is the subclass that is responsible for using all of the input
-	 * values from the 'keys' array list to move the user around
-	 */
 	private class Input extends TimerTask {
 
 		@Override
 		public void run() {
-			if (keys.contains(KeyEvent.VK_ESCAPE))
+			if (keys.contains(KeyEvent.VK_ESCAPE)) {
+				if (!hosting && socketClient != null) {
+					Packet01Disconnect packet = new Packet01Disconnect(
+							user.getName());
+					packet.writeData(socketClient);
+				}
 				System.exit(0);
+			}
+			if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
+				zoom++;
+				keys.remove((Integer) KeyEvent.VK_EQUALS);
+			}
+			if (keys.contains(KeyEvent.VK_MINUS) && zoom > 1) {
+				zoom--;
+				keys.remove((Integer) KeyEvent.VK_MINUS);
+			}
 			if (keys.contains(KeyEvent.VK_D)
 					&& !keys.contains(KeyEvent.VK_SHIFT)
 					|| keys.contains(KeyEvent.VK_D)
@@ -616,13 +593,24 @@ public abstract class Game extends JPanel implements KeyListener,
 					&& !user.isJumping()
 					&& !user.isFalling())
 				user.setVeloY(user.getInitJumpSpeed());
-			if (keys.contains(KeyEvent.VK_T))
+			if (keys.contains(KeyEvent.VK_T) && !user.isDead()) {
 				user.setHealth(0);
+				if (socketClient != null) {
+					Packet05Health packet = new Packet05Health(user.getName(),
+							user.getHealth());
+					packet.writeData(socketClient);
+				}
+			}
 			if (keys.contains(KeyEvent.VK_R) && user.isDead()) {
 				user.setxPosition(-160);
 				user.setyPosition(-1056);
 				user.setHealth(user.getMaxHealth());
 				user.setDead(false);
+				if (socketClient != null) {
+					Packet05Health packet = new Packet05Health(user.getName(),
+							user.getHealth());
+					packet.writeData(socketClient);
+				}
 			}
 			if (!keys.contains(KeyEvent.VK_A) && !keys.contains(KeyEvent.VK_D)) {
 				user.setWalking(false);
@@ -632,11 +620,6 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
-	/*
-	 * This is the subclass that involves animating the players by using a
-	 * counter and then setting the X and Y for finding the sprite in the sprite
-	 * sheet
-	 */
 	private class AnimatePlayers extends TimerTask {
 
 		int t = 0;
@@ -660,8 +643,8 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && p.isMovingRight() && p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(0);
-				} else if (p.isRunning() && p.getVeloX() != 0
-						&& p.isMovingRight() && p.isFacingRight()) {
+				} else if (p.isRunning() && p.isMovingRight()
+						&& p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(0);
 				} else if (p.isMovingRight() && p.isFacingRight()) {
@@ -671,8 +654,8 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(2);
-				} else if (p.isRunning() && p.getVeloX() != 0
-						&& p.isMovingRight() && !p.isFacingRight()) {
+				} else if (p.isRunning() && p.isMovingRight()
+						&& !p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(2);
 				} else if (p.isMovingRight() && !p.isFacingRight()) {
@@ -682,8 +665,8 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && !p.isMovingRight() && p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(1);
-				} else if (p.isRunning() && p.getVeloX() != 0
-						&& !p.isMovingRight() && p.isFacingRight()) {
+				} else if (p.isRunning() && !p.isMovingRight()
+						&& p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(1);
 				} else if (!p.isMovingRight() && p.isFacingRight()) {
@@ -693,8 +676,8 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && !p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(3);
-				} else if (p.isRunning() && p.getVeloX() != 0
-						&& !p.isMovingRight() && !p.isFacingRight()) {
+				} else if (p.isRunning() && !p.isMovingRight()
+						&& !p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(3);
 				} else if (!p.isMovingRight() && !p.isFacingRight()) {
@@ -709,9 +692,6 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
-	/*
-	 * Checks aspects of stamina like running and eventually attacking
-	 */
 	private class Stamina extends TimerTask {
 
 		@Override
@@ -729,97 +709,164 @@ public abstract class Game extends JPanel implements KeyListener,
 					p.setStamina(p.getMaxStamina());
 				else if (p.getStamina() + 0.075 <= p.getMaxStamina())
 					p.setStamina(p.getStamina() + 0.05);
-				if (!p.isDead() && p.getHealth() <= 0) {
-					p.setHealth(0);
-					p.setDead(true);
-				}
 			}
 		}
 	}
 
-	/*
-	 * This is the subclass that gets all of the players velocities and checks
-	 * for collisions and finally moves the players accordingly; it also
-	 * controls running stamina usage and regeneration
-	 */
 	private class MovePlayers extends TimerTask {
 
 		@Override
 		public void run() {
-			for (Player p : players) {
-				if (p.getVeloX() < 0 && !p.checkCollisions().contains(2)
-						&& !p.isDead())
-					p.setxPosition(p.getxPosition() + p.getVeloX());
-				if (p.getVeloX() > 0 && !p.checkCollisions().contains(1)
-						&& !p.isDead())
-					p.setxPosition(p.getxPosition() + p.getVeloX());
-				if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)
-						&& !p.isDead())
-					p.setyPosition(p.getyPosition() + p.getVeloY());
-				else if (p.getVeloY() > 0 && !p.isDead()) {
+			if (socketClient == null) {
+				for (Player p : players) {
+					if (p.getVeloX() < 0 && !p.checkCollisions().contains(2)
+							&& !p.isDead())
+						p.setxPosition(p.getxPosition() + p.getVeloX());
+					if (p.getVeloX() > 0 && !p.checkCollisions().contains(1)
+							&& !p.isDead())
+						p.setxPosition(p.getxPosition() + p.getVeloX());
+					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)
+							&& !p.isDead())
+						p.setyPosition(p.getyPosition() + p.getVeloY());
+					else if (p.getVeloY() > 0 && !p.isDead()) {
+						int h = 0;
+						outerloop: for (Rectangle r : getCollisionRecs()) {
+							h = 0;
+							while (!new Rectangle(p.getBounds().x,
+									p.getBounds().y - h + (64 - p.getHeight()),
+									p.getBounds().width, p.getBounds().height)
+									.intersects(r)) {
+								if (h > p.getVeloY())
+									continue outerloop;
+								h++;
+							}
+							break;
+						}
+						p.setyPosition(p.getyPosition() + h - 1);
+						p.setVeloY(-0.5);
+					}
+					if (p.getVeloY() < 0 && !p.checkCollisions().contains(4)
+							&& !p.isDead())
+						p.setyPosition(p.getyPosition() + p.getVeloY());
+					else if (p.getVeloY() < 0 && !p.isDead()) {
+						int h = 0;
+						outerloop: for (Rectangle r : getCollisionRecs()) {
+							h = 0;
+							while (!new Rectangle(p.getBounds().x,
+									p.getBounds().y - h, p.getBounds().width,
+									p.getBounds().height).intersects(r)) {
+								if (h < p.getVeloY())
+									continue outerloop;
+								h--;
+							}
+							break;
+						}
+						p.setyPosition(p.getyPosition() + h + 1);
+						p.setVeloY(0);
+					}
+					if (p.getVeloY() == 0) {
+						p.setJumping(false);
+						p.setFalling(false);
+					} else if (p.getVeloY() > 0
+							&& !p.checkCollisions().contains(3)) {
+						p.setJumping(true);
+						p.setFalling(false);
+						p.setVeloY(p.getVeloY() / 1.1);
+					} else if (p.getVeloY() < 0 && p.getVeloY() >= -14) {
+						p.setJumping(false);
+						p.setFalling(true);
+						p.setVeloY(p.getVeloY() * 1.09);
+					} else {
+						p.setJumping(false);
+						p.setFalling(true);
+					}
+					if (p.getVeloY() > 0 && p.getVeloY() < 1)
+						p.setVeloY(-0.5);
+					if (p.canFall() && !p.isFalling() && !p.isJumping()
+							&& !p.checkCollisions().contains(4) && !p.isDead())
+						p.setVeloY(-0.5);
+				}
+			} else {
+				if (user.getVeloX() < 0 && !user.checkCollisions().contains(2)
+						&& !user.isDead())
+					user.setxPosition(user.getxPosition() + user.getVeloX());
+				if (user.getVeloX() > 0 && !user.checkCollisions().contains(1)
+						&& !user.isDead())
+					user.setxPosition(user.getxPosition() + user.getVeloX());
+				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)
+						&& !user.isDead())
+					user.setyPosition(user.getyPosition() + user.getVeloY());
+				else if (user.getVeloY() > 0 && !user.isDead()) {
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
-						while (!new Rectangle(p.getBounds().x, p.getBounds().y
-								- h + (64 - p.getHeight()),
-								p.getBounds().width, p.getBounds().height)
+						while (!new Rectangle(user.getBounds().x,
+								user.getBounds().y - h
+										+ (64 - user.getHeight()),
+								user.getBounds().width, user.getBounds().height)
 								.intersects(r)) {
-							if (h > p.getVeloY())
+							if (h > user.getVeloY())
 								continue outerloop;
 							h++;
 						}
 						break;
 					}
-					p.setyPosition(p.getyPosition() + h - 1);
-					p.setVeloY(-0.5);
+					user.setyPosition(user.getyPosition() + h - 1);
+					user.setVeloY(-0.5);
 				}
-				if (p.getVeloY() < 0 && !p.checkCollisions().contains(4)
-						&& !p.isDead())
-					p.setyPosition(p.getyPosition() + p.getVeloY());
-				else if (p.getVeloY() < 0 && !p.isDead()) {
+				if (user.getVeloY() < 0 && !user.checkCollisions().contains(4)
+						&& !user.isDead())
+					user.setyPosition(user.getyPosition() + user.getVeloY());
+				else if (user.getVeloY() < 0 && !user.isDead()) {
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
-						while (!new Rectangle(p.getBounds().x, p.getBounds().y
-								- h, p.getBounds().width, p.getBounds().height)
-								.intersects(r)) {
-							if (h < p.getVeloY())
+						while (!new Rectangle(user.getBounds().x,
+								user.getBounds().y - h, user.getBounds().width,
+								user.getBounds().height).intersects(r)) {
+							if (h < user.getVeloY())
 								continue outerloop;
 							h--;
 						}
 						break;
 					}
-					p.setyPosition(p.getyPosition() + h + 1);
-					p.setVeloY(0);
+					user.setyPosition(user.getyPosition() + h + 1);
+					user.setVeloY(0);
 				}
-				if (p.getVeloY() == 0) {
-					p.setJumping(false);
-					p.setFalling(false);
-				} else if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)) {
-					p.setJumping(true);
-					p.setFalling(false);
-					p.setVeloY(p.getVeloY() / 1.1);
-				} else if (p.getVeloY() < 0 && p.getVeloY() >= -14) {
-					p.setJumping(false);
-					p.setFalling(true);
-					p.setVeloY(p.getVeloY() * 1.09);
+				if (user.getVeloY() == 0) {
+					user.setJumping(false);
+					user.setFalling(false);
+				} else if (user.getVeloY() > 0
+						&& !user.checkCollisions().contains(3)) {
+					user.setJumping(true);
+					user.setFalling(false);
+					user.setVeloY(user.getVeloY() / 1.1);
+				} else if (user.getVeloY() < 0 && user.getVeloY() >= -14) {
+					user.setJumping(false);
+					user.setFalling(true);
+					user.setVeloY(user.getVeloY() * 1.09);
 				} else {
-					p.setJumping(false);
-					p.setFalling(true);
+					user.setJumping(false);
+					user.setFalling(true);
 				}
-				if (p.getVeloY() > 0 && p.getVeloY() < 1)
-					p.setVeloY(-0.5);
-				if (p.canFall() && !p.isFalling() && !p.isJumping()
-						&& !p.checkCollisions().contains(4) && !p.isDead())
-					p.setVeloY(-0.5);
+				if (user.getVeloY() > 0 && user.getVeloY() < 1)
+					user.setVeloY(-0.5);
+				if (user.canFall() && !user.isFalling() && !user.isJumping()
+						&& !user.checkCollisions().contains(4)
+						&& !user.isDead())
+					user.setVeloY(-0.5);
+			}
+			for (Player p : players) {
+				if (!p.isDead() && p.getHealth() <= 0) {
+					p.setHealth(0);
+					p.setDead(true);
+				} else if (p.isDead() && p.getHealth() > 0) {
+					p.setDead(false);
+				}
 			}
 		}
 	}
 
-	/*
-	 * This is the subclass that is involved in calling the update method for
-	 * the GUI
-	 */
 	private class Repaint extends TimerTask {
 
 		@Override

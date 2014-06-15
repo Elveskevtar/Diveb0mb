@@ -162,7 +162,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 			raceSelectionPointer--;
 			repaint();
 		}
-		System.out.println("K");
 	}
 
 	@Override

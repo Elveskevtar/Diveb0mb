@@ -33,6 +33,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		this.frame = frame;
 		this.setLayout(null);
 		this.setSize(frame.getWidth(), frame.getHeight());
+		this.setFocusable(true);
+		this.addKeyListener(this);
 		this.game = new GameDeathmatchMP("res/img/Map.png",
 				"res/img/CollisionMap.png", 0, frame, username);
 		this.game.setLobbyTime(-1);
@@ -50,7 +52,10 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 	public GameLobbyMenu(JFrame frame, String ip, String username) {
 		this.frame = frame;
 		this.ip = ip;
+		this.setLayout(null);
 		this.setSize(frame.getWidth(), frame.getHeight());
+		this.setFocusable(true);
+		this.addKeyListener(this);
 		this.game = new GameDeathmatchMP(ip, frame, username);
 		this.game.setLobbyTime(-1);
 		this.game.getUser().setName(username);
@@ -83,7 +88,18 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 			e.printStackTrace();
 		}
 		for (BufferedImage race : races) {
-			g2d.drawImage(race, getWidth() / 2 , arg2, getWidth() / 4, getWidth() / 2, 0, 0, 32, 64, null);
+			g2d.drawImage(
+					race,
+					(int) ((getWidth() / 2 - getWidth() / 8) + (races
+							.indexOf(race) - raceSelectionPointer)
+							* 1.5
+							* (getWidth() / 4)),
+					getHeight() / 8,
+					(int) ((getWidth() / 2 + getWidth() / 8) + (races
+							.indexOf(race) - raceSelectionPointer)
+							* 1.5
+							* (getWidth() / 4)), getHeight() * 7 / 8, 0, 0, 32,
+					67, null);
 		}
 		if (game.getLobbyTime() == 0)
 			initGame();
@@ -136,10 +152,17 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 
 	@Override
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_D
-				|| e.getKeyCode() == KeyEvent.VK_RIGHT) {
-
+		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
+				&& raceSelectionPointer < PlayerTypes.values().length - 1) {
+			raceSelectionPointer++;
+			repaint();
 		}
+		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
+				&& raceSelectionPointer > 0) {
+			raceSelectionPointer--;
+			repaint();
+		}
+		System.out.println("K");
 	}
 
 	@Override

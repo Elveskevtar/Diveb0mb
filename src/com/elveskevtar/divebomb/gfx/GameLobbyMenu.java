@@ -22,6 +22,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 
 	private static final long serialVersionUID = -3823209600661844336L;
 	private int raceSelectionPointer;
+	private int xOffSet;
+	private int yOffset;
 
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
 	private JFrame frame;
@@ -103,6 +105,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		}
 		if (game.getLobbyTime() == 0)
 			initGame();
+		requestFocusInWindow();
 		repaint();
 	}
 
@@ -154,19 +157,23 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 	public void keyPressed(KeyEvent e) {
 		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
 				&& raceSelectionPointer < PlayerTypes.values().length - 1) {
-			raceSelectionPointer++;
+			switchRaces(1);
 			repaint();
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
 				&& raceSelectionPointer > 0) {
-			raceSelectionPointer--;
+			switchRaces(-1);
 			repaint();
 		}
+	}
+	
+	public void switchRaces(int sign) {
+		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-
+		
 	}
 
 	@Override
@@ -188,5 +195,21 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 
 	public void setRaces(ArrayList<BufferedImage> races) {
 		this.races = races;
+	}
+
+	public int getxOffSet() {
+		return xOffSet;
+	}
+
+	public void setxOffSet(int xOffSet) {
+		this.xOffSet = xOffSet;
+	}
+
+	public int getyOffset() {
+		return yOffset;
+	}
+
+	public void setyOffset(int yOffset) {
+		this.yOffset = yOffset;
 	}
 }

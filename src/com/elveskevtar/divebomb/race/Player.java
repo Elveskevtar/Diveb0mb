@@ -22,14 +22,16 @@ public abstract class Player {
 	private static Color[] cyborgColors = {Color.BLUE, new Color(76, 0, 153)};
 	
 	public static enum PlayerTypes {
-		HUMAN(humanFiles, null), CYBORG(cyborgFiles, cyborgColors);
+		HUMAN(humanFiles, null, "human"), CYBORG(cyborgFiles, cyborgColors, "cyborg");
 
 		private String[] files;
 		private Color[] colors;
+		private String name;
 		
-		PlayerTypes(String[] files, Color[] colors) {
+		PlayerTypes(String[] files, Color[] colors, String name) {
 			this.setFiles(files);
 			this.setColors(colors);
+			this.setName(name);
 		}
 
 		public String[] getFiles() {
@@ -46,6 +48,14 @@ public abstract class Player {
 
 		public void setColors(Color[] colors) {
 			this.colors = colors;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
 		}
 	}
 

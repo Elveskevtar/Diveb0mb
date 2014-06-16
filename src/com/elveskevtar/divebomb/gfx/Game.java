@@ -149,18 +149,20 @@ public abstract class Game extends JPanel implements KeyListener,
 			this.map = map.getMap();
 		if (map.getCollisionMap() != null)
 			this.collisionMap = map.getCollisionMap();
-		this.players.add(user);
 		for (int x = 0; x <= collisionMap.getWidth() - 1; x++) {
 			for (int y = 0; y <= collisionMap.getHeight() - 1; y++) {
 				if (collisionMap.getRGB(x, y) != -16777216)
 					collisionRecs.add(new Rectangle(x * 8, y * 8, 8, 8));
 			}
 		}
+		this.updatePlayer();
+		this.user.setInHand(new Sword(user));
+		this.players.add(user);
 		this.addKeyListener(this);
-		this.requestFocusInWindow();
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		setTimers();
+		this.requestFocusInWindow();
+		this.setTimers();
 	}
 
 	public Timer getTimer() {

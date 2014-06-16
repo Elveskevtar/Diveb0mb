@@ -143,24 +143,24 @@ public class GameServer extends Thread {
 								address, port));
 			else if (((Packet10UpdateUserInfo) packet).getRace()
 					.equalsIgnoreCase("cyborg")
-					&& ((Packet00Login) packet).getColor()
+					&& ((Packet10UpdateUserInfo) packet).getColor()
 							.equalsIgnoreCase(" "))
 				connectedPlayers.set(
 						getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 								.getName()), new Cyborg(game,
-								((Packet00Login) packet).getName(), -1,
+								((Packet10UpdateUserInfo) packet).getName(), -1,
 								address, port));
-			else if (((Packet00Login) packet).getRace().equalsIgnoreCase(
+			else if (((Packet10UpdateUserInfo) packet).getRace().equalsIgnoreCase(
 					"cyborg")
-					&& !((Packet00Login) packet).getColor().equalsIgnoreCase(
+					&& !((Packet10UpdateUserInfo) packet).getColor().equalsIgnoreCase(
 							" "))
-				player = new Cyborg(game, ((Packet00Login) packet).getColor(),
-						((Packet00Login) packet).getName(), address, port);
+				player = new Cyborg(game, ((Packet10UpdateUserInfo) packet).getColor(),
+						((Packet10UpdateUserInfo) packet).getName(), address, port);
 			else
 				connectedPlayers.set(
 						getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 								.getName()), new Human(game,
-								((Packet00Login) packet).getName(), address,
+								((Packet10UpdateUserInfo) packet).getName(), address,
 								port));
 			if (((Packet10UpdateUserInfo) packet).getWeapon().equalsIgnoreCase(
 					"sword"))

@@ -246,6 +246,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 				raceSelectionPointer--;
 			}
 			switchRunning = false;
+			game.setUserRace(PlayerTypes.values()[raceSelectionPointer]
+					.getName());
 		}
 	}
 }

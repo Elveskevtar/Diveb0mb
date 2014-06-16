@@ -21,9 +21,9 @@ import com.elveskevtar.divebomb.race.Player.PlayerTypes;
 public class GameLobbyMenu extends JPanel implements KeyListener {
 
 	private static final long serialVersionUID = -3823209600661844336L;
+	private boolean switchRunning;
 	private int raceSelectionPointer;
 	private int xOffSet;
-	private int yOffset;
 
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
 	private JFrame frame;
@@ -34,6 +34,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 	public GameLobbyMenu(JFrame frame, String username) {
 		this.frame = frame;
 		this.setLayout(null);
+		this.setDoubleBuffered(true);
 		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setFocusable(true);
 		this.addKeyListener(this);
@@ -55,6 +56,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		this.frame = frame;
 		this.ip = ip;
 		this.setLayout(null);
+		this.setDoubleBuffered(true);
 		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setFocusable(true);
 		this.addKeyListener(this);
@@ -92,16 +94,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		for (BufferedImage race : races) {
 			g2d.drawImage(
 					race,
-					(int) ((getWidth() / 2 - getWidth() / 8) + (races
-							.indexOf(race) - raceSelectionPointer)
-							* 1.5
-							* (getWidth() / 4)),
+					(int) ((getWidth() / 2 - getWidth() / 8)
+							+ (races.indexOf(race) - raceSelectionPointer)
+							* 1.5 * (getWidth() / 4) + xOffSet),
 					getHeight() / 8,
-					(int) ((getWidth() / 2 + getWidth() / 8) + (races
-							.indexOf(race) - raceSelectionPointer)
-							* 1.5
-							* (getWidth() / 4)), getHeight() * 7 / 8, 0, 0, 32,
-					67, null);
+					(int) ((getWidth() / 2 + getWidth() / 8)
+							+ (races.indexOf(race) - raceSelectionPointer)
+							* 1.5 * (getWidth() / 4) + xOffSet),
+					getHeight() * 7 / 8, 0, 0, 32, 64, null);
 		}
 		if (game.getLobbyTime() == 0)
 			initGame();
@@ -156,24 +156,23 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
-				&& raceSelectionPointer < PlayerTypes.values().length - 1) {
-			switchRaces(1);
+				&& raceSelectionPointer < PlayerTypes.values().length - 1
+				&& !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchRace(1)).start();
 			repaint();
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
-				&& raceSelectionPointer > 0) {
-			switchRaces(-1);
+				&& raceSelectionPointer > 0 && !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchRace(-1)).start();
 			repaint();
 		}
-	}
-	
-	public void switchRaces(int sign) {
-		
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
-		
+
 	}
 
 	@Override
@@ -205,11 +204,48 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		this.xOffSet = xOffSet;
 	}
 
-	public int getyOffset() {
-		return yOffset;
+	public boolean isSwitchRunning() {
+		return switchRunning;
 	}
 
-	public void setyOffset(int yOffset) {
-		this.yOffset = yOffset;
+	public void setSwitchRunning(boolean switchRunning) {
+		this.switchRunning = switchRunning;
+	}
+
+	public class SwitchRace extends Thread {
+
+		private int sign;
+
+		public SwitchRace(int sign) {
+			this.sign = sign;
+		}
+
+		@Override
+		public void run() {
+			if (sign == 1) {
+				while (xOffSet > -1.5 * (getWidth() / 4)) {
+					xOffSet -= 5;
+					try {
+						Thread.sleep(1, 0);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				xOffSet = 0;
+				raceSelectionPointer++;
+			} else {
+				while (xOffSet < 1.5 * (getWidth() / 4)) {
+					xOffSet += 5;
+					try {
+						Thread.sleep(1, 0);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				xOffSet = 0;
+				raceSelectionPointer--;
+			}
+			switchRunning = false;
+		}
 	}
 }

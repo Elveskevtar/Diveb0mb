@@ -201,7 +201,6 @@ public class GameServer extends Thread {
 						game.getLobbyTime());
 				gameLobbyPacket.writeData(this);
 			}
-			
 			int size = connectedPlayers.size();
 			for (int i = 0; i < size; i++) {
 				byte[] updateData = new byte[1024];

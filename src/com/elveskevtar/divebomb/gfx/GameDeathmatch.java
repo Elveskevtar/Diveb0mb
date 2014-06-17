@@ -23,38 +23,6 @@ public class GameDeathmatch extends Game {
 	private Player player7;
 	private Player player8;
 
-	public GameDeathmatch(Map map, JFrame frame) {
-		super(00, frame);
-		this.player1 = getUser();
-		try {
-			this.player2 = new Cyborg(this, InetAddress.getLocalHost(), 6768);
-			this.player3 = new Cyborg(this, InetAddress.getLocalHost(), 6769);
-			this.player4 = new Cyborg(this, InetAddress.getLocalHost(), 6770);
-			this.player5 = new Cyborg(this, InetAddress.getLocalHost(), 6771);
-			this.player6 = new Cyborg(this, InetAddress.getLocalHost(), 6772);
-			this.player7 = new Cyborg(this, InetAddress.getLocalHost(), 6773);
-			this.player8 = new Cyborg(this, InetAddress.getLocalHost(), 6774);
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
-		this.player2.setInHand(new Sword(player2));
-		this.player3.setInHand(new Sword(player3));
-		this.player4.setInHand(new Sword(player4));
-		this.player5.setInHand(new Sword(player5));
-		this.player6.setInHand(new Sword(player6));
-		this.player7.setInHand(new Sword(player7));
-		this.player8.setInHand(new Sword(player8));
-		this.getPlayers().add(player2);
-		this.getPlayers().add(player3);
-		this.getPlayers().add(player4);
-		this.getPlayers().add(player5);
-		this.getPlayers().add(player6);
-		this.getPlayers().add(player7);
-		this.getPlayers().add(player8);
-		this.setPlayerSize(8);
-		this.startGame(map);
-	}
-
 	public GameDeathmatch(JFrame frame, Map map) {
 		super(00, frame.getWidth(), frame.getHeight(), frame);
 		this.player1 = getUser();

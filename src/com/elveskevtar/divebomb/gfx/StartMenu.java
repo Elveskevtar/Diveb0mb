@@ -7,6 +7,8 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.elveskevtar.divebomb.maps.Map;
+
 public class StartMenu extends JPanel {
 
 	private static final long serialVersionUID = -229487886910550057L;
@@ -67,7 +69,12 @@ public class StartMenu extends JPanel {
 	}
 
 	public void campaignAction() {
-		
+		setVisible(false);
+		getFrame().remove(this);
+		getFrame().add(
+				new GameDeathmatch(getFrame(), new Map("res/img/Map.png",
+						"res/img/CollisionMap.png", 0)));
+		getFrame().repaint();
 	}
 
 	public void multiplayerAction() {
@@ -78,7 +85,7 @@ public class StartMenu extends JPanel {
 	}
 
 	public void optionsAction() {
-		
+
 	}
 
 	public void exitAction() {

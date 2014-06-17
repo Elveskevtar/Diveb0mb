@@ -2,9 +2,9 @@ package com.elveskevtar.divebomb.weapons;
 
 import com.elveskevtar.divebomb.race.Player;
 
-public abstract class Projectile extends Weapon {
+public abstract class ProjectileShooters extends Weapon {
 
-	public Projectile(Player p) {
+	public ProjectileShooters(Player p) {
 		super(p);
 	}
 }

@@ -21,6 +21,7 @@ import com.elveskevtar.divebomb.net.packets.Packet04Attack;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
+import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
 import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
@@ -87,11 +88,11 @@ public class GameClient extends Thread {
 			game.setGraphicsMap(new Map(((Packet02Startgame) packet)
 					.getGraphicsMap(), ((Packet02Startgame) packet)
 					.getCollisionMap(), ((Packet02Startgame) packet).getMapID()));
+			game.startGame(game.getGraphicsMap());
 			game.getUser().setxPosition(
 					((Packet02Startgame) packet).getStartX());
 			game.getUser().setyPosition(
 					((Packet02Startgame) packet).getStartY());
-			game.startGame(game.getGraphicsMap());
 			break;
 		case MOVE:
 			packet = new Packet03Move(data);
@@ -155,8 +156,7 @@ public class GameClient extends Thread {
 				game.getSocketServer().getSocket().close();
 				game.getSocketServer().stop();
 				game.getFrame().add(
-						new GameLobbyMenu(game.getFrame(), game
-								.getUserName()));
+						new GameLobbyMenu(game.getFrame(), game.getUserName()));
 			} else {
 				try {
 					Thread.sleep(100);
@@ -170,6 +170,10 @@ public class GameClient extends Thread {
 			}
 			game.getFrame().repaint();
 			stop();
+			break;
+		case UPDATEUSERINFO:
+			packet = new Packet10UpdateUserInfo(data);
+			handleUpdateUserInfo((Packet10UpdateUserInfo) packet, address, port);
 			break;
 		case GAMELOBBYTIME:
 			packet = new Packet11GameLobbyTime(data);
@@ -187,7 +191,7 @@ public class GameClient extends Thread {
 		}
 	}
 
-	private void handleLogin(Packet00Login packet, InetAddress address, int port) {
+	public void handleLogin(Packet00Login packet, InetAddress address, int port) {
 		System.out.println("[" + address.getHostAddress() + ":" + port + "] "
 				+ packet.getName() + " has joined the game...");
 		Player player = null;
@@ -207,6 +211,30 @@ public class GameClient extends Thread {
 		else
 			player.setInHand(new Sword(player));
 		game.getPlayers().add(player);
+	}
+
+	public void handleUpdateUserInfo(Packet10UpdateUserInfo packet,
+			InetAddress address, int port) {
+		Player player = null;
+		if (packet.getRace().equalsIgnoreCase("human"))
+			player = new Human(game, packet.getName(), address, port);
+		else if (packet.getRace().equalsIgnoreCase("cyborg")
+				&& packet.getColor().equalsIgnoreCase(" "))
+			player = new Cyborg(game, packet.getName(), -1, address, port);
+		else if (packet.getRace().equalsIgnoreCase("cyborg")
+				&& !packet.getColor().equalsIgnoreCase(" "))
+			player = new Cyborg(game, packet.getColor(), packet.getName(),
+					address, port);
+		else
+			player = new Human(game, packet.getName(), address, port);
+		if (packet.getWeapon().equalsIgnoreCase("sword"))
+			player.setInHand(new Sword(player));
+		else
+			player.setInHand(new Sword(player));
+		for (int i = 0; i < game.getPlayers().size(); i++)
+			if (game.getPlayers().get(i).getName()
+					.equalsIgnoreCase(player.getName()))
+				game.getPlayers().set(i, player);
 	}
 
 	public Player getPlayer(String name) {

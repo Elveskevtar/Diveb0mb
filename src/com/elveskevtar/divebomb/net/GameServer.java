@@ -30,7 +30,7 @@ public class GameServer extends Thread {
 	public ArrayList<Player> connectedPlayers = new ArrayList<Player>();
 	private DatagramSocket socket;
 	private Game game;
-	
+
 	public GameServer(Game game) {
 		this.game = game;
 		try {
@@ -148,20 +148,24 @@ public class GameServer extends Thread {
 				connectedPlayers.set(
 						getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 								.getName()), new Cyborg(game,
-								((Packet10UpdateUserInfo) packet).getName(), -1,
+								((Packet10UpdateUserInfo) packet).getName(),
+								-1, address, port));
+			else if (((Packet10UpdateUserInfo) packet).getRace()
+					.equalsIgnoreCase("cyborg")
+					&& !((Packet10UpdateUserInfo) packet).getColor()
+							.equalsIgnoreCase(" "))
+				connectedPlayers.set(
+						getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+								.getName()), new Cyborg(game,
+								((Packet10UpdateUserInfo) packet).getColor(),
+								((Packet10UpdateUserInfo) packet).getName(),
 								address, port));
-			else if (((Packet10UpdateUserInfo) packet).getRace().equalsIgnoreCase(
-					"cyborg")
-					&& !((Packet10UpdateUserInfo) packet).getColor().equalsIgnoreCase(
-							" "))
-				player = new Cyborg(game, ((Packet10UpdateUserInfo) packet).getColor(),
-						((Packet10UpdateUserInfo) packet).getName(), address, port);
 			else
 				connectedPlayers.set(
 						getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 								.getName()), new Human(game,
-								((Packet10UpdateUserInfo) packet).getName(), address,
-								port));
+								((Packet10UpdateUserInfo) packet).getName(),
+								address, port));
 			if (((Packet10UpdateUserInfo) packet).getWeapon().equalsIgnoreCase(
 					"sword"))
 				weapon = new Sword(
@@ -176,6 +180,9 @@ public class GameServer extends Thread {
 			connectedPlayers.get(
 					getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 							.getName())).setInHand(weapon);
+			handleUpdateUserInfo(
+					connectedPlayers.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+							.getName())), (Packet10UpdateUserInfo) packet);
 			break;
 		}
 		for (Player p : connectedPlayers) {
@@ -288,6 +295,13 @@ public class GameServer extends Thread {
 		}
 	}
 
+	public void handleUpdateUserInfo(Player player,
+			Packet10UpdateUserInfo packet) {
+		for (Player p : connectedPlayers)
+			if (!p.getName().equalsIgnoreCase(player.getName()))
+				sendData(packet.getData(), p.getIP(), p.getPort());
+	}
+
 	public void handleMove(Player player, Packet03Move packet) {
 		player.setxPosition(packet.getX());
 		player.setyPosition(packet.getY());
@@ -295,28 +309,23 @@ public class GameServer extends Thread {
 		player.setRunning(packet.isRunning());
 		player.setMovingRight(packet.isMovingRight());
 		player.setFacingRight(packet.isFacingRight());
-		for (Player p : connectedPlayers) {
-			if (!p.getName().equalsIgnoreCase(player.getName())) {
+		for (Player p : connectedPlayers)
+			if (!p.getName().equalsIgnoreCase(player.getName()))
 				sendData(packet.getData(), p.getIP(), p.getPort());
-			}
-		}
 	}
 
 	public Player getPlayerMP(String name) {
-		for (Player player : connectedPlayers) {
-			if (player.getName().equalsIgnoreCase(name)) {
+		for (Player player : connectedPlayers)
+			if (player.getName().equalsIgnoreCase(name))
 				return player;
-			}
-		}
 		return null;
 	}
 
 	public int getPlayerMPIndex(String name) {
 		int index = 0;
 		for (Player player : connectedPlayers) {
-			if (player.getName().equalsIgnoreCase(name)) {
+			if (player.getName().equalsIgnoreCase(name))
 				break;
-			}
 			index++;
 		}
 		return index;
@@ -333,15 +342,14 @@ public class GameServer extends Thread {
 	}
 
 	public void sendDataToAllClients(byte[] data) {
-		for (Player p : connectedPlayers) {
+		for (Player p : connectedPlayers)
 			sendData(data, p.getIP(), p.getPort());
-		}
 	}
-	
+
 	public DatagramSocket getSocket() {
 		return socket;
 	}
-	
+
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
 	}

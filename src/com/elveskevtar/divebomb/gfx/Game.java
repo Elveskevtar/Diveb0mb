@@ -27,6 +27,7 @@ import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.Sword;
 
 public abstract class Game extends JPanel implements KeyListener,
@@ -57,6 +58,7 @@ public abstract class Game extends JPanel implements KeyListener,
 	private int lobbyTime;
 
 	private ArrayList<Rectangle> collisionRecs;
+	private ArrayList<Projectile> projectiles;
 	private ArrayList<Player> players;
 	private ArrayList<Integer> keys;
 
@@ -449,6 +451,14 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setFrame(JFrame frame) {
 		this.frame = frame;
+	}
+
+	public ArrayList<Projectile> getProjectiles() {
+		return projectiles;
+	}
+
+	public void setProjectiles(ArrayList<Projectile> projectiles) {
+		this.projectiles = projectiles;
 	}
 
 	private class PlayerWeapons extends TimerTask {

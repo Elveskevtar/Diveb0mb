@@ -62,7 +62,7 @@ public abstract class Melee extends Weapon {
 			for (int i = 0; i < attackedPlayers.size(); i++)
 				attackedPlayers.remove(i);
 		} else if (getPlayer().getName().equalsIgnoreCase(
-				getPlayer().getGame().getUser().getName())
+				getPlayer().getGame().getUserName())
 				&& !server) {
 			Packet04Attack packet = new Packet04Attack(getPlayer().getName());
 			packet.writeData(getPlayer().getGame().getSocketClient());

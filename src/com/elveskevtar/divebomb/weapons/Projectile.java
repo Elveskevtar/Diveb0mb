@@ -6,13 +6,17 @@ import com.elveskevtar.divebomb.race.Player;
 
 public class Projectile extends Weapon {
 	
+	private int id;
 	private double xPosition;
 	private double yPosition;
-	private double velox;
-	private double veloy;
+	private double startingVelocity;
 
-	public Projectile(Player p) {
+	public Projectile(Player p, int id, double xPosition, double yPosition, double startingVelocity) {
 		super(p);
+		this.id = id;
+		this.xPosition = xPosition;
+		this.yPosition = yPosition;
+		this.startingVelocity = startingVelocity;
 	}
 
 	@Override
@@ -42,19 +46,19 @@ public class Projectile extends Weapon {
 		this.yPosition = yPosition;
 	}
 
-	public double getVelox() {
-		return velox;
+	public double getStartingVelocity() {
+		return startingVelocity;
 	}
 
-	public void setVelox(double velox) {
-		this.velox = velox;
+	public void setStartingVelocity(double startingVelocity) {
+		this.startingVelocity = startingVelocity;
 	}
 
-	public double getVeloy() {
-		return veloy;
+	public int getId() {
+		return id;
 	}
 
-	public void setVeloy(double veloy) {
-		this.veloy = veloy;
+	public void setId(int id) {
+		this.id = id;
 	}
 }

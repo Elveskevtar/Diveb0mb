@@ -262,6 +262,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		if (!user.isDead()) {
 			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2,
 					getHeight() / 2, null);
+			//g2d.rotate(theta, getWidth() / 2, getHeight() / 2)
 			g2d.drawImage(
 					user.getInHand().getSprite(),
 					getWidth() / 2 + user.getWeaponXTweak()

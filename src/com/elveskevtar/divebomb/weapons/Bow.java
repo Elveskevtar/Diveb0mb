@@ -7,7 +7,7 @@ import javax.imageio.ImageIO;
 
 import com.elveskevtar.divebomb.race.Player;
 
-public class Bow extends ProjectileShooters {
+public class Bow extends ProjectileShooter {
 
 	public Bow(Player p) {
 		super(p);
@@ -27,6 +27,6 @@ public class Bow extends ProjectileShooters {
 
 	@Override
 	public void addProjectile() {
-		getPlayer().getGame().getProjectiles().add(null);
+		//getPlayer().getGame().getProjectiles().add(null);
 	}
 }

@@ -4,14 +4,15 @@ import java.util.ArrayList;
 
 import com.elveskevtar.divebomb.race.Player;
 
-public abstract class ProjectileShooters extends Weapon {
+public abstract class ProjectileShooter extends Weapon {
 	
+	private double rAngle;
 	private int projectileSpawnRightX;
 	private int projectileSpawnRightY;
 	private int projectileSpawnLeftX;
 	private int projectileSpawnLeftY;
 
-	public ProjectileShooters(Player p) {
+	public ProjectileShooter(Player p) {
 		super(p);
 	}
 	
@@ -58,5 +59,13 @@ public abstract class ProjectileShooters extends Weapon {
 
 	public void setProjectileSpawnLeftY(int projectileSpawnLeftY) {
 		this.projectileSpawnLeftY = projectileSpawnLeftY;
+	}
+
+	public double getrAngle() {
+		return rAngle;
+	}
+
+	public void setrAngle(double rAngle) {
+		this.rAngle = rAngle;
 	}
 }

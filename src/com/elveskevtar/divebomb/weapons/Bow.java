@@ -19,10 +19,14 @@ public class Bow extends ProjectileShooter {
 		}
 		this.setWidth(32);
 		this.setHeight(32);
-		this.setHoldingLeftX(-22);
+		this.setHoldingLeftX(-23);
 		this.setHoldingLeftY(-14);
-		this.setHoldingRightX(-10);
+		this.setHoldingRightX(-11);
 		this.setHoldingRightY(-14);
+		this.setxAdjustment(getHoldingLeftX());
+		this.setyAdjustment(getHoldingLeftY());
+		this.setSprite(getImage().getSubimage(getSpriteX() * getWidth(),
+				getSpriteY() * getHeight(), getWidth(), getHeight()));
 	}
 
 	@Override

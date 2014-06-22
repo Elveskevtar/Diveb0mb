@@ -30,7 +30,6 @@ import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
-import com.elveskevtar.divebomb.weapons.Sword;
 
 public abstract class Game extends JPanel implements KeyListener,
 		MouseListener, MouseMotionListener {
@@ -264,18 +263,18 @@ public abstract class Game extends JPanel implements KeyListener,
 		if (!user.isDead()) {
 			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2,
 					getHeight() / 2, null);
-			if (user.getInHand() instanceof ProjectileShooter)
-				g2d.rotate(((ProjectileShooter) user.getInHand()).getrAngle(),
-						getWidth() / 2, getHeight() / 2);
+			//if (user.getInHand() instanceof ProjectileShooter)
+				//g2d.rotate(((ProjectileShooter) user.getInHand()).getrAngle(),
+						//getWidth() / 2, getHeight() / 2);
 			g2d.drawImage(
 					user.getInHand().getSprite(),
 					getWidth() / 2 + user.getWeaponXTweak()
 							+ user.getInHand().getxAdjustment(),
 					getHeight() / 2 + user.getInHand().getyAdjustment()
 							+ user.getWeaponYTweak(), null);
-			if (user.getInHand() instanceof ProjectileShooter)
-				g2d.rotate(-((ProjectileShooter) user.getInHand()).getrAngle(),
-						getWidth() / 2, getHeight() / 2);
+			//if (user.getInHand() instanceof ProjectileShooter)
+				//g2d.rotate(-((ProjectileShooter) user.getInHand()).getrAngle(),
+						//getWidth() / 2, getHeight() / 2);
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
 		}
 	}

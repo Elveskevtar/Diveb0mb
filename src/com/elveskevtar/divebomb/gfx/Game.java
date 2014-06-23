@@ -263,18 +263,45 @@ public abstract class Game extends JPanel implements KeyListener,
 		if (!user.isDead()) {
 			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2,
 					getHeight() / 2, null);
-			//if (user.getInHand() instanceof ProjectileShooter)
-				//g2d.rotate(((ProjectileShooter) user.getInHand()).getrAngle(),
-						//getWidth() / 2, getHeight() / 2);
+			if (user.getInHand() instanceof ProjectileShooter)
+				if (user.isFacingRight())
+					g2d.rotate(
+							((ProjectileShooter) user.getInHand()).getrAngle(),
+							getWidth() / 2 + user.getWeaponXTweak()
+									+ user.getInHand().getxAdjustment(),
+							getHeight() / 2 + user.getInHand().getyAdjustment()
+									+ user.getWeaponYTweak()
+									+ user.getInHand().getHeight() / 2);
+				else
+					g2d.rotate(
+							((ProjectileShooter) user.getInHand()).getrAngle(),
+							getWidth() / 2 + user.getWeaponXTweak()
+									+ user.getInHand().getxAdjustment()
+									+ user.getInHand().getWidth(), getHeight()
+									/ 2 + user.getInHand().getyAdjustment()
+									+ user.getWeaponYTweak()
+									+ user.getInHand().getHeight() / 2);
 			g2d.drawImage(
 					user.getInHand().getSprite(),
 					getWidth() / 2 + user.getWeaponXTweak()
 							+ user.getInHand().getxAdjustment(),
 					getHeight() / 2 + user.getInHand().getyAdjustment()
 							+ user.getWeaponYTweak(), null);
-			//if (user.getInHand() instanceof ProjectileShooter)
-				//g2d.rotate(-((ProjectileShooter) user.getInHand()).getrAngle(),
-						//getWidth() / 2, getHeight() / 2);
+			if (user.getInHand() instanceof ProjectileShooter)
+				g2d.rotate(-((ProjectileShooter) user.getInHand()).getrAngle(),
+						getWidth() / 2 + user.getWeaponXTweak()
+								+ user.getInHand().getxAdjustment(),
+						getHeight() / 2 + user.getInHand().getyAdjustment()
+								+ user.getWeaponYTweak()
+								+ user.getInHand().getHeight() / 2);
+			else
+				g2d.rotate(-((ProjectileShooter) user.getInHand()).getrAngle(),
+						getWidth() / 2 + user.getWeaponXTweak()
+								+ user.getInHand().getxAdjustment()
+								+ user.getInHand().getWidth(),
+						getHeight() / 2 + user.getInHand().getyAdjustment()
+								+ user.getWeaponYTweak()
+								+ user.getInHand().getHeight() / 2);
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
 		}
 	}
@@ -312,14 +339,21 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if (user.getInHand() instanceof ProjectileShooter)
-			((ProjectileShooter) user.getInHand()).setrAngle(Math.atan2(
-					e.getY() - getHeight() / 2, e.getX() - getWidth() / 2));
 		if (e.getX() > getWidth() / 2 + 16) {
 			user.setFacingRight(true);
 		} else {
 			user.setFacingRight(false);
 		}
+		if (user.getInHand() instanceof ProjectileShooter)
+			if (user.isFacingRight())
+				((ProjectileShooter) user.getInHand()).setrAngle(Math.atan2(
+						e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth()
+								/ 2 - 16 * zoom));
+			else
+				((ProjectileShooter) user.getInHand()).setrAngle(Math.atan2(
+						e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth()
+								/ 2 - 16 * zoom)
+						- Math.PI);
 	}
 
 	@Override
@@ -361,10 +395,6 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setGraphicsMap(Map graphicsMap) {
 		this.graphicsMap = graphicsMap;
-	}
-
-	public void setCollisionMap(Map collisionMap) {
-
 	}
 
 	public int getPlayerSize() {

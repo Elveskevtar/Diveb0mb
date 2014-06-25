@@ -17,5 +17,6 @@ public class Arrow extends Projectile {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
 	}
 }

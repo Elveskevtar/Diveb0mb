@@ -62,6 +62,7 @@ public abstract class Game extends JPanel implements KeyListener,
 	private ArrayList<Projectile> projectiles;
 	private ArrayList<Player> players;
 	private ArrayList<Integer> keys;
+	private ArrayList<Integer> projectileIDs;
 
 	private JFrame frame;
 	private BufferedImage map;
@@ -88,6 +89,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
+		this.projectileIDs = new ArrayList<Integer>();
 		this.zoom = 2;
 		this.setFrame(frame);
 		this.userName = "Bob";
@@ -110,6 +112,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
+		this.projectileIDs = new ArrayList<Integer>();
 		this.zoom = 2;
 		this.setFrame(frame);
 		this.userName = "Bob";
@@ -502,6 +505,14 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setProjectiles(ArrayList<Projectile> projectiles) {
 		this.projectiles = projectiles;
+	}
+
+	public ArrayList<Integer> getProjectileIDs() {
+		return projectileIDs;
+	}
+
+	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
+		this.projectileIDs = projectileIDs;
 	}
 
 	private class PlayerWeapons extends TimerTask {

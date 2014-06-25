@@ -5,28 +5,31 @@ import java.util.ArrayList;
 import com.elveskevtar.divebomb.race.Player;
 
 public class Projectile extends Weapon {
-	
+
 	private int id;
 	private double xPosition;
 	private double yPosition;
 	private double startingVelocity;
+	private double rAngle;
 
-	public Projectile(Player p, int id, double xPosition, double yPosition, double startingVelocity) {
+	public Projectile(Player p, int id, double xPosition, double yPosition,
+			double startingVelocity, double rAngle) {
 		super(p);
 		this.id = id;
 		this.xPosition = xPosition;
 		this.yPosition = yPosition;
 		this.startingVelocity = startingVelocity;
+		this.rAngle = rAngle;
 	}
 
 	@Override
 	public void attack(ArrayList<Player> players, boolean server) {
 		if (getPlayer().getGame().getSocketClient() == null || server == true) {
-			
+
 		} else if (getPlayer().getName().equalsIgnoreCase(
 				getPlayer().getGame().getUserName())
 				&& !server) {
-			
+
 		}
 	}
 
@@ -60,5 +63,13 @@ public class Projectile extends Weapon {
 
 	public void setId(int id) {
 		this.id = id;
+	}
+
+	public double getrAngle() {
+		return rAngle;
+	}
+
+	public void setrAngle(double rAngle) {
+		this.rAngle = rAngle;
 	}
 }

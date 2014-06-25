@@ -31,6 +31,15 @@ public class Bow extends ProjectileShooter {
 
 	@Override
 	public void addProjectile() {
-		//getPlayer().getGame().getProjectiles().add(null);
+		int id = (int) (Math.random() * 10000);
+		while (getPlayer().getGame().getProjectileIDs().contains(id))
+			id = (int) (Math.random() * 10000);
+		getPlayer()
+				.getGame()
+				.getProjectiles()
+				.add(new Arrow(getPlayer(), id, Math.cos(getrAngle())
+						* getHoldingRightX() * -1, Math.sin(getrAngle())
+						* getHoldingRightX() * -1, getrAngle()));
+		getPlayer().getGame().getProjectileIDs().add(id);
 	}
 }

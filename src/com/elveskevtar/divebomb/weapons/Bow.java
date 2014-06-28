@@ -39,21 +39,20 @@ public class Bow extends ProjectileShooter {
 			getPlayer()
 					.getGame()
 					.getProjectiles()
-					.add(new Arrow(getPlayer(), id, Math.cos(getrAngle())
-							* getHoldingRightX() + getPlayer().getxPosition()
-							- 16, Math.sin(getrAngle()) * getHoldingRightX()
-							+ getPlayer().getyPosition() - 32, getrAngle()));
+					.add(new Arrow(getPlayer(), id, -Math.cos(getrAngle()) * 30
+							+ getPlayer().getxPosition(), -Math
+							.sin(getrAngle())
+							* 30
+							+ getPlayer().getyPosition()
+							- 32, getrAngle()));
 		else
 			getPlayer()
 					.getGame()
 					.getProjectiles()
 					.add(new Arrow(getPlayer(), id, Math.cos(getrAngle())
-							* getHoldingRightX() * -1
-							+ getPlayer().getxPosition() - 16, Math
-							.sin(getrAngle())
-							* getHoldingRightX()
-							* -1
-							+ getPlayer().getyPosition() - 32, getrAngle()));
+							* getHoldingRightX() + getPlayer().getxPosition()
+							- 16, Math.sin(getrAngle()) * getHoldingRightX()
+					+ getPlayer().getyPosition() - 32, getrAngle()));
 		getPlayer().getGame().getProjectileIDs().add(id);
 	}
 }

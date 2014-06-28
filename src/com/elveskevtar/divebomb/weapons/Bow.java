@@ -17,6 +17,7 @@ public class Bow extends ProjectileShooter {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.setrAngle(0);
 		this.setWidth(32);
 		this.setHeight(32);
 		this.setHoldingLeftX(-23);
@@ -34,12 +35,25 @@ public class Bow extends ProjectileShooter {
 		int id = (int) (Math.random() * 10000);
 		while (getPlayer().getGame().getProjectileIDs().contains(id))
 			id = (int) (Math.random() * 10000);
-		getPlayer()
-				.getGame()
-				.getProjectiles()
-				.add(new Arrow(getPlayer(), id, Math.cos(getrAngle())
-						* getHoldingRightX() * -1, Math.sin(getrAngle())
-						* getHoldingRightX() * -1, getrAngle()));
+		if (getPlayer().isFacingRight())
+			getPlayer()
+					.getGame()
+					.getProjectiles()
+					.add(new Arrow(getPlayer(), id, Math.cos(getrAngle())
+							* getHoldingRightX() + getPlayer().getxPosition()
+							- 16, Math.sin(getrAngle()) * getHoldingRightX()
+							+ getPlayer().getyPosition() - 32, getrAngle()));
+		else
+			getPlayer()
+					.getGame()
+					.getProjectiles()
+					.add(new Arrow(getPlayer(), id, Math.cos(getrAngle())
+							* getHoldingRightX() * -1
+							+ getPlayer().getxPosition() - 16, Math
+							.sin(getrAngle())
+							* getHoldingRightX()
+							* -1
+							+ getPlayer().getyPosition() - 32, getrAngle()));
 		getPlayer().getGame().getProjectileIDs().add(id);
 	}
 }

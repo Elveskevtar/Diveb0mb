@@ -9,7 +9,10 @@ public class Projectile extends Weapon {
 	private int id;
 	private double xPosition;
 	private double yPosition;
+	private double airTime;
 	private double startingVelocity;
+	private double velox;
+	private double veloy;
 	private double rAngle;
 
 	public Projectile(Player p, int id, double xPosition, double yPosition,
@@ -20,6 +23,7 @@ public class Projectile extends Weapon {
 		this.yPosition = yPosition;
 		this.startingVelocity = startingVelocity;
 		this.rAngle = rAngle;
+		this.airTime = 0.05;
 	}
 
 	@Override
@@ -71,5 +75,29 @@ public class Projectile extends Weapon {
 
 	public void setrAngle(double rAngle) {
 		this.rAngle = rAngle;
+	}
+
+	public double getVelox() {
+		return velox;
+	}
+
+	public void setVelox(double velox) {
+		this.velox = velox;
+	}
+
+	public double getVeloy() {
+		return veloy;
+	}
+
+	public void setVeloy(double veloy) {
+		this.veloy = veloy;
+	}
+
+	public double getAirTime() {
+		return airTime;
+	}
+
+	public void setAirTime(double airTime) {
+		this.airTime = airTime;
 	}
 }

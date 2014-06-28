@@ -13,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -89,6 +90,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
+		this.projectiles = new ArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
 		this.zoom = 2;
 		this.setFrame(frame);
@@ -112,6 +114,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
+		this.projectiles = new ArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
 		this.zoom = 2;
 		this.setFrame(frame);
@@ -147,6 +150,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.timer.scheduleAtFixedRate(new Input(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
 		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
+		this.timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
 		this.running = true;
 	}
 
@@ -238,6 +242,19 @@ public abstract class Game extends JPanel implements KeyListener,
 		g2d.setFont(font);
 		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2),
 				(int) (user.getyPosition() + getHeight() / 2), null);
+		for (Projectile p : projectiles) {
+			g2d.rotate((p.getrAngle() + Math.PI),
+					user.getxPosition() - p.getxPosition() + getWidth() / 2,
+					user.getyPosition() - p.getyPosition() + getHeight() / 2);
+			g2d.drawImage(
+					p.getSprite(),
+					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
+					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2),
+					null);
+			g2d.rotate(-(p.getrAngle() + Math.PI),
+					user.getxPosition() - p.getxPosition() + getWidth() / 2,
+					user.getyPosition() - p.getyPosition() + getHeight() / 2);
+		}
 		for (Player p : players) {
 			if (p != user && !p.isDead()) {
 				g2d.drawImage(p.getPlayerSprite(),
@@ -513,6 +530,27 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
 		this.projectileIDs = projectileIDs;
+	}
+
+	private class Projectiles extends TimerTask {
+
+		@Override
+		public void run() {
+			try {
+				for (Projectile p : projectiles) {
+					p.setVeloy(p.getVeloy() - p.getAirTime());
+					p.setxPosition(p.getxPosition() + p.getVelox());
+					p.setyPosition(p.getyPosition() + p.getVeloy());
+					p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
+					if (p.getVelox() == 0 && p.getVeloy() == 0) {
+						projectiles.remove(p);
+						projectileIDs.remove((Integer) p.getId());
+					}
+				}
+			} catch (ConcurrentModificationException e) {
+				e.printStackTrace();
+			}
+		}
 	}
 
 	private class PlayerWeapons extends TimerTask {

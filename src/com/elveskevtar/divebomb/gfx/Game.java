@@ -537,6 +537,21 @@ public abstract class Game extends JPanel implements KeyListener,
 	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
 		this.projectileIDs = projectileIDs;
 	}
+	
+	private class RemoveProjectile extends Thread {
+		
+		private Projectile p;
+		
+		public RemoveProjectile(Projectile p) {
+			this.p = p;
+		}
+		
+		@Override
+		public void run() {
+			projectiles.remove(p);
+			projectileIDs.remove((Integer) p.getId());
+		}
+	}
 
 	private class Projectiles extends TimerTask {
 
@@ -548,18 +563,15 @@ public abstract class Game extends JPanel implements KeyListener,
 					p.setxPosition(p.getxPosition() + p.getVelox());
 					p.setyPosition(p.getyPosition() + p.getVeloy());
 					p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
-					for (Rectangle r : collisionRecs) {
+					for (Rectangle r : collisionRecs)
 						if (new Rectangle((int) -p.getxPosition(),
 								(int) -p.getyPosition(), p.getWidth(),
 								p.getHeight()).intersects(r)) {
 							p.setVelox(0);
 							p.setVeloy(0);
 						}
-					}
-					if (p.getVelox() == 0 && p.getVeloy() == 0) {
-						projectiles.remove(p);
-						projectileIDs.remove((Integer) p.getId());
-					}
+					if (p.getVelox() == 0 && p.getVeloy() == 0)
+						new Thread(new RemoveProjectile(p)).start();
 				}
 			} catch (ConcurrentModificationException e) {
 				e.printStackTrace();

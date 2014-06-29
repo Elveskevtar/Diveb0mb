@@ -254,9 +254,12 @@ public abstract class Game extends JPanel implements KeyListener,
 					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
 					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2),
 					null);
-			g2d.rotate(-(p.getrAngle() + Math.PI),
-					user.getxPosition() - p.getxPosition() + getWidth() / 2 + p.getWidth() / 2,
-					user.getyPosition() - p.getyPosition() + getHeight() / 2 + p.getHeight() / 2);
+			g2d.rotate(
+					-(p.getrAngle() + Math.PI),
+					user.getxPosition() - p.getxPosition() + getWidth() / 2
+							+ p.getWidth() / 2,
+					user.getyPosition() - p.getyPosition() + getHeight() / 2
+							+ p.getHeight() / 2);
 		}
 		for (Player p : players) {
 			if (p != user && !p.isDead()) {
@@ -545,6 +548,14 @@ public abstract class Game extends JPanel implements KeyListener,
 					p.setxPosition(p.getxPosition() + p.getVelox());
 					p.setyPosition(p.getyPosition() + p.getVeloy());
 					p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
+					for (Rectangle r : collisionRecs) {
+						if (new Rectangle((int) -p.getxPosition(),
+								(int) -p.getyPosition(), p.getWidth(),
+								p.getHeight()).intersects(r)) {
+							p.setVelox(0);
+							p.setVeloy(0);
+						}
+					}
 					if (p.getVelox() == 0 && p.getVeloy() == 0) {
 						projectiles.remove(p);
 						projectileIDs.remove((Integer) p.getId());

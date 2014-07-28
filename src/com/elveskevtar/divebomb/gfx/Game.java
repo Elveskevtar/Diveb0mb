@@ -242,25 +242,6 @@ public abstract class Game extends JPanel implements KeyListener,
 		g2d.setFont(font);
 		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2),
 				(int) (user.getyPosition() + getHeight() / 2), null);
-		for (Projectile p : projectiles) {
-			g2d.rotate(
-					(p.getrAngle() + Math.PI),
-					user.getxPosition() - p.getxPosition() + getWidth() / 2
-							+ p.getWidth() / 2,
-					user.getyPosition() - p.getyPosition() + getHeight() / 2
-							+ p.getHeight() / 2);
-			g2d.drawImage(
-					p.getSprite(),
-					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
-					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2),
-					null);
-			g2d.rotate(
-					-(p.getrAngle() + Math.PI),
-					user.getxPosition() - p.getxPosition() + getWidth() / 2
-							+ p.getWidth() / 2,
-					user.getyPosition() - p.getyPosition() + getHeight() / 2
-							+ p.getHeight() / 2);
-		}
 		for (Player p : players) {
 			if (p != user && !p.isDead()) {
 				g2d.drawImage(p.getPlayerSprite(),
@@ -332,6 +313,25 @@ public abstract class Game extends JPanel implements KeyListener,
 									+ user.getWeaponYTweak()
 									+ user.getInHand().getHeight() / 2);
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
+		}
+		for (Projectile p : projectiles) {
+			g2d.rotate(
+					(p.getrAngle() + Math.PI),
+					user.getxPosition() - p.getxPosition() + getWidth() / 2
+							+ p.getWidth() / 2,
+					user.getyPosition() - p.getyPosition() + getHeight() / 2
+							+ p.getHeight() / 2);
+			g2d.drawImage(
+					p.getSprite(),
+					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
+					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2),
+					null);
+			g2d.rotate(
+					-(p.getrAngle() + Math.PI),
+					user.getxPosition() - p.getxPosition() + getWidth() / 2
+							+ p.getWidth() / 2,
+					user.getyPosition() - p.getyPosition() + getHeight() / 2
+							+ p.getHeight() / 2);
 		}
 	}
 
@@ -537,15 +537,15 @@ public abstract class Game extends JPanel implements KeyListener,
 	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
 		this.projectileIDs = projectileIDs;
 	}
-	
+
 	private class RemoveProjectile extends Thread {
-		
+
 		private Projectile p;
-		
+
 		public RemoveProjectile(Projectile p) {
 			this.p = p;
 		}
-		
+
 		@Override
 		public void run() {
 			projectiles.remove(p);

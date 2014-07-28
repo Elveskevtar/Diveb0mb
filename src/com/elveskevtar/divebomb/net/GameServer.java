@@ -22,6 +22,7 @@ import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Sword;
 import com.elveskevtar.divebomb.weapons.Weapon;
 
@@ -95,8 +96,9 @@ public class GameServer extends Thread {
 				if (((Packet00Login) packet).getWeapon().equalsIgnoreCase(
 						"sword"))
 					weapon = new Sword(player);
-				else
-					weapon = new Sword(player);
+				else if (((Packet00Login) packet).getWeapon().equalsIgnoreCase(
+						"bow"))
+					weapon = new Bow(player);
 				player.setInHand(weapon);
 				addConnection(player, (Packet00Login) packet);
 			}
@@ -169,6 +171,12 @@ public class GameServer extends Thread {
 			if (((Packet10UpdateUserInfo) packet).getWeapon().equalsIgnoreCase(
 					"sword"))
 				weapon = new Sword(
+						connectedPlayers
+								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+										.getName())));
+			else if (((Packet10UpdateUserInfo) packet).getWeapon()
+					.equalsIgnoreCase("bow"))
+				weapon = new Bow(
 						connectedPlayers
 								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 										.getName())));
@@ -284,6 +292,8 @@ public class GameServer extends Thread {
 					color = p.getColor();
 				if (p.getInHand() instanceof Sword)
 					weapon = "sword";
+				else if (p.getInHand() instanceof Bow)
+					weapon = "bow";
 				Packet00Login oldPlayerPacket = new Packet00Login(p.getName(),
 						race, color, weapon);
 				sendData(oldPlayerPacket.getData(), player.getIP(),

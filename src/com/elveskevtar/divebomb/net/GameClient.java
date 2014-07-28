@@ -26,6 +26,7 @@ import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Sword;
 
 public class GameClient extends Thread {
@@ -208,6 +209,8 @@ public class GameClient extends Thread {
 			player = new Human(game, packet.getName(), address, port);
 		if (packet.getWeapon().equalsIgnoreCase("sword"))
 			player.setInHand(new Sword(player));
+		else if (packet.getWeapon().equalsIgnoreCase("bow"))
+			player.setInHand(new Bow(player));
 		else
 			player.setInHand(new Sword(player));
 		game.getPlayers().add(player);
@@ -229,6 +232,8 @@ public class GameClient extends Thread {
 			player = new Human(game, packet.getName(), address, port);
 		if (packet.getWeapon().equalsIgnoreCase("sword"))
 			player.setInHand(new Sword(player));
+		else if (packet.getWeapon().equalsIgnoreCase("bow"))
+			player.setInHand(new Bow(player));
 		else
 			player.setInHand(new Sword(player));
 		for (int i = 0; i < game.getPlayers().size(); i++)

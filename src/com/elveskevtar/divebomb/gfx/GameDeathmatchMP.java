@@ -17,6 +17,7 @@ import com.elveskevtar.divebomb.net.packets.Packet03Move;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Sword;
 
 public class GameDeathmatchMP extends Game {
@@ -43,6 +44,8 @@ public class GameDeathmatchMP extends Game {
 		String weapon = " ";
 		if (getUser().getInHand() instanceof Sword)
 			weapon = "sword";
+		if (getUser().getInHand() instanceof Bow)
+			weapon = "bow";
 		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(),
 				getUserColor(), weapon);
 		try {
@@ -64,6 +67,8 @@ public class GameDeathmatchMP extends Game {
 		String weapon = " ";
 		if (getUser().getInHand() instanceof Sword)
 			weapon = "sword";
+		if (getUser().getInHand() instanceof Bow)
+			weapon = "bow";
 		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(),
 				getUserColor(), weapon);
 		try {

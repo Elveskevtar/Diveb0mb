@@ -28,7 +28,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
 	private JFrame frame;
 	private String ip;
-	private String weapon;
+	private String weapon = "bow";
 	private Game game;
 
 	public GameLobbyMenu(JFrame frame, String username) {

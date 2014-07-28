@@ -27,6 +27,7 @@ import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.weapons.Bow;
+import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
 public class GameClient extends Thread {
@@ -107,6 +108,11 @@ public class GameClient extends Thread {
 			player.setRunning(movePacket.isRunning());
 			player.setMovingRight(movePacket.isMovingRight());
 			player.setFacingRight(movePacket.isFacingRight());
+			if (player.getInHand() instanceof ProjectileShooter) {
+				System.out.println(movePacket.getrAngle());
+				((ProjectileShooter) player.getInHand()).setrAngle(movePacket
+						.getrAngle());
+			}
 			break;
 		case ATTACK:
 			packet = new Packet04Attack(data);

@@ -5,6 +5,6 @@ import com.elveskevtar.divebomb.gfx.Frame;
 public class Driver {
 
 	public static void main(String[] args) {
-		new Frame();
+		new Frame(1280, 720);
 	}
 }

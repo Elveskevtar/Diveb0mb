@@ -11,6 +11,7 @@ public class Packet03Move extends Packet {
 	private double y;
 	private double veloX;
 	private double veloY;
+	private double rAngle;
 	private boolean isWalking;
 	private boolean isRunning;
 	private boolean isMovingRight;
@@ -24,19 +25,21 @@ public class Packet03Move extends Packet {
 		this.setY(Double.parseDouble(dataArray[2]));
 		this.setVeloX(Double.parseDouble(dataArray[3]));
 		this.setVeloX(Double.parseDouble(dataArray[4]));
-		this.setWalking(Boolean.parseBoolean(dataArray[5]));
-		this.setRunning(Boolean.parseBoolean(dataArray[6]));
-		this.setMovingRight(Boolean.parseBoolean(dataArray[7]));
-		this.setFacingRight(Boolean.parseBoolean(dataArray[8]));
+		this.setrAngle(Double.parseDouble(dataArray[5]));
+		this.setWalking(Boolean.parseBoolean(dataArray[6]));
+		this.setRunning(Boolean.parseBoolean(dataArray[7]));
+		this.setMovingRight(Boolean.parseBoolean(dataArray[8]));
+		this.setFacingRight(Boolean.parseBoolean(dataArray[9]));
 	}
 
 	public Packet03Move(String name, double x, double y, double veloX,
-			double veloY, boolean isWalking, boolean isRunning,
+			double veloY, double rAngle, boolean isWalking, boolean isRunning,
 			boolean isMovingRight, boolean isFacingRight) {
 		super(03);
 		this.name = name;
 		this.x = x;
 		this.y = y;
+		this.rAngle = rAngle;
 		this.isWalking = isWalking;
 		this.isRunning = isRunning;
 		this.isMovingRight = isMovingRight;
@@ -50,14 +53,14 @@ public class Packet03Move extends Packet {
 
 	@Override
 	public void writeData(GameServer server) {
-		
+
 	}
 
 	@Override
 	public byte[] getData() {
 		return ("03" + name + "," + x + "," + y + "," + veloX + "," + veloY
-				+ "," + isWalking + "," + isRunning + "," + isMovingRight + "," + isFacingRight)
-				.getBytes();
+				+ "," + rAngle + "," + isWalking + "," + isRunning + ","
+				+ isMovingRight + "," + isFacingRight).getBytes();
 	}
 
 	public String getName() {
@@ -130,5 +133,13 @@ public class Packet03Move extends Packet {
 
 	public void setVeloY(double veloY) {
 		this.veloY = veloY;
+	}
+
+	public double getrAngle() {
+		return rAngle;
+	}
+
+	public void setrAngle(double rAngle) {
+		this.rAngle = rAngle;
 	}
 }

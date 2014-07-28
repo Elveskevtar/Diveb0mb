@@ -18,6 +18,7 @@ import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
 import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.weapons.Bow;
+import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
 public class GameDeathmatchMP extends Game {
@@ -138,10 +139,14 @@ public class GameDeathmatchMP extends Game {
 		@Override
 		public void run() {
 			while (isRunning()) {
+				double rAngle = 0;
+				if (getUser().getInHand() instanceof ProjectileShooter)
+					rAngle = ((ProjectileShooter) getUser().getInHand())
+							.getrAngle();
 				Packet03Move packet = new Packet03Move(getUser().getName(),
 						getUser().getxPosition(), getUser().getyPosition(),
-						getUser().getVeloX(), getUser().getVeloY(), getUser()
-								.isWalking(), getUser().isRunning(), getUser()
+						getUser().getVeloX(), getUser().getVeloY(), rAngle,
+						getUser().isWalking(), getUser().isRunning(), getUser()
 								.isMovingRight(), getUser().isFacingRight());
 				packet.writeData(getSocketClient());
 				try {

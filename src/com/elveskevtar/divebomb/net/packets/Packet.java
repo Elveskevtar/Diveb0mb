@@ -8,7 +8,7 @@ public abstract class Packet {
 	public static enum PacketTypes {
 		INVALID(-1), LOGIN(00), DISCONNECT(01), STARTGAME(02), MOVE(03), ATTACK(
 				04), HEALTH(05), KILL(06), ENDGAME(07), UPDATEUSERINFO(10), GAMELOBBYTIME(
-				11), GAMETYPE(12);
+				11), GAMETYPE(12), SENDNEWPROJECTILE(13);
 
 		private int packetId;
 

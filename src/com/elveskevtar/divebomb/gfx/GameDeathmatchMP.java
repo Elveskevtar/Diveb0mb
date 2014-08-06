@@ -99,7 +99,7 @@ public class GameDeathmatchMP extends Game {
 		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont()
 				.getSize() * 33 / 8);
 	}
-
+	
 	@Override
 	public void setTimers() {
 		super.setTimers();

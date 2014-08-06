@@ -151,6 +151,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
 		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
+		this.timer.schedule(new RefreshTimer(), 1000);
 		this.running = true;
 	}
 
@@ -249,6 +250,32 @@ public abstract class Game extends JPanel implements KeyListener,
 								.getxPosition())),
 						(int) (getHeight() / 2 + (user.getyPosition() - p
 								.getyPosition())), null);
+				double rAngle = 0;
+				double x = 0;
+				double y = 0;
+				if (p.getInHand() instanceof ProjectileShooter) {
+					rAngle = ((ProjectileShooter) p.getInHand()).getrAngle();
+					if (p.isFacingRight()) {
+						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition())
+								+ p.getWeaponXTweak()
+								+ p.getInHand().getxAdjustment();
+						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition())
+								+ p.getInHand().getyAdjustment()
+								+ p.getWeaponYTweak()
+								+ p.getInHand().getHeight() / 2;
+						g2d.rotate(rAngle, x, y);
+					} else {
+						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition())
+								+ p.getWeaponXTweak()
+								+ p.getInHand().getxAdjustment()
+								+ p.getInHand().getWidth();
+						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition())
+								+ p.getInHand().getyAdjustment()
+								+ p.getWeaponYTweak()
+								+ p.getInHand().getHeight() / 2;
+						g2d.rotate(rAngle, x, y);
+					}
+				}
 				g2d.drawImage(
 						p.getInHand().getSprite(),
 						getWidth()
@@ -261,6 +288,8 @@ public abstract class Game extends JPanel implements KeyListener,
 								+ (int) (user.getyPosition() - p.getyPosition())
 								+ p.getWeaponYTweak()
 								+ p.getInHand().getyAdjustment(), null);
+				if (p.getInHand() instanceof ProjectileShooter)
+					g2d.rotate(-rAngle, x, y);
 				g2d.drawString(p.getName(), (int) (getWidth() / 2 + (user
 						.getxPosition() - p.getxPosition())),
 						(int) (getHeight() / 2 + (user.getyPosition() - p
@@ -270,24 +299,28 @@ public abstract class Game extends JPanel implements KeyListener,
 		if (!user.isDead()) {
 			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2,
 					getHeight() / 2, null);
-			if (user.getInHand() instanceof ProjectileShooter)
-				if (user.isFacingRight())
-					g2d.rotate(
-							((ProjectileShooter) user.getInHand()).getrAngle(),
-							getWidth() / 2 + user.getWeaponXTweak()
-									+ user.getInHand().getxAdjustment(),
-							getHeight() / 2 + user.getInHand().getyAdjustment()
-									+ user.getWeaponYTweak()
-									+ user.getInHand().getHeight() / 2);
-				else
-					g2d.rotate(
-							((ProjectileShooter) user.getInHand()).getrAngle(),
-							getWidth() / 2 + user.getWeaponXTweak()
-									+ user.getInHand().getxAdjustment()
-									+ user.getInHand().getWidth(), getHeight()
-									/ 2 + user.getInHand().getyAdjustment()
-									+ user.getWeaponYTweak()
-									+ user.getInHand().getHeight() / 2);
+			double rAngle = 0;
+			double x = 0;
+			double y = 0;
+			if (user.getInHand() instanceof ProjectileShooter) {
+				rAngle = ((ProjectileShooter) user.getInHand()).getrAngle();
+				if (user.isFacingRight()) {
+					x = getWidth() / 2 + user.getWeaponXTweak()
+							+ user.getInHand().getxAdjustment();
+					y = getHeight() / 2 + user.getInHand().getyAdjustment()
+							+ user.getWeaponYTweak()
+							+ user.getInHand().getHeight() / 2;
+					g2d.rotate(rAngle, x, y);
+				} else {
+					x = getWidth() / 2 + user.getWeaponXTweak()
+							+ user.getInHand().getxAdjustment()
+							+ user.getInHand().getWidth();
+					y = getHeight() / 2 + user.getInHand().getyAdjustment()
+							+ user.getWeaponYTweak()
+							+ user.getInHand().getHeight() / 2;
+					g2d.rotate(rAngle, x, y);
+				}
+			}
 			g2d.drawImage(
 					user.getInHand().getSprite(),
 					getWidth() / 2 + user.getWeaponXTweak()
@@ -295,23 +328,7 @@ public abstract class Game extends JPanel implements KeyListener,
 					getHeight() / 2 + user.getInHand().getyAdjustment()
 							+ user.getWeaponYTweak(), null);
 			if (user.getInHand() instanceof ProjectileShooter)
-				if (user.isFacingRight())
-					g2d.rotate(
-							-((ProjectileShooter) user.getInHand()).getrAngle(),
-							getWidth() / 2 + user.getWeaponXTweak()
-									+ user.getInHand().getxAdjustment(),
-							getHeight() / 2 + user.getInHand().getyAdjustment()
-									+ user.getWeaponYTweak()
-									+ user.getInHand().getHeight() / 2);
-				else
-					g2d.rotate(
-							-((ProjectileShooter) user.getInHand()).getrAngle(),
-							getWidth() / 2 + user.getWeaponXTweak()
-									+ user.getInHand().getxAdjustment()
-									+ user.getInHand().getWidth(), getHeight()
-									/ 2 + user.getInHand().getyAdjustment()
-									+ user.getWeaponYTweak()
-									+ user.getInHand().getHeight() / 2);
+				g2d.rotate(-rAngle, x, y);
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
 		}
 		for (Projectile p : projectiles) {
@@ -550,6 +567,15 @@ public abstract class Game extends JPanel implements KeyListener,
 		public void run() {
 			projectiles.remove(p);
 			projectileIDs.remove((Integer) p.getId());
+		}
+	}
+
+	private class RefreshTimer extends TimerTask {
+
+		@Override
+		public void run() {
+			timer.cancel();
+			setTimers();
 		}
 	}
 

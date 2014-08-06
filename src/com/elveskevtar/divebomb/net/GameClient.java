@@ -108,11 +108,9 @@ public class GameClient extends Thread {
 			player.setRunning(movePacket.isRunning());
 			player.setMovingRight(movePacket.isMovingRight());
 			player.setFacingRight(movePacket.isFacingRight());
-			if (player.getInHand() instanceof ProjectileShooter) {
-				System.out.println(movePacket.getrAngle());
+			if (player.getInHand() instanceof ProjectileShooter)
 				((ProjectileShooter) player.getInHand()).setrAngle(movePacket
 						.getrAngle());
-			}
 			break;
 		case ATTACK:
 			packet = new Packet04Attack(data);

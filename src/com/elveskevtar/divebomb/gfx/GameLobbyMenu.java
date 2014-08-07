@@ -118,7 +118,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		setVisible(false);
 		getFrame().remove(this);
 		getFrame().add(game);
-		getFrame().repaint();
 	}
 
 	public Game getGame() {

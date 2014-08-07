@@ -129,7 +129,6 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
 		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
-		this.timer.schedule(new RefreshTimer(), 1000);
 		this.running = true;
 	}
 
@@ -314,23 +313,18 @@ public abstract class Game extends JPanel implements KeyListener,
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
 		}
 		for (Projectile p : projectiles) {
-			g2d.rotate(
-					(p.getrAngle() + Math.PI),
-					user.getxPosition() - p.getxPosition() + getWidth() / 2
-							+ p.getWidth() / 2,
-					user.getyPosition() - p.getyPosition() + getHeight() / 2
-							+ p.getHeight() / 2);
+			double rAngle = p.getrAngle() + Math.PI;
+			double x = user.getxPosition() - p.getxPosition() + getWidth() / 2
+					+ p.getWidth() / 2;
+			double y = user.getyPosition() - p.getyPosition() + getHeight() / 2
+					+ p.getHeight() / 2;
+			g2d.rotate(rAngle, x, y);
 			g2d.drawImage(
 					p.getSprite(),
 					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
 					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2),
 					null);
-			g2d.rotate(
-					-(p.getrAngle() + Math.PI),
-					user.getxPosition() - p.getxPosition() + getWidth() / 2
-							+ p.getWidth() / 2,
-					user.getyPosition() - p.getyPosition() + getHeight() / 2
-							+ p.getHeight() / 2);
+			g2d.rotate(-rAngle, x, y);
 		}
 	}
 
@@ -559,15 +553,6 @@ public abstract class Game extends JPanel implements KeyListener,
 						(int) p.getId());
 				packet.writeData(socketServer);
 			}
-		}
-	}
-
-	private class RefreshTimer extends TimerTask {
-
-		@Override
-		public void run() {
-			timer.cancel();
-			setTimers();
 		}
 	}
 

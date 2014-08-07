@@ -24,7 +24,7 @@ public class GameDeathmatch extends Game {
 	private Player player8;
 
 	public GameDeathmatch(JFrame frame, Map map) {
-		super(00, frame.getWidth(), frame.getHeight(), frame);
+		super(00, frame);
 		this.player1 = getUser();
 		try {
 			this.player2 = new Cyborg(this, InetAddress.getLocalHost(), 6768);

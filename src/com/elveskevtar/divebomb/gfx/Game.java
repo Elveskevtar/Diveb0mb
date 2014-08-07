@@ -5,7 +5,6 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -26,6 +25,8 @@ import com.elveskevtar.divebomb.net.GameServer;
 import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet15RemoveProjectile;
+import com.elveskevtar.divebomb.net.packets.Packet16Suicide;
+import com.elveskevtar.divebomb.net.packets.Packet17Respawn;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -82,31 +83,7 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public Game(int gameID, JFrame frame) {
 		super();
-		this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
-		this.setDoubleBuffered(true);
-		this.setFocusable(true);
-		this.setBackground(new Color(0, 0, 0));
-		this.players = new ArrayList<Player>();
-		this.timer = new Timer();
-		this.setGameID(gameID);
-		this.collisionRecs = new ArrayList<Rectangle>();
-		this.keys = new ArrayList<Integer>();
-		this.projectiles = new ArrayList<Projectile>();
-		this.projectileIDs = new ArrayList<Integer>();
-		this.zoom = 2;
-		this.setFrame(frame);
-		this.userName = "Bob";
-		this.userRace = "human";
-		this.userColor = "";
-		this.updatePlayer();
-		this.user.setInHand(new Bow(user));
-		if (userColor.equalsIgnoreCase(""))
-			setUserColor(" ");
-	}
-
-	public Game(int gameID, int width, int height, JFrame frame) {
-		super();
-		this.setSize(width, height);
+		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setDoubleBuffered(true);
 		this.setFocusable(true);
 		this.setBackground(new Color(0, 0, 0));
@@ -770,20 +747,23 @@ public abstract class Game extends JPanel implements KeyListener,
 				user.setVeloY(user.getInitJumpSpeed());
 			if (keys.contains(KeyEvent.VK_T) && !user.isDead()) {
 				user.setHealth(0);
+				user.setDead(true);
 				if (socketClient != null) {
 					Packet05Health packet = new Packet05Health(user.getName(),
 							user.getHealth());
 					packet.writeData(socketClient);
+					Packet16Suicide suicidePacket = new Packet16Suicide(
+							user.getName());
+					suicidePacket.writeData(socketClient);
 				}
 			}
-			if (keys.contains(KeyEvent.VK_R) && user.isDead()) {
-				user.setxPosition(-160);
-				user.setyPosition(-1056);
-				user.setHealth(user.getMaxHealth());
-				user.setDead(false);
-				if (socketClient != null) {
-					Packet05Health packet = new Packet05Health(user.getName(),
-							user.getHealth());
+			if (keys.contains(KeyEvent.VK_R) && !keys.contains(KeyEvent.VK_T)
+					&& user.isDead()) {
+				if (socketClient == null) {
+					user.setHealth(user.getMaxHealth());
+					user.setDead(false);
+				} else {
+					Packet17Respawn packet = new Packet17Respawn(user.getName());
 					packet.writeData(socketClient);
 				}
 			}

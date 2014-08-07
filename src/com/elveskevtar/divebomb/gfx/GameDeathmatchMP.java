@@ -33,7 +33,7 @@ public class GameDeathmatchMP extends Game {
 
 	public GameDeathmatchMP(String graphicsMapName, String collisionMapName,
 			int id, JFrame frame, String username) {
-		super(01, frame.getWidth(), frame.getHeight(), frame);
+		super(01, frame);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
 		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
@@ -60,7 +60,7 @@ public class GameDeathmatchMP extends Game {
 	}
 
 	public GameDeathmatchMP(String ip, JFrame frame, String username) {
-		super(01, frame.getWidth(), frame.getHeight(), frame);
+		super(01, frame);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
 		this.setServerIP(ip);

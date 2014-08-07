@@ -17,9 +17,13 @@ import com.elveskevtar.divebomb.net.packets.Packet02Startgame;
 import com.elveskevtar.divebomb.net.packets.Packet03Move;
 import com.elveskevtar.divebomb.net.packets.Packet04Attack;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
+import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
 import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
 import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
+import com.elveskevtar.divebomb.net.packets.Packet16Suicide;
+import com.elveskevtar.divebomb.net.packets.Packet17Respawn;
+import com.elveskevtar.divebomb.net.packets.Packet18RespawnPlayer;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -214,6 +218,29 @@ public class GameServer extends Thread {
 						((Packet13SendNewProjectile) packet).getId());
 				projectilePacket.writeData(this);
 			}
+			break;
+		case SUICIDE:
+			packet = new Packet16Suicide(data);
+			getPlayerMP(((Packet16Suicide) packet).getName()).setDeaths(
+					getPlayerMP(((Packet16Suicide) packet).getName())
+							.getDeaths() + 1);
+			Packet06Kill killPacket = new Packet06Kill(" ",
+					((Packet16Suicide) packet).getName());
+			killPacket.writeData(this);
+			break;
+		case RESPAWN:
+			packet = new Packet17Respawn(data);
+			getPlayerMP(((Packet17Respawn) packet).getName()).setHealth(
+					getPlayerMP(((Packet17Respawn) packet).getName())
+							.getMaxHealth());
+			ArrayList<SpawnPoints> spawnPoints = new ArrayList<SpawnPoints>();
+			for (SpawnPoints point : SpawnPoints.values())
+				if (point.getMapID() == game.getGraphicsMap().getId())
+					spawnPoints.add(point);
+			Packet18RespawnPlayer respawnPacket = new Packet18RespawnPlayer(
+					((Packet17Respawn) packet).getName(), spawnPoints.get(0)
+							.getX(), spawnPoints.get(0).getY());
+			respawnPacket.writeData(this);
 			break;
 		}
 		for (Player p : connectedPlayers) {

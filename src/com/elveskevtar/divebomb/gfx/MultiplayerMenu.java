@@ -80,7 +80,6 @@ public class MultiplayerMenu extends JPanel {
 		setVisible(false);
 		getFrame().remove(this);
 		getFrame().add(new StartMenu(getFrame()));
-		getFrame().repaint();
 	}
 
 	public void privateGameAction() {
@@ -88,7 +87,6 @@ public class MultiplayerMenu extends JPanel {
 		setVisible(false);
 		getFrame().remove(this);
 		getFrame().add(new GameLobbyMenu(getFrame(), userText));
-		getFrame().repaint();
 	}
 
 	public void joinGameAction() {
@@ -97,7 +95,6 @@ public class MultiplayerMenu extends JPanel {
 		setVisible(false);
 		getFrame().remove(this);
 		getFrame().add(new GameLobbyMenu(getFrame(), textIP, userText));
-		getFrame().repaint();
 	}
 
 	public JFrame getFrame() {

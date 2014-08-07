@@ -7,10 +7,14 @@ import javax.swing.JFrame;
 public class Frame extends JFrame {
 
 	private static final long serialVersionUID = -5352440889178544005L;
+	private int width;
+	private int height;
 
 	public Frame() {
 		super();
 		this.setUndecorated(true);
+		this.width = Toolkit.getDefaultToolkit().getScreenSize().width;
+		this.height = Toolkit.getDefaultToolkit().getScreenSize().height;
 		this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
@@ -20,11 +24,31 @@ public class Frame extends JFrame {
 
 	public Frame(int width, int height) {
 		super("DiveBomb");
-		this.setSize(width, height);
+		this.width = width;
+		this.height = height;
+		this.pack();
+		this.setSize(getInsets().left + getInsets().right + width,
+				getInsets().top + getInsets().bottom + height);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.add(new StartMenu(this));
 		this.setVisible(true);
+	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
 	}
 }

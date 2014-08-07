@@ -74,14 +74,12 @@ public class StartMenu extends JPanel {
 		getFrame().add(
 				new GameDeathmatch(getFrame(), new Map("res/img/Map.png",
 						"res/img/CollisionMap.png", 0)));
-		getFrame().repaint();
 	}
 
 	public void multiplayerAction() {
 		setVisible(false);
 		getFrame().remove(this);
 		getFrame().add(new MultiplayerMenu(getFrame()));
-		getFrame().repaint();
 	}
 
 	public void optionsAction() {

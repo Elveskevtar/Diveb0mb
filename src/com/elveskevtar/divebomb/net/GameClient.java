@@ -27,6 +27,7 @@ import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
 import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet14UpdateProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet15RemoveProjectile;
+import com.elveskevtar.divebomb.net.packets.Packet18RespawnPlayer;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -129,10 +130,10 @@ public class GameClient extends Thread {
 			break;
 		case KILL:
 			packet = new Packet06Kill(data);
-			getPlayer(((Packet06Kill) packet).getMurderer())
-					.setKills(
-							getPlayer(((Packet06Kill) packet).getMurderer())
-									.getKills() + 1);
+			if (getPlayer(((Packet06Kill) packet).getMurderer()) != null)
+				getPlayer(((Packet06Kill) packet).getMurderer()).setKills(
+						getPlayer(((Packet06Kill) packet).getMurderer())
+								.getKills() + 1);
 			getPlayer(((Packet06Kill) packet).getVictim())
 					.setDeaths(
 							getPlayer(((Packet06Kill) packet).getVictim())
@@ -141,10 +142,11 @@ public class GameClient extends Thread {
 					+ "] " + ((Packet06Kill) packet).getMurderer()
 					+ " has killed " + ((Packet06Kill) packet).getVictim());
 			if (game instanceof GameDeathmatchMP) {
-				if (((GameDeathmatchMP) game).getFirstPlaceName() == null
-						|| ((GameDeathmatchMP) game).getFirstPlaceKills() < getPlayer(
+				if (getPlayer(((Packet06Kill) packet).getMurderer()) != null
+						&& (((GameDeathmatchMP) game).getFirstPlaceName() == null || ((GameDeathmatchMP) game)
+								.getFirstPlaceKills() < getPlayer(
 								((Packet06Kill) packet).getMurderer())
-								.getKills()) {
+								.getKills())) {
 					((GameDeathmatchMP) game).setFirstPlaceKills(getPlayer(
 							((Packet06Kill) packet).getMurderer()).getKills());
 					((GameDeathmatchMP) game)
@@ -249,6 +251,14 @@ public class GameClient extends Thread {
 			} catch (ConcurrentModificationException e) {
 				e.printStackTrace();
 			}
+			break;
+		case RESPAWNPLAYER:
+			packet = new Packet18RespawnPlayer(data);
+			getPlayer(((Packet18RespawnPlayer) packet).getName()).setxPosition(
+					((Packet18RespawnPlayer) packet).getxPosition());
+			getPlayer(((Packet18RespawnPlayer) packet).getName()).setyPosition(
+					((Packet18RespawnPlayer) packet).getyPosition());
+			break;
 		}
 	}
 

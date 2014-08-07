@@ -3,34 +3,28 @@ package com.elveskevtar.divebomb.net.packets;
 import com.elveskevtar.divebomb.net.GameClient;
 import com.elveskevtar.divebomb.net.GameServer;
 
-public class Packet13SendNewProjectile extends Packet {
+public class Packet14UpdateProjectile extends Packet {
 
-	private String type;
-	private String name;
 	private double xPosition;
 	private double yPosition;
 	private double rAngle;
 	private int id;
 
-	public Packet13SendNewProjectile(byte[] data) {
-		super(13);
+	public Packet14UpdateProjectile(byte[] data) {
+		super(14);
 		String[] dataArray = readData(data).split(",");
-		this.type = dataArray[0];
-		this.xPosition = Double.parseDouble(dataArray[1]);
-		this.yPosition = Double.parseDouble(dataArray[2]);
-		this.rAngle = Double.parseDouble(dataArray[3]);
-		this.name = dataArray[4];
-		this.id = Integer.parseInt(dataArray[5]);
+		this.xPosition = Double.parseDouble(dataArray[0]);
+		this.yPosition = Double.parseDouble(dataArray[1]);
+		this.rAngle = Double.parseDouble(dataArray[2]);
+		this.id = Integer.parseInt(dataArray[3]);
 	}
 
-	public Packet13SendNewProjectile(String type, double xPosition,
-			double yPosition, double rAngle, String name, int id) {
-		super(13);
-		this.type = type;
+	public Packet14UpdateProjectile(double xPosition, double yPosition,
+			double rAngle, int id) {
+		super(14);
 		this.xPosition = xPosition;
 		this.yPosition = yPosition;
 		this.rAngle = rAngle;
-		this.name = name;
 		this.id = id;
 	}
 
@@ -46,8 +40,8 @@ public class Packet13SendNewProjectile extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("13" + type + "," + xPosition + "," + yPosition + "," + rAngle
-				+ "," + name + "," + id).getBytes();
+		return ("14" + xPosition + "," + yPosition + "," + rAngle + "," + id)
+				.getBytes();
 	}
 
 	public double getxPosition() {
@@ -72,22 +66,6 @@ public class Packet13SendNewProjectile extends Packet {
 
 	public void setrAngle(double rAngle) {
 		this.rAngle = rAngle;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public int getId() {

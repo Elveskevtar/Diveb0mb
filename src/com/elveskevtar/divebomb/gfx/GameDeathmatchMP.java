@@ -16,8 +16,10 @@ import com.elveskevtar.divebomb.net.packets.Packet00Login;
 import com.elveskevtar.divebomb.net.packets.Packet03Move;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
+import com.elveskevtar.divebomb.net.packets.Packet14UpdateProjectile;
 import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.weapons.Bow;
+import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
@@ -99,7 +101,7 @@ public class GameDeathmatchMP extends Game {
 		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont()
 				.getSize() * 33 / 8);
 	}
-	
+
 	@Override
 	public void setTimers() {
 		super.setTimers();
@@ -107,6 +109,7 @@ public class GameDeathmatchMP extends Game {
 		if (getSocketServer() != null) {
 			new Thread(new SendHealthPacket()).start();
 			new Thread(new CheckForEndGame()).start();
+			new Thread(new UpdateProjectiles()).start();
 		}
 	}
 
@@ -132,6 +135,30 @@ public class GameDeathmatchMP extends Game {
 
 	public void setMaxKills(int maxKills) {
 		this.maxKills = maxKills;
+	}
+
+	private class UpdateProjectiles extends Thread {
+
+		@Override
+		public void run() {
+			while (isRunning()) {
+				try {
+					for (Projectile p : getProjectiles()) {
+						Packet14UpdateProjectile packet = new Packet14UpdateProjectile(
+								p.getxPosition(), p.getyPosition(),
+								p.getrAngle(), p.getId());
+						packet.writeData(getSocketServer());
+					}
+				} catch (ConcurrentModificationException e) {
+					e.printStackTrace();
+				}
+				try {
+					Thread.sleep(16);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private class SendMovePacket extends Thread {

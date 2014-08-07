@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ConcurrentModificationException;
 
 import com.elveskevtar.divebomb.gfx.Game;
 import com.elveskevtar.divebomb.gfx.GameDeathmatchMP;
@@ -23,9 +24,13 @@ import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
 import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
+import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
+import com.elveskevtar.divebomb.net.packets.Packet14UpdateProjectile;
+import com.elveskevtar.divebomb.net.packets.Packet15RemoveProjectile;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Arrow;
 import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
@@ -184,6 +189,66 @@ public class GameClient extends Thread {
 			packet = new Packet11GameLobbyTime(data);
 			game.setLobbyTime(((Packet11GameLobbyTime) packet).getSeconds());
 			break;
+		case SENDNEWPROJECTILE:
+			packet = new Packet13SendNewProjectile(data);
+			if (((Packet13SendNewProjectile) packet).getType()
+					.equalsIgnoreCase("arrow")) {
+				Arrow arrow = new Arrow(
+						getPlayer(((Packet13SendNewProjectile) packet)
+								.getName()),
+						((Packet13SendNewProjectile) packet).getId(),
+						((Packet13SendNewProjectile) packet).getxPosition(),
+						((Packet13SendNewProjectile) packet).getyPosition(),
+						((Packet13SendNewProjectile) packet).getrAngle());
+				game.getProjectiles().add(arrow);
+				game.getProjectileIDs().add(
+						((Packet13SendNewProjectile) packet).getId());
+			}
+			break;
+		case UPDATEPROJECTILE:
+			packet = new Packet14UpdateProjectile(data);
+			try {
+				for (int i = 0; i < game.getProjectiles().size(); i++) {
+					if (((Packet14UpdateProjectile) packet).getId() == game
+							.getProjectiles().get(i).getId()) {
+						game.getProjectiles()
+								.get(i)
+								.setxPosition(
+										((Packet14UpdateProjectile) packet)
+												.getxPosition());
+						game.getProjectiles()
+								.get(i)
+								.setyPosition(
+										((Packet14UpdateProjectile) packet)
+												.getyPosition());
+						game.getProjectiles()
+								.get(i)
+								.setrAngle(
+										((Packet14UpdateProjectile) packet)
+												.getrAngle());
+						break;
+					}
+				}
+			} catch (ConcurrentModificationException e) {
+				e.printStackTrace();
+			}
+			break;
+		case REMOVEPROJECTILE:
+			packet = new Packet15RemoveProjectile(data);
+			try {
+				for (int i = 0; i < game.getProjectiles().size(); i++) {
+					if (game.getProjectiles().get(i).getId() == ((Packet15RemoveProjectile) packet)
+							.getId()) {
+						game.getProjectiles().remove(i);
+						game.getProjectileIDs().remove(
+								(Integer) ((Packet15RemoveProjectile) packet)
+										.getId());
+						break;
+					}
+				}
+			} catch (ConcurrentModificationException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 

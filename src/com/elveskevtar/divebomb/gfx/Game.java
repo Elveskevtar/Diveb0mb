@@ -25,6 +25,7 @@ import com.elveskevtar.divebomb.net.GameClient;
 import com.elveskevtar.divebomb.net.GameServer;
 import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
+import com.elveskevtar.divebomb.net.packets.Packet15RemoveProjectile;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -256,20 +257,24 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.getInHand() instanceof ProjectileShooter) {
 					rAngle = ((ProjectileShooter) p.getInHand()).getrAngle();
 					if (p.isFacingRight()) {
-						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition())
+						x = getWidth() / 2
+								+ (user.getxPosition() - p.getxPosition())
 								+ p.getWeaponXTweak()
 								+ p.getInHand().getxAdjustment();
-						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition())
+						y = getHeight() / 2
+								+ (user.getyPosition() - p.getyPosition())
 								+ p.getInHand().getyAdjustment()
 								+ p.getWeaponYTweak()
 								+ p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
 					} else {
-						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition())
+						x = getWidth() / 2
+								+ (user.getxPosition() - p.getxPosition())
 								+ p.getWeaponXTweak()
 								+ p.getInHand().getxAdjustment()
 								+ p.getInHand().getWidth();
-						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition())
+						y = getHeight() / 2
+								+ (user.getyPosition() - p.getyPosition())
 								+ p.getInHand().getyAdjustment()
 								+ p.getWeaponYTweak()
 								+ p.getInHand().getHeight() / 2;
@@ -565,8 +570,18 @@ public abstract class Game extends JPanel implements KeyListener,
 
 		@Override
 		public void run() {
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 			projectiles.remove(p);
 			projectileIDs.remove((Integer) p.getId());
+			if (socketServer != null) {
+				Packet15RemoveProjectile packet = new Packet15RemoveProjectile(
+						(int) p.getId());
+				packet.writeData(socketServer);
+			}
 		}
 	}
 
@@ -584,20 +599,24 @@ public abstract class Game extends JPanel implements KeyListener,
 		@Override
 		public void run() {
 			try {
-				for (Projectile p : projectiles) {
-					p.setVeloy(p.getVeloy() - p.getAirTime());
-					p.setxPosition(p.getxPosition() + p.getVelox());
-					p.setyPosition(p.getyPosition() + p.getVeloy());
-					p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
-					for (Rectangle r : collisionRecs)
-						if (new Rectangle((int) -p.getxPosition(),
-								(int) -p.getyPosition(), p.getWidth(),
-								p.getHeight()).intersects(r)) {
-							p.setVelox(0);
-							p.setVeloy(0);
+				if (socketClient == null || socketServer != null) {
+					for (Projectile p : projectiles) {
+						if (p.getVelox() != 0 || p.getVeloy() != 0) {
+							p.setVeloy(p.getVeloy() - p.getAirTime());
+							p.setxPosition(p.getxPosition() + p.getVelox());
+							p.setyPosition(p.getyPosition() + p.getVeloy());
+							p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
 						}
-					if (p.getVelox() == 0 && p.getVeloy() == 0)
-						new Thread(new RemoveProjectile(p)).start();
+						for (Rectangle r : collisionRecs)
+							if (new Rectangle((int) -p.getxPosition(),
+									(int) -p.getyPosition(), p.getWidth(),
+									p.getHeight()).intersects(r)) {
+								p.setVelox(0);
+								p.setVeloy(0);
+							}
+						if (p.getVelox() == 0 && p.getVeloy() == 0)
+							new Thread(new RemoveProjectile(p)).start();
+					}
 				}
 			} catch (ConcurrentModificationException e) {
 				e.printStackTrace();

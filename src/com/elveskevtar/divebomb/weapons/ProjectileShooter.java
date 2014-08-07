@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import com.elveskevtar.divebomb.race.Player;
 
 public abstract class ProjectileShooter extends Weapon {
-	
+
 	private double rAngle;
 	private int projectileSpawnRightX;
 	private int projectileSpawnRightY;
@@ -15,7 +15,7 @@ public abstract class ProjectileShooter extends Weapon {
 	public ProjectileShooter(Player p) {
 		super(p);
 	}
-	
+
 	@Override
 	public void attack(ArrayList<Player> players, boolean server) {
 		if (getPlayer().getGame().getSocketClient() == null || server == true) {
@@ -23,11 +23,13 @@ public abstract class ProjectileShooter extends Weapon {
 		} else if (getPlayer().getName().equalsIgnoreCase(
 				getPlayer().getGame().getUserName())
 				&& !server) {
-			
+			addProjectileToServer();
 		}
 	}
-	
+
 	public abstract void addProjectile();
+
+	public abstract void addProjectileToServer();
 
 	public int getProjectileSpawnRightX() {
 		return projectileSpawnRightX;

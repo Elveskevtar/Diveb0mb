@@ -19,9 +19,11 @@ import com.elveskevtar.divebomb.net.packets.Packet04Attack;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
 import com.elveskevtar.divebomb.net.packets.Packet11GameLobbyTime;
+import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
+import com.elveskevtar.divebomb.weapons.Arrow;
 import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Sword;
 import com.elveskevtar.divebomb.weapons.Weapon;
@@ -191,6 +193,27 @@ public class GameServer extends Thread {
 			handleUpdateUserInfo(
 					connectedPlayers.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 							.getName())), (Packet10UpdateUserInfo) packet);
+			break;
+		case SENDNEWPROJECTILE:
+			packet = new Packet13SendNewProjectile(data);
+			if (((Packet13SendNewProjectile) packet).getType()
+					.equalsIgnoreCase("arrow")) {
+				Arrow arrow = new Arrow(
+						getPlayerMP(((Packet13SendNewProjectile) packet)
+								.getName()),
+						((Packet13SendNewProjectile) packet).getId(),
+						((Packet13SendNewProjectile) packet).getxPosition(),
+						((Packet13SendNewProjectile) packet).getyPosition(),
+						((Packet13SendNewProjectile) packet).getrAngle());
+				game.getProjectiles().add(arrow);
+				game.getProjectileIDs().add(
+						((Packet13SendNewProjectile) packet).getId());
+				Packet13SendNewProjectile projectilePacket = new Packet13SendNewProjectile(
+						"arrow", arrow.getxPosition(), arrow.getyPosition(),
+						arrow.getrAngle(), arrow.getPlayer().getName(),
+						((Packet13SendNewProjectile) packet).getId());
+				projectilePacket.writeData(this);
+			}
 			break;
 		}
 		for (Player p : connectedPlayers) {

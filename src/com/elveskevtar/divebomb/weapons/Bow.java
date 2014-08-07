@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
+import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.race.Player;
 
 public class Bow extends ProjectileShooter {
@@ -56,5 +57,26 @@ public class Bow extends ProjectileShooter {
 							+ getPlayer().getyPosition()
 							- 32, getrAngle()));
 		getPlayer().getGame().getProjectileIDs().add(id);
+	}
+
+	@Override
+	public void addProjectileToServer() {
+		int id;
+		do {
+			id = (int) (Math.random() * 10000);
+		} while (getPlayer().getGame().getProjectileIDs().contains(id));
+		Packet13SendNewProjectile packet;
+		if (getPlayer().isFacingRight())
+			packet = new Packet13SendNewProjectile("arrow",
+					-Math.cos(getrAngle()) * 28 + getPlayer().getxPosition(),
+					-Math.sin(getrAngle()) * 28 + getPlayer().getyPosition()
+							- 32, getrAngle(), getPlayer().getName(), id);
+		else
+			packet = new Packet13SendNewProjectile("arrow",
+					Math.cos(getrAngle()) * 28 + getPlayer().getxPosition()
+							- 16, Math.sin(getrAngle()) * 28
+							+ getPlayer().getyPosition() - 32, getrAngle(),
+					getPlayer().getName(), id);
+		packet.writeData(getPlayer().getGame().getSocketClient());
 	}
 }

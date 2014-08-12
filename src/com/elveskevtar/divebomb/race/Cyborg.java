@@ -4,7 +4,6 @@ import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -130,35 +129,5 @@ public class Cyborg extends Player {
 				return false;
 		}
 		return true;
-	}
-
-	/*
-	 * 1 = left; 2 = right; 3 = up; 4 = down
-	 */
-	@Override
-	public ArrayList<Integer> checkCollisions() {
-		ArrayList<Integer> ints = new ArrayList<Integer>();
-		for (Rectangle r : getGame().getCollisionRecs()) {
-			if (new Rectangle((int) (getBounds().x + 10 - getVeloX()),
-					getBounds().y + 14, getBounds().width - 20,
-					getBounds().height - 14).intersects(r))
-				ints.add(1);
-			if (new Rectangle((int) (getBounds().x + 10 - getVeloX()),
-					getBounds().y + 14, getBounds().width - 20,
-					getBounds().height - 14).intersects(r))
-				ints.add(2);
-			if (new Rectangle(getBounds().x + 10,
-					(int) (getBounds().y + 10 - getVeloY()),
-					getBounds().width - 20, getBounds().height - 14)
-					.intersects(r))
-				ints.add(3);
-			if (new Rectangle(getBounds().x + 10,
-					(int) (getBounds().y + 14 - getVeloY()),
-					getBounds().width - 20, getBounds().height - 14)
-					.intersects(r)) {
-				ints.add(4);
-			}
-		}
-		return ints;
 	}
 }

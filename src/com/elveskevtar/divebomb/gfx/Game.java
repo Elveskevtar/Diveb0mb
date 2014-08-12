@@ -576,6 +576,45 @@ public abstract class Game extends JPanel implements KeyListener,
 								p.setVelox(0);
 								p.setVeloy(0);
 							}
+						if (socketServer != null)
+							for (Player player : socketServer.connectedPlayers) {
+								if (new Rectangle((int) -p.getxPosition(),
+										(int) -p.getyPosition(), p.getWidth(),
+										p.getHeight())
+										.intersects(new Rectangle(player
+												.getBounds().x + 10, player
+												.getBounds().y + 14, player
+												.getBounds().width - 20, player
+												.getBounds().height - 14))
+										&& !player.isDead()) {
+									ArrayList<Player> attacked = new ArrayList<Player>();
+									attacked.add(player);
+									p.attack(attacked, true);
+									projectiles.remove(p);
+									projectileIDs.remove((Integer) p.getId());
+									Packet15RemoveProjectile packet = new Packet15RemoveProjectile(
+											(int) p.getId());
+									packet.writeData(socketServer);
+								}
+							}
+						else
+							for (Player player : players) {
+								if (new Rectangle((int) -p.getxPosition(),
+										(int) -p.getyPosition(), p.getWidth(),
+										p.getHeight())
+										.intersects(new Rectangle(player
+												.getBounds().x + 10, player
+												.getBounds().y + 14, player
+												.getBounds().width - 20, player
+												.getBounds().height - 14))
+										&& !player.isDead()) {
+									ArrayList<Player> attacked = new ArrayList<Player>();
+									attacked.add(player);
+									p.attack(attacked, false);
+									projectiles.remove(p);
+									projectileIDs.remove((Integer) p.getId());
+								}
+							}
 						if (p.getVelox() == 0 && p.getVeloy() == 0)
 							new Thread(new RemoveProjectile(p)).start();
 					}
@@ -859,10 +898,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		public void run() {
 			if (socketClient == null) {
 				for (Player p : players) {
-					if (p.getVeloX() < 0 && !p.checkCollisions().contains(2)
-							&& !p.isDead())
-						p.setxPosition(p.getxPosition() + p.getVeloX());
-					if (p.getVeloX() > 0 && !p.checkCollisions().contains(1)
+					if (p.getVeloX() != 0 && !p.checkCollisions().contains(1)
 							&& !p.isDead())
 						p.setxPosition(p.getxPosition() + p.getVeloX());
 					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)
@@ -927,10 +963,7 @@ public abstract class Game extends JPanel implements KeyListener,
 						p.setVeloY(-0.5);
 				}
 			} else {
-				if (user.getVeloX() < 0 && !user.checkCollisions().contains(2)
-						&& !user.isDead())
-					user.setxPosition(user.getxPosition() + user.getVeloX());
-				if (user.getVeloX() > 0 && !user.checkCollisions().contains(1)
+				if (user.getVeloX() != 0 && !user.checkCollisions().contains(1)
 						&& !user.isDead())
 					user.setxPosition(user.getxPosition() + user.getVeloX());
 				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)

@@ -2,7 +2,6 @@ package com.elveskevtar.divebomb.weapons;
 
 import java.util.ArrayList;
 
-import com.elveskevtar.divebomb.net.packets.Packet04Attack;
 import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.race.Player;
 
@@ -30,27 +29,19 @@ public class Projectile extends Weapon {
 
 	@Override
 	public void attack(ArrayList<Player> players, boolean server) {
-		if (getPlayer().getGame().getSocketClient() == null || server == true) {
-			ArrayList<Player> attackedPlayers = players;
-			for (Player p : attackedPlayers) {
-				p.setHealth(p.getHealth() + (Math.random() * -10)
-						+ p.getInHand().getDefense() - getDamage());
-				if (p.getHealth() <= 0) {
-					getPlayer().setKills(getPlayer().getKills() + 1);
-					p.setDeaths(p.getDeaths() + 1);
-					if (server) {
-						Packet06Kill packet = new Packet06Kill(getPlayer()
-								.getName(), p.getName());
-						packet.writeData(getPlayer().getGame()
-								.getSocketServer());
-					}
+		ArrayList<Player> attackedPlayers = players;
+		for (Player p : attackedPlayers) {
+			p.setHealth(p.getHealth() + (Math.random() * -10)
+					+ p.getInHand().getDefense() - getDamage());
+			if (p.getHealth() <= 0) {
+				getPlayer().setKills(getPlayer().getKills() + 1);
+				p.setDeaths(p.getDeaths() + 1);
+				if (server) {
+					Packet06Kill packet = new Packet06Kill(getPlayer()
+							.getName(), p.getName());
+					packet.writeData(getPlayer().getGame().getSocketServer());
 				}
 			}
-		} else if (getPlayer().getName().equalsIgnoreCase(
-				getPlayer().getGame().getUserName())
-				&& !server) {
-			Packet04Attack packet = new Packet04Attack(getPlayer().getName());
-			packet.writeData(getPlayer().getGame().getSocketClient());
 		}
 	}
 

@@ -130,7 +130,9 @@ public class GameClient extends Thread {
 			break;
 		case KILL:
 			packet = new Packet06Kill(data);
-			if (getPlayer(((Packet06Kill) packet).getMurderer()) != null)
+			if (getPlayer(((Packet06Kill) packet).getMurderer()) != null
+					&& !((Packet06Kill) packet).getMurderer().equalsIgnoreCase(
+							((Packet06Kill) packet).getVictim()))
 				getPlayer(((Packet06Kill) packet).getMurderer()).setKills(
 						getPlayer(((Packet06Kill) packet).getMurderer())
 								.getKills() + 1);

@@ -34,7 +34,8 @@ public class Projectile extends Weapon {
 			p.setHealth(p.getHealth() + (Math.random() * -10)
 					+ p.getInHand().getDefense() - getDamage());
 			if (p.getHealth() <= 0) {
-				getPlayer().setKills(getPlayer().getKills() + 1);
+				if (!p.getName().equalsIgnoreCase(getPlayer().getName()))
+					getPlayer().setKills(getPlayer().getKills() + 1);
 				p.setDeaths(p.getDeaths() + 1);
 				if (server) {
 					Packet06Kill packet = new Packet06Kill(getPlayer()

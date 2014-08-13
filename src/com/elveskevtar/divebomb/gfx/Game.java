@@ -326,6 +326,7 @@ public abstract class Game extends JPanel implements KeyListener,
 					null);
 			g2d.rotate(-rAngle, x, y);
 		}
+		requestFocusInWindow();
 	}
 
 	@Override

@@ -4,8 +4,11 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -18,11 +21,12 @@ import javax.swing.JPanel;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
 import com.elveskevtar.divebomb.race.Player.PlayerTypes;
 
-public class GameLobbyMenu extends JPanel implements KeyListener {
+public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener {
 
 	private static final long serialVersionUID = -3823209600661844336L;
 	private boolean switchRunning;
 	private int raceSelectionPointer;
+	private int colorSelectionPointer;
 	private int xOffSet;
 
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
@@ -38,6 +42,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setFocusable(true);
 		this.addKeyListener(this);
+		this.addMouseListener(this);
 		this.game = new GameDeathmatchMP("res/img/Map.png",
 				"res/img/CollisionMap.png", 0, frame, username);
 		this.game.setLobbyTime(-1);
@@ -60,6 +65,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setFocusable(true);
 		this.addKeyListener(this);
+		this.addMouseListener(this);
 		this.game = new GameDeathmatchMP(ip, frame, username);
 		this.game.setLobbyTime(-1);
 		this.game.getUser().setName(username);
@@ -91,6 +97,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		try {
+			races.set(raceSelectionPointer,
+					ImageIO.read(new File(
+							PlayerTypes.values()[raceSelectionPointer]
+									.getFiles()[colorSelectionPointer])));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		for (BufferedImage race : races) {
 			g2d.drawImage(
 					race,
@@ -102,7 +116,25 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 							+ (races.indexOf(race) - raceSelectionPointer)
 							* 1.5 * (getWidth() / 4) + xOffSet),
 					getHeight() * 7 / 8, 0, 0, 32, 64, null);
+			if (PlayerTypes.values()[raceSelectionPointer].getColors() != null) {
+				g2d.setColor(new Color(33, 208, 235));
+				g2d.fillRect(getWidth() / 2 - getWidth() / 8 + getWidth() / 32
+						+ colorSelectionPointer % 2 * getWidth() / 8 - 4,
+						getHeight() / 8 + (colorSelectionPointer / 2 + 1)
+								* getWidth() / 32 - 4, getWidth() / 16 + 8,
+						getWidth() / 16 + 8);
+				for (int i = 0; i < PlayerTypes.values()[raceSelectionPointer]
+						.getColors().length; i++) {
+					g2d.setColor(PlayerTypes.values()[raceSelectionPointer]
+							.getColors()[i]);
+					g2d.fillRect(getWidth() / 2 - getWidth() / 8 + getWidth()
+							/ 32 + i % 2 * getWidth() / 8, getHeight() / 8
+							+ (i / 2 + 1) * getWidth() / 32, getWidth() / 16,
+							getWidth() / 16);
+				}
+			}
 		}
+		g2d.setColor(g2d.getBackground());
 		if (game.getLobbyTime() == 0)
 			initGame();
 		requestFocusInWindow();
@@ -111,6 +143,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 
 	public void initGame() {
 		game.setLobbyTime(-1);
+		if (PlayerTypes.values()[raceSelectionPointer].getColors() != null) {
+			if (PlayerTypes.values()[raceSelectionPointer].getColors()[colorSelectionPointer]
+					.equals(Color.BLUE))
+				game.setUserColor("blue");
+			else if (PlayerTypes.values()[raceSelectionPointer].getColors()[colorSelectionPointer]
+					.equals(new Color(76, 0, 153)))
+				game.setUserColor("purple");
+		}
 		Packet10UpdateUserInfo packet = new Packet10UpdateUserInfo(
 				game.getUserName(), game.getUserRace(), game.getUserColor(),
 				weapon);
@@ -158,12 +198,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 				&& raceSelectionPointer < PlayerTypes.values().length - 1
 				&& !switchRunning) {
 			switchRunning = true;
+			colorSelectionPointer = 0;
 			new Thread(new SwitchRace(1)).start();
 			repaint();
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
 				&& raceSelectionPointer > 0 && !switchRunning) {
 			switchRunning = true;
+			colorSelectionPointer = 0;
 			new Thread(new SwitchRace(-1)).start();
 			repaint();
 		}
@@ -211,6 +253,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 		this.switchRunning = switchRunning;
 	}
 
+	public int getColorSelectionPointer() {
+		return colorSelectionPointer;
+	}
+
+	public void setColorSelectionPointer(int colorSelectionPointer) {
+		this.colorSelectionPointer = colorSelectionPointer;
+	}
+
 	public class SwitchRace extends Thread {
 
 		private int sign;
@@ -248,5 +298,37 @@ public class GameLobbyMenu extends JPanel implements KeyListener {
 			game.setUserRace(PlayerTypes.values()[raceSelectionPointer]
 					.getName());
 		}
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (PlayerTypes.values()[raceSelectionPointer].getColors() != null)
+			for (int i = 0; i < PlayerTypes.values()[raceSelectionPointer]
+					.getColors().length; i++)
+				if (new Rectangle(getWidth() / 2 - getWidth() / 8 + getWidth()
+						/ 32 + i % 2 * getWidth() / 8, getHeight() / 8
+						+ (i / 2 + 1) * getWidth() / 32, getWidth() / 16,
+						getWidth() / 16).intersects(e.getX(), e.getY(), 1, 1))
+					colorSelectionPointer = i;
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+
 	}
 }

@@ -6,6 +6,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Random;
 
 import com.elveskevtar.divebomb.gfx.Game;
 import com.elveskevtar.divebomb.maps.SpawnPoints;
@@ -237,9 +238,10 @@ public class GameServer extends Thread {
 			for (SpawnPoints point : SpawnPoints.values())
 				if (point.getMapID() == game.getGraphicsMap().getId())
 					spawnPoints.add(point);
+			int r = new Random().nextInt(spawnPoints.size() - 1);
 			Packet18RespawnPlayer respawnPacket = new Packet18RespawnPlayer(
-					((Packet17Respawn) packet).getName(), spawnPoints.get(0)
-							.getX(), spawnPoints.get(0).getY());
+					((Packet17Respawn) packet).getName(), spawnPoints.get(r)
+							.getX(), spawnPoints.get(r).getY());
 			respawnPacket.writeData(this);
 			break;
 		}

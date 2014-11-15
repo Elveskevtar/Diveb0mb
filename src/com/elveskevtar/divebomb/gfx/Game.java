@@ -22,7 +22,6 @@ import javax.swing.JPanel;
 import com.elveskevtar.divebomb.maps.Map;
 import com.elveskevtar.divebomb.net.GameClient;
 import com.elveskevtar.divebomb.net.GameServer;
-import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet15RemoveProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet16Suicide;
@@ -205,8 +204,12 @@ public abstract class Game extends JPanel implements KeyListener,
 	public void paint(Graphics g) {
 		super.paint(g);
 		if (running) {
-			if (state == 0)
+			if (state == 0) {
 				paintGame(g);
+			} else if (state == 1) {
+				paintGame(g);
+				paintPauseMenu(g);
+			}
 		}
 	}
 
@@ -329,6 +332,12 @@ public abstract class Game extends JPanel implements KeyListener,
 		requestFocusInWindow();
 	}
 
+	public void paintPauseMenu(Graphics g) {
+		Graphics g2d = (Graphics2D) g;
+		g2d.setColor(new Color(32, 32, 32, 100));
+		g2d.fillRect(0, 0, getWidth(), getHeight());
+	}
+
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if (!keys.contains(e.getKeyCode()))
@@ -351,6 +360,13 @@ public abstract class Game extends JPanel implements KeyListener,
 			timer.cancel();
 			speed += 50;
 			setTimers();
+		}
+		if (keys.contains(KeyEvent.VK_ESCAPE)) {
+			if (state == 0) {
+				state = 1;
+			} else if (state == 1) {
+				state = 0;
+			}
 		}
 	}
 
@@ -587,7 +603,8 @@ public abstract class Game extends JPanel implements KeyListener,
 												.getBounds().y + 14, player
 												.getBounds().width - 20, player
 												.getBounds().height - 14))
-										&& !player.isDead()) {
+										&& !player.isDead()
+										&& (p.getVelox() != 0 || p.getVeloy() != 0)) {
 									ArrayList<Player> attacked = new ArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, true);
@@ -608,7 +625,8 @@ public abstract class Game extends JPanel implements KeyListener,
 												.getBounds().y + 14, player
 												.getBounds().width - 20, player
 												.getBounds().height - 14))
-										&& !player.isDead()) {
+										&& !player.isDead()
+										&& (p.getVelox() != 0 || p.getVeloy() != 0)) {
 									ArrayList<Player> attacked = new ArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, false);
@@ -680,14 +698,12 @@ public abstract class Game extends JPanel implements KeyListener,
 
 		@Override
 		public void run() {
-			if (keys.contains(KeyEvent.VK_ESCAPE)) {
-				if (!hosting && socketClient != null) {
-					Packet01Disconnect packet = new Packet01Disconnect(
-							user.getName());
-					packet.writeData(socketClient);
-				}
-				System.exit(0);
-			}
+			/*
+			 * if (keys.contains(KeyEvent.VK_ESCAPE)) { if (!hosting &&
+			 * socketClient != null) { Packet01Disconnect packet = new
+			 * Packet01Disconnect( user.getName());
+			 * packet.writeData(socketClient); } System.exit(0); }
+			 */
 			if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
 				zoom++;
 				keys.remove((Integer) KeyEvent.VK_EQUALS);

@@ -2,6 +2,7 @@ package com.elveskevtar.divebomb.weapons;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -78,5 +79,25 @@ public class Bow extends ProjectileShooter {
 							+ getPlayer().getyPosition() - 32, getrAngle(),
 					getPlayer().getName(), id);
 		packet.writeData(getPlayer().getGame().getSocketClient());
+	}
+
+	@Override
+	public void attack(ArrayList<Player> players, boolean server) {
+		super.attack(players, server);
+		new Thread(new Animation()).start();
+	}
+
+	private class Animation extends Thread {
+
+		@Override
+		public void run() {
+			setSpriteX(1);
+			try {
+				Thread.sleep(50);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			setSpriteX(0);
+		}
 	}
 }

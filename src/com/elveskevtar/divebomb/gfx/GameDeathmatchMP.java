@@ -91,7 +91,7 @@ public class GameDeathmatchMP extends Game {
 						* -1,
 				(-getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom()))
 						* -1);
-		g2d.setFont(new Font("Arial Black", Font.PLAIN, 20 / getZoom()));
+		g2d.setFont(new Font("Livewired", Font.PLAIN, 20 / getZoom()));
 		g2d.drawString("Health: " + getUser().getHealth(), 0, g2d.getFont()
 				.getSize() * 3 / 4);
 		g2d.drawString("Stamina: " + getUser().getStamina(), 0, g2d.getFont()

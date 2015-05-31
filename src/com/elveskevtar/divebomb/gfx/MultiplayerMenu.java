@@ -29,9 +29,8 @@ public class MultiplayerMenu extends JPanel {
 		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setLayout(null);
 		this.setFocusable(true);
-		this.ipFont = new Font("Arial Black", Font.PLAIN, getHeight() / 24);
-		this.userNameFont = new Font("Arial Black", Font.PLAIN,
-				getHeight() / 24);
+		this.ipFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
+		this.userNameFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
 		this.back = new JButton("Back");
 		this.privateGame = new JButton("Create Private Game");
 		this.joinGame = new JButton("Join Game");

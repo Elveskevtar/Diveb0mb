@@ -215,7 +215,7 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void paintGame(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
-		font = new Font("Arial Black", Font.PLAIN, 10);
+		font = new Font("Livewired", Font.PLAIN, 10);
 		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight()
 				* (0.5 * zoom - 0.5));
 		g2d.scale(zoom, zoom);

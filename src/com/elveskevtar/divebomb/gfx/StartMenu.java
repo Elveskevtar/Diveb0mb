@@ -91,24 +91,28 @@ public class StartMenu extends JPanel {
 		this.campaign.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				campaignPulse = false;
 				campaignAction();
 			}
 		});
 		this.multiplayer.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				multiplayerPulse = false;
 				multiplayerAction();
 			}
 		});
 		this.options.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				optionsPulse = false;
 				optionsAction();
 			}
 		});
 		this.exit.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				exitPulse = false;
 				exitAction();
 			}
 		});

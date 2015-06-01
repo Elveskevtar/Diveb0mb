@@ -85,7 +85,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener 
 		g2d.setColor(g2d.getBackground());
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 		g2d.setColor(Color.BLACK);
-		g2d.setFont(new Font("Arial Black", Font.BOLD, getHeight() / 8));
+		g2d.setFont(new Font("Livewired", Font.BOLD, getHeight() / 8));
 		if (game.getLobbyTime() != -1)
 			g2d.drawString(Integer.toString(game.getLobbyTime()), 0, g2d
 					.getFont().getSize() * 3 / 4);

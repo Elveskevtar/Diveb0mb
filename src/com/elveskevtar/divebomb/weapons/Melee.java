@@ -8,6 +8,36 @@ import com.elveskevtar.divebomb.race.Player;
 
 public abstract class Melee extends Weapon {
 
+	private static String[] swordFiles = { "res/img/sword.png" };
+
+	public static enum MeleeWeaponTypes {
+		SWORD(swordFiles, "sword");
+
+		private String[] files;
+		private String name;
+
+		MeleeWeaponTypes(String[] files, String name) {
+			this.setFiles(files);
+			this.setName(name);
+		}
+
+		public String[] getFiles() {
+			return files;
+		}
+
+		public void setFiles(String[] files) {
+			this.files = files;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+	}
+
 	private int distance;
 
 	public Melee(Player p) {

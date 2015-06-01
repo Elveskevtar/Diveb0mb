@@ -8,3 +8,4 @@ Create an actual map
 Make servers more customizable (being able to change gamemode between matches, change amount of players, etc)
 Make more races, weapons, maps, etc
 Improve all graphics
+Create a short end-game screen with battle stats

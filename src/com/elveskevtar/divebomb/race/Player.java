@@ -17,17 +17,19 @@ import com.elveskevtar.divebomb.weapons.Weapon;
 
 public abstract class Player {
 
-	private static String[] humanFiles = {"res/img/human_male.png"};
-	private static String[] cyborgFiles = {"res/img/cyborg_blue.png", "res/img/cyborg_purple.png"};
-	private static Color[] cyborgColors = {Color.BLUE, new Color(76, 0, 153)};
-	
+	private static String[] humanFiles = { "res/img/human_male.png" };
+	private static String[] cyborgFiles = { "res/img/cyborg_blue.png",
+			"res/img/cyborg_purple.png" };
+	private static Color[] cyborgColors = { Color.BLUE, new Color(76, 0, 153) };
+
 	public static enum PlayerTypes {
-		HUMAN(humanFiles, null, "human"), CYBORG(cyborgFiles, cyborgColors, "cyborg");
+		HUMAN(humanFiles, null, "human"), CYBORG(cyborgFiles, cyborgColors,
+				"cyborg");
 
 		private String[] files;
 		private Color[] colors;
 		private String name;
-		
+
 		PlayerTypes(String[] files, Color[] colors, String name) {
 			this.setFiles(files);
 			this.setColors(colors);

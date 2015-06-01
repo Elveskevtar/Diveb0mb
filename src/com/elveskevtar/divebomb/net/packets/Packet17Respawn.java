@@ -6,12 +6,12 @@ import com.elveskevtar.divebomb.net.GameServer;
 public class Packet17Respawn extends Packet {
 
 	private String name;
-	
+
 	public Packet17Respawn(byte[] data) {
 		super(17);
 		this.name = readData(data);
 	}
-	
+
 	public Packet17Respawn(String name) {
 		super(17);
 		this.name = name;

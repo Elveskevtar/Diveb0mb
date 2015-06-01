@@ -19,7 +19,8 @@ public class Packet10UpdateUserInfo extends Packet {
 		this.weapon = dataArray[3];
 	}
 
-	public Packet10UpdateUserInfo(String name, String race, String color, String weapon) {
+	public Packet10UpdateUserInfo(String name, String race, String color,
+			String weapon) {
 		super(10);
 		this.name = name;
 		this.race = race;

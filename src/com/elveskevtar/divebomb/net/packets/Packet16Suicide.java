@@ -6,12 +6,12 @@ import com.elveskevtar.divebomb.net.GameServer;
 public class Packet16Suicide extends Packet {
 
 	private String name;
-	
+
 	public Packet16Suicide(byte[] data) {
 		super(16);
 		this.name = readData(data);
 	}
-	
+
 	public Packet16Suicide(String name) {
 		super(16);
 		this.name = name;

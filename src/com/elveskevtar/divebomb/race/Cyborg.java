@@ -37,8 +37,7 @@ public class Cyborg extends Player {
 		this.setWeaponYTweak(getStandingLeftHandY());
 	}
 
-	public Cyborg(Game game, String color, InetAddress ip,
-			int port) {
+	public Cyborg(Game game, String color, InetAddress ip, int port) {
 		super(game, ip, port);
 		try {
 			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_"
@@ -65,8 +64,7 @@ public class Cyborg extends Player {
 		this.setWeaponYTweak(getStandingLeftHandY());
 	}
 
-	public Cyborg(Game game, String color, String name,
-			InetAddress ip, int port) {
+	public Cyborg(Game game, String color, String name, InetAddress ip, int port) {
 		super(game, name, ip, port);
 		try {
 			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_"
@@ -93,8 +91,7 @@ public class Cyborg extends Player {
 		this.setWeaponYTweak(getStandingLeftHandY());
 	}
 
-	public Cyborg(Game game, String name, int ignore,
-			InetAddress ip, int port) {
+	public Cyborg(Game game, String name, int ignore, InetAddress ip, int port) {
 		super(game, name, ip, port);
 		try {
 			this.setPlayerSpriteSheet(ImageIO.read(new File(

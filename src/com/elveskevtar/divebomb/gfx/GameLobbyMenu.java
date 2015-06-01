@@ -30,6 +30,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener 
 	private int xOffSet;
 
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
+	private ArrayList<BufferedImage> meleeWeapons = new ArrayList<BufferedImage>();
+	private ArrayList<BufferedImage> rangedWeapons = new ArrayList<BufferedImage>();
 	private JFrame frame;
 	private String ip;
 	private String weapon = "bow";

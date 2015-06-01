@@ -29,7 +29,7 @@ public class Packet07Endgame extends Packet {
 	public void setWinner(String winner) {
 		this.winner = winner;
 	}
-	
+
 	public int getScore() {
 		return score;
 	}

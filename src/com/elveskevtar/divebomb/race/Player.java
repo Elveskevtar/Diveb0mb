@@ -66,6 +66,8 @@ public abstract class Player {
 	private BufferedImage playerSprite;
 	private InetAddress ip;
 	private Weapon inHand;
+	private Weapon melee;
+	private Weapon ranged;
 	private String name;
 	private String color;
 	private Game game;
@@ -580,6 +582,22 @@ public abstract class Player {
 
 	public void setDeaths(int deaths) {
 		this.deaths = deaths;
+	}
+
+	public Weapon getMelee() {
+		return melee;
+	}
+
+	public void setMelee(Weapon melee) {
+		this.melee = melee;
+	}
+
+	public Weapon getRanged() {
+		return ranged;
+	}
+
+	public void setRanged(Weapon ranged) {
+		this.ranged = ranged;
 	}
 
 	private class StaminaRegen extends TimerTask {

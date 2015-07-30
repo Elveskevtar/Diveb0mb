@@ -32,6 +32,7 @@ import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
+import com.elveskevtar.divebomb.weapons.Sword;
 
 public abstract class Game extends JPanel implements KeyListener,
 		MouseListener, MouseMotionListener {
@@ -78,6 +79,8 @@ public abstract class Game extends JPanel implements KeyListener,
 	private String userName;
 	private String userRace;
 	private String userColor;
+	private String userMelee;
+	private String userRanged;
 	private String serverIP;
 
 	public Game(int gameID, JFrame frame) {
@@ -97,9 +100,11 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setFrame(frame);
 		this.userName = "Bob";
 		this.userRace = "human";
+		this.userMelee = "sword";
+		this.userRanged = "bow";
 		this.userColor = "";
 		this.updatePlayer();
-		this.user.setInHand(new Bow(user));
+		this.user.setInHand(new Sword(user));
 		if (userColor.equalsIgnoreCase(""))
 			setUserColor(" ");
 	}
@@ -117,6 +122,11 @@ public abstract class Game extends JPanel implements KeyListener,
 			user = new Cyborg(this, userName, -1, null, -1);
 		else
 			user = new Human(this, userName, null, -1);
+		if (userMelee.equalsIgnoreCase("sword"))
+			user.setMelee(new Sword(user));
+		if (userRanged.equalsIgnoreCase("bow"))
+			user.setRanged(new Bow(user));
+		user.setInHand(user.getMelee());
 	}
 
 	public void setTimers() {
@@ -143,7 +153,7 @@ public abstract class Game extends JPanel implements KeyListener,
 			}
 		}
 		this.updatePlayer();
-		this.user.setInHand(new Bow(user));
+		this.user.setInHand(new Sword(user)); // get rid of this asap
 		this.players.add(user);
 		this.addKeyListener(this);
 		this.addMouseListener(this);
@@ -546,6 +556,22 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
 		this.projectileIDs = projectileIDs;
+	}
+
+	public String getUserMelee() {
+		return userMelee;
+	}
+
+	public void setUserMelee(String userMelee) {
+		this.userMelee = userMelee;
+	}
+
+	public String getUserRanged() {
+		return userRanged;
+	}
+
+	public void setUserRanged(String userRanged) {
+		this.userRanged = userRanged;
 	}
 
 	private class RemoveProjectile extends Thread {

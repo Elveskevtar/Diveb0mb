@@ -7,9 +7,13 @@ import com.elveskevtar.divebomb.race.Player;
 public abstract class ProjectileShooter extends Weapon {
 
 	private static String[] bowFiles = { "res/icon/bow.png" };
+	private static String[] example1Files = { "res/icon/rangedExample1.png" };
+	private static String[] example2Files = { "res/icon/rangedExample2.png" };
+	private static String[] example3Files = { "res/icon/rangedExample3.png" };
 
 	public static enum ProjectileShooterTypes {
-		BOW(bowFiles, "bow");
+		BOW(bowFiles, "bow"), EXAMPLE1(example1Files, "bow"), EXAMPLE2(
+				example2Files, "bow"), EXAMPLE3(example3Files, "bow");
 
 		private String[] files;
 		private String name;

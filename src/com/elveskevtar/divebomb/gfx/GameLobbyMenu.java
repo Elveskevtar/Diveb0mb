@@ -181,7 +181,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		for (BufferedImage melee : meleeWeapons) {
 			if ((int) ((getWidth() / 4 - getWidth() / 20)
 					+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
-					* 1.5 * (getWidth() / 10) + meleeOffset) < getWidth() / 2 - getWidth() / 10)
+					* 1.5 * (getWidth() / 10) + meleeOffset) < getWidth() / 2
+					- getWidth() / 10)
 				g2d.drawImage(
 						melee,
 						(int) ((getWidth() / 4 - getWidth() / 20)
@@ -191,6 +192,21 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 						(int) ((getWidth() / 4 + getWidth() / 20)
 								+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
 								* 1.5 * (getWidth() / 10) + meleeOffset),
+						getHeight(), 0, 0, 32, 32, null);
+		}
+		for (BufferedImage ranged : rangedWeapons) {
+			if ((int) ((getWidth() * 3 / 4 - getWidth() / 20)
+					+ (rangedWeapons.indexOf(ranged) - rangedSelectionPointer)
+					* 1.5 * (getWidth() / 10) + rangedOffset) > getWidth() / 2)
+				g2d.drawImage(
+						ranged,
+						(int) ((getWidth() * 3 / 4 - getWidth() / 20)
+								+ (rangedWeapons.indexOf(ranged) - rangedSelectionPointer)
+								* 1.5 * (getWidth() / 10) + rangedOffset),
+						getHeight() * 7 / 8,
+						(int) ((getWidth() * 3 / 4 + getWidth() / 20)
+								+ (rangedWeapons.indexOf(ranged) - rangedSelectionPointer)
+								* 1.5 * (getWidth() / 10) + rangedOffset),
 						getHeight(), 0, 0, 32, 32, null);
 		}
 		g2d.setColor(new Color(0, 0, 0, 20));
@@ -220,6 +236,22 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 				getBackground().getBlue(), 255), true);
 		g2d.setPaint(meleePaint);
 		g2d.fillRect(getWidth() / 4, getHeight() * 7 / 8, getWidth() / 4,
+				getHeight() / 8);
+		Paint rangedPaint = new GradientPaint(getWidth() / 2, 0, new Color(
+				getBackground().getRed(), getBackground().getGreen(),
+				getBackground().getBlue(), 255), getWidth() * 3 / 4, 0,
+				new Color(getBackground().getRed(), getBackground().getGreen(),
+						getBackground().getBlue(), 0), true);
+		g2d.setPaint(meleePaint);
+		g2d.fillRect(getWidth() / 2, getHeight() * 7 / 8, getWidth() / 4,
+				getHeight() / 8);
+		rangedPaint = new GradientPaint(getWidth() * 3 / 4, 0, new Color(
+				getBackground().getRed(), getBackground().getGreen(),
+				getBackground().getBlue(), 0), getWidth(), 0, new Color(
+				getBackground().getRed(), getBackground().getGreen(),
+				getBackground().getBlue(), 255), true);
+		g2d.setPaint(rangedPaint);
+		g2d.fillRect(getWidth() * 3 / 4, getHeight() * 7 / 8, getWidth() / 4,
 				getHeight() / 8);
 		g2d.setColor(g2d.getBackground());
 		if (game.getLobbyTime() == 0)
@@ -318,18 +350,18 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
 				&& mouseSelection == 3
-				&& raceSelectionPointer < PlayerTypes.values().length - 1
+				&& rangedSelectionPointer < ProjectileShooterTypes.values().length - 1
 				&& !switchRunning) {
 			switchRunning = true;
-			new Thread(new SwitchRace(1)).start();
+			new Thread(new SwitchRanged(1)).start();
 			repaint();
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
 				&& mouseSelection == 3
-				&& raceSelectionPointer > 0
+				&& rangedSelectionPointer > 0
 				&& !switchRunning) {
 			switchRunning = true;
-			new Thread(new SwitchRace(-1)).start();
+			new Thread(new SwitchRanged(-1)).start();
 			repaint();
 		}
 	}
@@ -557,6 +589,45 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 			}
 			switchRunning = false;
 			game.setUserMelee(MeleeWeaponTypes.values()[meleeSelectionPointer]
+					.getName());
+		}
+	}
+
+	private class SwitchRanged extends Thread {
+
+		private int sign;
+
+		public SwitchRanged(int sign) {
+			this.sign = sign;
+		}
+
+		@Override
+		public void run() {
+			if (sign == 1) {
+				while (rangedOffset > -1.5 * (getWidth() / 10)) {
+					rangedOffset -= 2;
+					try {
+						Thread.sleep(0, 10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				rangedOffset = 0;
+				rangedSelectionPointer++;
+			} else {
+				while (rangedOffset < 1.5 * (getWidth() / 10)) {
+					rangedOffset += 2;
+					try {
+						Thread.sleep(0, 10);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				rangedOffset = 0;
+				rangedSelectionPointer--;
+			}
+			switchRunning = false;
+			game.setUserRanged(ProjectileShooterTypes.values()[rangedSelectionPointer]
 					.getName());
 		}
 	}

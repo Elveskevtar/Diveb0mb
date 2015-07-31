@@ -14,11 +14,9 @@ public abstract class Melee extends Weapon {
 	private static String[] example3Files = { "res/icon/meleeExample3.png" };
 
 	public static enum MeleeWeaponTypes {
-		SWORD(swordFiles, "sword"),
-		EXAMPLE1(example1Files, "sword"),
-		EXAMPLE2(example2Files, "sword"),
-		EXAMPLE3(example3Files, "sword");
-		
+		SWORD(swordFiles, "sword"), EXAMPLE1(example1Files, "sword"), EXAMPLE2(
+				example2Files, "sword"), EXAMPLE3(example3Files, "sword");
+
 		private String[] files;
 		private String name;
 

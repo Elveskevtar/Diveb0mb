@@ -2,8 +2,10 @@ package com.elveskevtar.divebomb.gfx;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Paint;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -33,6 +35,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 	private int colorSelectionPointer;
 	private int meleeSelectionPointer;
 	private int rangedSelectionPointer;
+	private int mouseSelection; // 1 = race; 2 = melee; 3 = ranged
 	private int raceOffset;
 	private int meleeOffset;
 	private int rangedOffset;
@@ -176,25 +179,54 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 			}
 		}
 		for (BufferedImage melee : meleeWeapons) {
-			g2d.drawImage(
-					melee,
-					(int) ((getWidth() / 4 - getWidth() / 20)
-							+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
-							* (getWidth() / 10) + meleeOffset),
-					getHeight() * 7 / 8,
-					(int) ((getWidth() / 4 + getWidth() / 20)
-							+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
-							* (getWidth() / 10) + meleeOffset), getHeight(), 0,
-					0, 32, 32, null);
+			if ((int) ((getWidth() / 4 - getWidth() / 20)
+					+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
+					* 1.5 * (getWidth() / 10) + meleeOffset) < getWidth() / 2 - getWidth() / 10)
+				g2d.drawImage(
+						melee,
+						(int) ((getWidth() / 4 - getWidth() / 20)
+								+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
+								* 1.5 * (getWidth() / 10) + meleeOffset),
+						getHeight() * 7 / 8,
+						(int) ((getWidth() / 4 + getWidth() / 20)
+								+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer)
+								* 1.5 * (getWidth() / 10) + meleeOffset),
+						getHeight(), 0, 0, 32, 32, null);
 		}
-		g2d.setColor(new Color(0, 0, 0, 10));
-		if (mouseY < (getHeight() * 7 / 8))
+		g2d.setColor(new Color(0, 0, 0, 20));
+		if (mouseY < getHeight() * 7 / 8) {
 			g2d.fillRect(0, getHeight() / 8, getWidth(), getHeight() * 3 / 4);
+			mouseSelection = 1;
+		} else if (mouseX < getWidth() / 2) {
+			g2d.fillRect(0, getHeight() * 7 / 8, getWidth() / 2,
+					getHeight() / 8);
+			mouseSelection = 2;
+		} else {
+			g2d.fillRect(getWidth() / 2, getHeight() * 7 / 8, getWidth() / 2,
+					getHeight() / 8);
+			mouseSelection = 3;
+		}
+		Paint meleePaint = new GradientPaint(0, 0, new Color(getBackground()
+				.getRed(), getBackground().getGreen(), getBackground()
+				.getBlue(), 255), getWidth() / 4, 0, new Color(getBackground()
+				.getRed(), getBackground().getGreen(), getBackground()
+				.getBlue(), 0), true);
+		g2d.setPaint(meleePaint);
+		g2d.fillRect(0, getHeight() * 7 / 8, getWidth() / 4, getHeight() / 8);
+		meleePaint = new GradientPaint(getWidth() / 4, 0, new Color(
+				getBackground().getRed(), getBackground().getGreen(),
+				getBackground().getBlue(), 0), getWidth() / 2, 0, new Color(
+				getBackground().getRed(), getBackground().getGreen(),
+				getBackground().getBlue(), 255), true);
+		g2d.setPaint(meleePaint);
+		g2d.fillRect(getWidth() / 4, getHeight() * 7 / 8, getWidth() / 4,
+				getHeight() / 8);
 		g2d.setColor(g2d.getBackground());
 		if (game.getLobbyTime() == 0)
 			initGame();
 		requestFocusInWindow();
 		repaint();
+
 	}
 
 	public void initGame() {
@@ -251,6 +283,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 	@Override
 	public void keyPressed(KeyEvent e) {
 		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
+				&& mouseSelection == 1
 				&& raceSelectionPointer < PlayerTypes.values().length - 1
 				&& !switchRunning) {
 			switchRunning = true;
@@ -259,9 +292,43 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 			repaint();
 		}
 		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
-				&& raceSelectionPointer > 0 && !switchRunning) {
+				&& mouseSelection == 1
+				&& raceSelectionPointer > 0
+				&& !switchRunning) {
 			switchRunning = true;
 			colorSelectionPointer = 0;
+			new Thread(new SwitchRace(-1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
+				&& mouseSelection == 2
+				&& meleeSelectionPointer < MeleeWeaponTypes.values().length - 1
+				&& !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchMelee(1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
+				&& mouseSelection == 2
+				&& meleeSelectionPointer > 0
+				&& !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchMelee(-1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT)
+				&& mouseSelection == 3
+				&& raceSelectionPointer < PlayerTypes.values().length - 1
+				&& !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchRace(1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT)
+				&& mouseSelection == 3
+				&& raceSelectionPointer > 0
+				&& !switchRunning) {
+			switchRunning = true;
 			new Thread(new SwitchRace(-1)).start();
 			repaint();
 		}
@@ -408,6 +475,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		this.mouseY = mouseY;
 	}
 
+	public int getMouseSelection() {
+		return mouseSelection;
+	}
+
+	public void setMouseSelection(int mouseSelection) {
+		this.mouseSelection = mouseSelection;
+	}
+
 	private class SwitchRace extends Thread {
 
 		private int sign;
@@ -420,9 +495,9 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		public void run() {
 			if (sign == 1) {
 				while (raceOffset > -1.5 * (getWidth() / 4)) {
-					raceOffset -= 5;
+					raceOffset -= 2;
 					try {
-						Thread.sleep(1, 0);
+						Thread.sleep(0, 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -431,9 +506,9 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 				raceSelectionPointer++;
 			} else {
 				while (raceOffset < 1.5 * (getWidth() / 4)) {
-					raceOffset += 5;
+					raceOffset += 2;
 					try {
-						Thread.sleep(1, 0);
+						Thread.sleep(0, 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -458,10 +533,10 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		@Override
 		public void run() {
 			if (sign == 1) {
-				while (meleeOffset > -1.5 * (getWidth() / 4)) {
-					meleeOffset -= 5;
+				while (meleeOffset > -1.5 * (getWidth() / 10)) {
+					meleeOffset -= 2;
 					try {
-						Thread.sleep(1, 0);
+						Thread.sleep(0, 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -469,10 +544,10 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 				meleeOffset = 0;
 				meleeSelectionPointer++;
 			} else {
-				while (meleeOffset < 1.5 * (getWidth() / 4)) {
-					meleeOffset += 5;
+				while (meleeOffset < 1.5 * (getWidth() / 10)) {
+					meleeOffset += 2;
 					try {
-						Thread.sleep(1, 0);
+						Thread.sleep(0, 10);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

@@ -8,4 +8,4 @@ Make servers more customizable (being able to change gamemode between matches, c
 Make more races, weapons, maps, etc<br>
 Improve all graphics<br>
 Create a short end-game screen with battle stats<br>
-<stike>Allow for weapon selection at game lobby and respawn screen</stike><br>
+<s>Allow for weapon selection at game lobby and respawn screen</s><br>

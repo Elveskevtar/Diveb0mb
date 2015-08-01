@@ -47,7 +47,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 	private ArrayList<BufferedImage> rangedWeapons = new ArrayList<BufferedImage>();
 	private JFrame frame;
 	private String ip;
-	private String weapon = "sword";
 	private Game game;
 
 	public GameLobbyMenu(JFrame frame, String username) {
@@ -96,6 +95,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		this.setFocusable(true);
 		this.addKeyListener(this);
 		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
 		this.game = new GameDeathmatchMP(ip, frame, username);
 		this.game.setLobbyTime(-1);
 		this.game.getUser().setName(username);
@@ -258,7 +258,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 			initGame();
 		requestFocusInWindow();
 		repaint();
-
 	}
 
 	public void initGame() {
@@ -273,7 +272,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 		}
 		Packet10UpdateUserInfo packet = new Packet10UpdateUserInfo(
 				game.getUserName(), game.getUserRace(), game.getUserColor(),
-				weapon);
+				game.getUserMelee(), game.getUserRanged());
 		packet.writeData(game.getSocketClient());
 		setVisible(false);
 		getFrame().remove(this);
@@ -302,14 +301,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener,
 
 	public void setFrame(JFrame frame) {
 		this.frame = frame;
-	}
-
-	public String getWeapon() {
-		return weapon;
-	}
-
-	public void setWeapon(String weapon) {
-		this.weapon = weapon;
 	}
 
 	@Override

@@ -35,6 +35,7 @@ import com.elveskevtar.divebomb.weapons.Arrow;
 import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
+import com.elveskevtar.divebomb.weapons.Weapon;
 
 public class GameClient extends Thread {
 
@@ -311,12 +312,19 @@ public class GameClient extends Thread {
 					address, port);
 		else
 			player = new Human(game, packet.getName(), address, port);
-		if (packet.getWeapon().equalsIgnoreCase("sword"))
-			player.setInHand(new Sword(player));
-		else if (packet.getWeapon().equalsIgnoreCase("bow"))
-			player.setInHand(new Bow(player));
+		Weapon melee = null;
+		if (packet.getMeleeWeapon().equalsIgnoreCase("sword")) {
+			melee = new Sword(player);
+			player.setMelee(melee);
+		} else {
+			melee = new Sword(player);
+			player.setMelee(melee);
+		}
+		player.setInHand(melee);
+		if (packet.getRangedWeapon().equalsIgnoreCase("bow"))
+			player.setRanged(new Bow(player));
 		else
-			player.setInHand(new Sword(player));
+			player.setRanged(new Bow(player));
 		for (int i = 0; i < game.getPlayers().size(); i++)
 			if (game.getPlayers().get(i).getName()
 					.equalsIgnoreCase(player.getName()))

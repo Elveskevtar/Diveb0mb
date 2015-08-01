@@ -8,7 +8,8 @@ public class Packet10UpdateUserInfo extends Packet {
 	private String name;
 	private String race;
 	private String color;
-	private String weapon;
+	private String meleeWeapon;
+	private String rangedWeapon;
 
 	public Packet10UpdateUserInfo(byte[] data) {
 		super(10);
@@ -16,16 +17,18 @@ public class Packet10UpdateUserInfo extends Packet {
 		this.name = dataArray[0];
 		this.race = dataArray[1];
 		this.color = dataArray[2];
-		this.weapon = dataArray[3];
+		this.meleeWeapon = dataArray[3];
+		this.rangedWeapon = dataArray[4];
 	}
 
 	public Packet10UpdateUserInfo(String name, String race, String color,
-			String weapon) {
+			String meleeWeapon, String rangedWeapon) {
 		super(10);
 		this.name = name;
 		this.race = race;
 		this.color = color;
-		this.weapon = weapon;
+		this.meleeWeapon = meleeWeapon;
+		this.rangedWeapon = rangedWeapon;
 	}
 
 	@Override
@@ -40,8 +43,8 @@ public class Packet10UpdateUserInfo extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("10" + name + "," + race + "," + color + "," + weapon)
-				.getBytes();
+		return ("10" + name + "," + race + "," + color + "," + meleeWeapon
+				+ "," + rangedWeapon).getBytes();
 	}
 
 	public String getName() {
@@ -68,11 +71,19 @@ public class Packet10UpdateUserInfo extends Packet {
 		this.color = color;
 	}
 
-	public String getWeapon() {
-		return weapon;
+	public String getMeleeWeapon() {
+		return meleeWeapon;
 	}
 
-	public void setWeapon(String weapon) {
-		this.weapon = weapon;
+	public void setMeleeWeapon(String meleeWeapon) {
+		this.meleeWeapon = meleeWeapon;
+	}
+
+	public String getRangedWeapon() {
+		return rangedWeapon;
+	}
+
+	public void setRangedWeapon(String rangedWeapon) {
+		this.rangedWeapon = rangedWeapon;
 	}
 }

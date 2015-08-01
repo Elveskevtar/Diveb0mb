@@ -142,7 +142,8 @@ public class GameServer extends Thread {
 			break;
 		case UPDATEUSERINFO:
 			packet = new Packet10UpdateUserInfo(data);
-			Weapon weapon = null;
+			Weapon melee = null;
+			Weapon ranged = null;
 			if (((Packet10UpdateUserInfo) packet).getRace().equalsIgnoreCase(
 					"human"))
 				connectedPlayers.set(
@@ -175,26 +176,40 @@ public class GameServer extends Thread {
 								.getName()), new Human(game,
 								((Packet10UpdateUserInfo) packet).getName(),
 								address, port));
-			if (((Packet10UpdateUserInfo) packet).getWeapon().equalsIgnoreCase(
-					"sword"))
-				weapon = new Sword(
-						connectedPlayers
-								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
-										.getName())));
-			else if (((Packet10UpdateUserInfo) packet).getWeapon()
-					.equalsIgnoreCase("bow"))
-				weapon = new Bow(
+			if (((Packet10UpdateUserInfo) packet).getMeleeWeapon()
+					.equalsIgnoreCase("sword"))
+				melee = new Sword(
 						connectedPlayers
 								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 										.getName())));
 			else
-				weapon = new Sword(
+				melee = new Sword(
+						connectedPlayers
+								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+										.getName())));
+			if (((Packet10UpdateUserInfo) packet).getRangedWeapon()
+					.equalsIgnoreCase("bow"))
+				ranged = new Bow(
+						connectedPlayers
+								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+										.getName())));
+			else
+				ranged = new Bow(
 						connectedPlayers
 								.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 										.getName())));
 			connectedPlayers.get(
 					getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
-							.getName())).setInHand(weapon);
+							.getName())).setMelee(melee);
+			connectedPlayers.get(
+					getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+							.getName())).setRanged(ranged);
+			connectedPlayers.get(
+					getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+							.getName())).setInHand(
+					connectedPlayers.get(
+							getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
+									.getName())).getMelee());
 			handleUpdateUserInfo(
 					connectedPlayers.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet)
 							.getName())), (Packet10UpdateUserInfo) packet);

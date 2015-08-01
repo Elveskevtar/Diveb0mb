@@ -1,7 +1,6 @@
 Diveb0mb<br>
 ========
 To-Do List:<br>
-Allow for weapon selection at game lobby and respawn screen<br>
 Allow for switching weapons in game<br>
 Create pause menu<br>
 Create an actual map<br>
@@ -9,3 +8,4 @@ Make servers more customizable (being able to change gamemode between matches, c
 Make more races, weapons, maps, etc<br>
 Improve all graphics<br>
 Create a short end-game screen with battle stats<br>
+<stike>Allow for weapon selection at game lobby and respawn screen</stike><br>

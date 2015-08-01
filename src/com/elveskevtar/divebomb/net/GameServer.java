@@ -386,6 +386,14 @@ public class GameServer extends Thread {
 		player.setRunning(packet.isRunning());
 		player.setMovingRight(packet.isMovingRight());
 		player.setFacingRight(packet.isFacingRight());
+		if (!packet.getWeaponInHand().equalsIgnoreCase(
+				player.getInHand().getName())) {
+			if (player.getInHand().getName()
+					.equalsIgnoreCase(player.getMelee().getName()))
+				player.setInHand(player.getRanged());
+			else
+				player.setInHand(player.getMelee());
+		}
 		for (Player p : connectedPlayers)
 			if (!p.getName().equalsIgnoreCase(player.getName()))
 				sendData(packet.getData(), p.getIP(), p.getPort());

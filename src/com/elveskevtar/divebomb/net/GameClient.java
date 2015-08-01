@@ -115,6 +115,14 @@ public class GameClient extends Thread {
 			player.setRunning(movePacket.isRunning());
 			player.setMovingRight(movePacket.isMovingRight());
 			player.setFacingRight(movePacket.isFacingRight());
+			if (!movePacket.getWeaponInHand().equalsIgnoreCase(
+					player.getInHand().getName())) {
+				if (player.getInHand().getName()
+						.equalsIgnoreCase(player.getMelee().getName()))
+					player.setInHand(player.getRanged());
+				else
+					player.setInHand(player.getMelee());
+			}
 			if (player.getInHand() instanceof ProjectileShooter)
 				((ProjectileShooter) player.getInHand()).setrAngle(movePacket
 						.getrAngle());

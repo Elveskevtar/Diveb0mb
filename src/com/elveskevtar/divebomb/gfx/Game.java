@@ -10,6 +10,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -35,7 +37,7 @@ import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
 public abstract class Game extends JPanel implements KeyListener,
-		MouseListener, MouseMotionListener {
+		MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static enum GameTypes {
 		DEATHMATCH(00), DEATHMATCHMP(01);
@@ -158,6 +160,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.addKeyListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
+		this.addMouseWheelListener(this);
 		this.requestFocusInWindow();
 		this.setTimers();
 	}
@@ -403,6 +406,14 @@ public abstract class Game extends JPanel implements KeyListener,
 						e.getY() - getHeight() / 2 - 32 * zoom, e.getX()
 								- getWidth() / 2 - 16 * zoom)
 						- Math.PI);
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if (user.getInHand().equals(user.getMelee()))
+			user.setInHand(user.getRanged());
+		else
+			user.setInHand(user.getMelee());
 	}
 
 	@Override

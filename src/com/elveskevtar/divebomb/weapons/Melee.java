@@ -44,8 +44,8 @@ public abstract class Melee extends Weapon {
 
 	private int distance;
 
-	public Melee(Player p) {
-		super(p);
+	public Melee(Player p, String name) {
+		super(p, name);
 	}
 
 	public int getDistance() {

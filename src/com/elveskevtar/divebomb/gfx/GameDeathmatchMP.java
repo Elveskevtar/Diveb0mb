@@ -170,11 +170,18 @@ public class GameDeathmatchMP extends Game {
 				if (getUser().getInHand() instanceof ProjectileShooter)
 					rAngle = ((ProjectileShooter) getUser().getInHand())
 							.getrAngle();
+				String weapon = "";
+				if (getUser().getInHand().getName()
+						.equalsIgnoreCase(getUser().getMelee().getName()))
+					weapon = getUserMelee();
+				else
+					weapon = getUserRanged();
 				Packet03Move packet = new Packet03Move(getUser().getName(),
 						getUser().getxPosition(), getUser().getyPosition(),
 						getUser().getVeloX(), getUser().getVeloY(), rAngle,
 						getUser().isWalking(), getUser().isRunning(), getUser()
-								.isMovingRight(), getUser().isFacingRight());
+								.isMovingRight(), getUser().isFacingRight(),
+						weapon);
 				packet.writeData(getSocketClient());
 				try {
 					Thread.sleep(16);

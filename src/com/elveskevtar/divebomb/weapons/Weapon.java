@@ -9,6 +9,7 @@ public abstract class Weapon {
 
 	private BufferedImage image;
 	private BufferedImage sprite;
+	private String name;
 	private Player player;
 
 	private int damage;
@@ -27,8 +28,9 @@ public abstract class Weapon {
 
 	public abstract void attack(ArrayList<Player> players, boolean server);
 
-	public Weapon(Player p) {
+	public Weapon(Player p, String name) {
 		this.player = p;
+		this.name = name;
 	}
 
 	public Player getPlayer() {
@@ -153,5 +155,13 @@ public abstract class Weapon {
 
 	public void setHoldingLeftY(int holdingLeftY) {
 		this.holdingLeftY = holdingLeftY;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 }

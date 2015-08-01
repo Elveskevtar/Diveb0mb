@@ -6,6 +6,7 @@ import com.elveskevtar.divebomb.net.GameServer;
 public class Packet03Move extends Packet {
 
 	private String name;
+	private String weaponInHand;
 
 	private double x;
 	private double y;
@@ -30,11 +31,12 @@ public class Packet03Move extends Packet {
 		this.setRunning(Boolean.parseBoolean(dataArray[7]));
 		this.setMovingRight(Boolean.parseBoolean(dataArray[8]));
 		this.setFacingRight(Boolean.parseBoolean(dataArray[9]));
+		this.setWeaponInHand(dataArray[10]);
 	}
 
 	public Packet03Move(String name, double x, double y, double veloX,
 			double veloY, double rAngle, boolean isWalking, boolean isRunning,
-			boolean isMovingRight, boolean isFacingRight) {
+			boolean isMovingRight, boolean isFacingRight, String weaponInHand) {
 		super(03);
 		this.name = name;
 		this.x = x;
@@ -44,6 +46,7 @@ public class Packet03Move extends Packet {
 		this.isRunning = isRunning;
 		this.isMovingRight = isMovingRight;
 		this.isFacingRight = isFacingRight;
+		this.weaponInHand = weaponInHand;
 	}
 
 	@Override
@@ -60,7 +63,8 @@ public class Packet03Move extends Packet {
 	public byte[] getData() {
 		return ("03" + name + "," + x + "," + y + "," + veloX + "," + veloY
 				+ "," + rAngle + "," + isWalking + "," + isRunning + ","
-				+ isMovingRight + "," + isFacingRight).getBytes();
+				+ isMovingRight + "," + isFacingRight + "," + weaponInHand)
+				.getBytes();
 	}
 
 	public String getName() {
@@ -141,5 +145,13 @@ public class Packet03Move extends Packet {
 
 	public void setrAngle(double rAngle) {
 		this.rAngle = rAngle;
+	}
+
+	public String getWeaponInHand() {
+		return weaponInHand;
+	}
+
+	public void setWeaponInHand(String weaponInHand) {
+		this.weaponInHand = weaponInHand;
 	}
 }

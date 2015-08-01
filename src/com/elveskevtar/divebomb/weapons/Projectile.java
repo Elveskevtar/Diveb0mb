@@ -17,8 +17,8 @@ public class Projectile extends Weapon {
 	private double rAngle;
 
 	public Projectile(Player p, int id, double xPosition, double yPosition,
-			double startingVelocity, double rAngle) {
-		super(p);
+			double startingVelocity, double rAngle, String name) {
+		super(p, name);
 		this.id = id;
 		this.xPosition = xPosition;
 		this.yPosition = yPosition;

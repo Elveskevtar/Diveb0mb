@@ -46,8 +46,8 @@ public abstract class ProjectileShooter extends Weapon {
 	private int projectileSpawnLeftX;
 	private int projectileSpawnLeftY;
 
-	public ProjectileShooter(Player p) {
-		super(p);
+	public ProjectileShooter(Player p, String name) {
+		super(p, name);
 	}
 
 	@Override

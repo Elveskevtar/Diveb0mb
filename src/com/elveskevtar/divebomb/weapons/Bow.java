@@ -10,9 +10,9 @@ import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.race.Player;
 
 public class Bow extends ProjectileShooter {
-
+	
 	public Bow(Player p) {
-		super(p);
+		super(p, "bow");
 		this.setDefense(1);
 		try {
 			this.setImage(ImageIO.read(new File("res/img/bow.png")));

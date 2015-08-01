@@ -11,7 +11,7 @@ public class Arrow extends Projectile {
 
 	public Arrow(Player p, int id, double xPosition, double yPosition,
 			double rAngle) {
-		super(p, id, xPosition, yPosition, 12, rAngle);
+		super(p, id, xPosition, yPosition, 12, rAngle, "arrow");
 		this.setDamage(10);
 		try {
 			this.setImage(ImageIO.read(new File("res/img/arrow.png")));

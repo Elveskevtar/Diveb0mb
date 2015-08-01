@@ -9,9 +9,9 @@ import javax.imageio.ImageIO;
 import com.elveskevtar.divebomb.race.Player;
 
 public class Sword extends Melee {
-
+	
 	public Sword(Player p) {
-		super(p);
+		super(p, "sword");
 		this.setDamage(12);
 		this.setDefense(3);
 		this.setDistance(45);

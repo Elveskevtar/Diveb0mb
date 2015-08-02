@@ -1,7 +1,6 @@
 Diveb0mb<br>
 ========
 To-Do List:<br>
-Create a database with user info<br>
 Create pause menu<br>
 Create an actual map<br>
 Make servers more customizable (being able to change gamemode between matches, change amount of players, etc)<br>
@@ -10,3 +9,5 @@ Improve all graphics<br>
 Create a short end-game screen with battle stats<br>
 <s>Allow for weapon selection at game lobby and respawn screen</s><br>
 <s>Allow for switching weapons in game</s><br>
+<s>Create a database with user info</s><br>
+<s>Create a basic login authentication server and login client</s><br>

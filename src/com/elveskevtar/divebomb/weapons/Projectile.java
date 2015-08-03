@@ -8,6 +8,7 @@ import com.elveskevtar.divebomb.race.Player;
 public class Projectile extends Weapon {
 
 	private int id;
+	private long deadTime;
 	private double xPosition;
 	private double yPosition;
 	private double airTime;
@@ -108,5 +109,13 @@ public class Projectile extends Weapon {
 
 	public void setAirTime(double airTime) {
 		this.airTime = airTime;
+	}
+
+	public long getDeadTime() {
+		return deadTime;
+	}
+
+	public void setDeadTime(long deadTime) {
+		this.deadTime = deadTime;
 	}
 }

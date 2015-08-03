@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -64,7 +65,7 @@ public abstract class Game extends JPanel implements KeyListener,
 	private int lobbyTime;
 
 	private ArrayList<Rectangle> collisionRecs;
-	private ArrayList<Projectile> projectiles;
+	private CopyOnWriteArrayList<Projectile> projectiles;
 	private ArrayList<Player> players;
 	private ArrayList<Integer> keys;
 	private ArrayList<Integer> projectileIDs;
@@ -96,7 +97,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
-		this.projectiles = new ArrayList<Projectile>();
+		this.projectiles = new CopyOnWriteArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
 		this.zoom = 2;
 		this.setFrame(frame);
@@ -553,11 +554,11 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.frame = frame;
 	}
 
-	public ArrayList<Projectile> getProjectiles() {
+	public CopyOnWriteArrayList<Projectile> getProjectiles() {
 		return projectiles;
 	}
 
-	public void setProjectiles(ArrayList<Projectile> projectiles) {
+	public void setProjectiles(CopyOnWriteArrayList<Projectile> projectiles) {
 		this.projectiles = projectiles;
 	}
 
@@ -583,31 +584,6 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setUserRanged(String userRanged) {
 		this.userRanged = userRanged;
-	}
-
-	private class RemoveProjectile extends Thread {
-
-		private Projectile p;
-
-		public RemoveProjectile(Projectile p) {
-			this.p = p;
-		}
-
-		@Override
-		public void run() {
-			try {
-				Thread.sleep(2000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			projectiles.remove(p);
-			projectileIDs.remove((Integer) p.getId());
-			if (socketServer != null) {
-				Packet15RemoveProjectile packet = new Packet15RemoveProjectile(
-						(int) p.getId());
-				packet.writeData(socketServer);
-			}
-		}
 	}
 
 	private class Projectiles extends TimerTask {
@@ -671,8 +647,20 @@ public abstract class Game extends JPanel implements KeyListener,
 									projectileIDs.remove((Integer) p.getId());
 								}
 							}
-						if (p.getVelox() == 0 && p.getVeloy() == 0)
-							new Thread(new RemoveProjectile(p)).start();
+						if (p.getVelox() == 0 && p.getVeloy() == 0
+								&& p.getDeadTime() == 0)
+							p.setDeadTime(System.nanoTime());
+						else if (p.getVelox() == 0
+								&& p.getVeloy() == 0
+								&& System.nanoTime() >= p.getDeadTime() + 2000000000) {
+							projectiles.remove(p);
+							projectileIDs.remove((Integer) p.getId());
+							if (socketServer != null) {
+								Packet15RemoveProjectile packet = new Packet15RemoveProjectile(
+										(int) p.getId());
+								packet.writeData(socketServer);
+							}
+						}
 					}
 				}
 			} catch (ConcurrentModificationException e) {

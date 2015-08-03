@@ -1,0 +1,28 @@
+[b]DiveB0mb[/b] (the tentative name) is a game I have been working on for quite some time now. It's an [i]RPG/Action platformer[/i] with voxel-like designs and environments. It's being coded in Java so it will be cross-platform and hopefully there will be no problem with cross-platform multiplayer. The game is supposed to be centered around the multiplayer gameplay; however, I will eventually make a campaign mode as well. Although this game has been in development for 2.5 years, I have taken many long breaks in between due to school responsibilities and/or other things going on in my life. Once I submit this to Greenlight I will be consistently updating the game to add features and fix bugs. Please send me a message or comment here with any suggestions you may have including possible features I should add to the game or anything I should continue to improve. 
+
+Current Features:
+[list]
+[*]Working multiplayer gamemodes (Deathmatch)
+[*]Main menu, options menu, multiplayer menu/lobby etc.
+[*]2 different races (player types) and different skin colors
+[*]2 different types of weapons (1 ranged and 1 melee)
+[*]Really customizable code which makes new additions easier
+[*]Easy in-game server hosting ability
+[/list]
+
+A lot of the problems I have encountered while coding the game thus far are due to Java. Java is not necessarily meant to make programming games easy so many times throughout the years that I have been working on the game, I have had to make major changes to the structure of my code. At this point, I can confidently say that any more additions I want to make will be much easier. After I polish up/add some of the major features still missing, I will submit the game to Greenlight where I will continue to work on implementing some of the smaller features: more races, weapons, and occasionally gamemodes to choose from.
+
+Features That Are Still In Development:
+[list]
+[*]Dash gamemode (A race-like gamemode with checkpoints, special race abilities, etc.)
+[*]A more interactive environment (dynamically changing maps)
+[*]Improvements to the combat system to make it more strategic (possibility of having a shop with items to buy in game)
+[*]Campaign Mode
+[*]AI bots
+[*]Map, race, weapon textures (any texture designs in general)
+[*]Adding more races, weapons, and some gamemodes
+[*]Creating databases to hold multiplayer information
+[*]Creating public servers to make the game an actual mmo
+[/list]
+
+Again, please leave me feedback on what you see so far to let me know how I can improve this game.

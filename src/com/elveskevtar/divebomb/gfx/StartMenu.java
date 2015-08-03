@@ -264,54 +264,76 @@ public class StartMenu extends JPanel {
 
 		@Override
 		public void run() {
+			long oldTime;
+			long newTime;
 			if (button.getText().equals("Campaign")) {
 				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
 				while (campaignPulse) {
-					i += 0.000001;
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
 					Font newFont = new Font(
 							"Livewired",
 							Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
+					oldTime = newTime;
 				}
 				Font oldFont = new Font("Livewired", Font.PLAIN,
 						(int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Multiplayer")) {
 				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
 				while (multiplayerPulse) {
-					i += 0.000001;
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
 					Font newFont = new Font(
 							"Livewired",
 							Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
+					oldTime = newTime;
 				}
 				Font oldFont = new Font("Livewired", Font.PLAIN,
 						(int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Options")) {
 				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
 				while (optionsPulse) {
-					i += 0.000001;
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
 					Font newFont = new Font(
 							"Livewired",
 							Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
+					oldTime = newTime;
 				}
 				Font oldFont = new Font("Livewired", Font.PLAIN,
 						(int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Exit Game")) {
 				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
 				while (exitPulse) {
-					i += 0.000001;
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
 					Font newFont = new Font(
 							"Livewired",
 							Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
+					oldTime = newTime;
 				}
 				Font oldFont = new Font("Livewired", Font.PLAIN,
 						(int) (getWidth() / 38.4));

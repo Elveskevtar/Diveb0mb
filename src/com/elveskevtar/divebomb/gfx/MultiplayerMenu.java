@@ -1,10 +1,14 @@
 package com.elveskevtar.divebomb.gfx;
 
+import java.awt.Color;
 import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -15,45 +19,140 @@ public class MultiplayerMenu extends JPanel {
 
 	private static final long serialVersionUID = 7789569217705480234L;
 
+	private boolean backPulse;
+	private boolean privateGamePulse;
+	private boolean joinGamePulse;
+
 	private JFrame frame;
 	private JButton back;
 	private JButton privateGame;
 	private JButton joinGame;
+
 	private HintTextField ip;
 	private HintTextField userName;
+
 	private Font ipFont;
 	private Font userNameFont;
+	private Font backFont;
+	private Font privateGameFont;
+	private Font joinGameFont;
 
 	public MultiplayerMenu(JFrame frame) {
 		this.setFrame(frame);
 		this.setSize(frame.getWidth(), frame.getHeight());
 		this.setLayout(null);
 		this.setFocusable(true);
-		this.ipFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
-		this.userNameFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
+
 		this.back = new JButton("Back");
 		this.privateGame = new JButton("Create Private Game");
 		this.joinGame = new JButton("Join Game");
+
+		this.ipFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
+		this.userNameFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
+		this.backFont = new Font("Livewired", Font.PLAIN,
+				(int) (getWidth() / 38.4));
+		this.privateGameFont = new Font("Livewired", Font.PLAIN,
+				(int) (getWidth() / 38.4));
+		this.joinGameFont = new Font("Livewired", Font.PLAIN,
+				(int) (getWidth() / 38.4));
+
 		this.ip = new HintTextField("IP Address");
 		this.userName = new HintTextField("Username");
+
+		this.back.setForeground(Color.BLACK);
+		this.privateGame.setForeground(Color.BLACK);
+		this.joinGame.setForeground(Color.BLACK);
+
+		this.back.setMargin(new Insets(-100, -100, -100, -100));
+		this.privateGame.setMargin(new Insets(-100, -100, -100, -100));
+		this.joinGame.setMargin(new Insets(-100, -100, -100, -100));
+
+		this.back.setFont(backFont);
+		this.privateGame.setFont(privateGameFont);
+		this.joinGame.setFont(joinGameFont);
+
+		this.back.setBorderPainted(false);
+		this.privateGame.setBorderPainted(false);
+		this.joinGame.setBorderPainted(false);
+
+		this.back.setContentAreaFilled(false);
+		this.privateGame.setContentAreaFilled(false);
+		this.joinGame.setContentAreaFilled(false);
+
+		this.back.setFocusPainted(false);
+		this.privateGame.setFocusPainted(false);
+		this.joinGame.setFocusPainted(false);
+
+		this.back.setOpaque(false);
+		this.privateGame.setOpaque(false);
+		this.joinGame.setOpaque(false);
+
 		this.back.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				backPulse = false;
 				backAction();
 			}
 		});
 		this.privateGame.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				privateGamePulse = false;
 				privateGameAction();
 			}
 		});
 		this.joinGame.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				joinGamePulse = false;
 				joinGameAction();
 			}
+
 		});
+
+		this.back.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				back.setForeground(Color.RED);
+				backPulse = true;
+				new Thread(new ButtonPulse(back)).start();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				back.setForeground(Color.BLACK);
+				backPulse = false;
+			}
+		});
+		this.privateGame.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				privateGame.setForeground(Color.RED);
+				privateGamePulse = true;
+				new Thread(new ButtonPulse(privateGame)).start();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				privateGame.setForeground(Color.BLACK);
+				privateGamePulse = false;
+			}
+		});
+		this.joinGame.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				joinGame.setForeground(Color.RED);
+				joinGamePulse = true;
+				new Thread(new ButtonPulse(joinGame)).start();
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				joinGame.setForeground(Color.BLACK);
+				joinGamePulse = false;
+			}
+		});
+
 		this.back.setBounds(0, 0, getWidth() / 8, getHeight() / 12);
 		this.ip.setBounds(getWidth() / 2 - getWidth() / 4, getHeight() / 2
 				- getHeight() / 12, getWidth() / 4, getHeight() / 12);
@@ -63,15 +162,19 @@ public class MultiplayerMenu extends JPanel {
 				getWidth() / 2, getHeight() / 12);
 		this.joinGame.setBounds(getWidth() / 2, getHeight() - getHeight() / 12,
 				getWidth() / 2, getHeight() / 12);
+
 		this.ip.setFont(ipFont);
 		this.userName.setFont(userNameFont);
+
 		this.add(privateGame);
 		this.add(joinGame);
 		this.add(back);
 		this.add(ip);
 		this.add(userName);
+
 		this.joinGame.setEnabled(false);
 		this.privateGame.setEnabled(false);
+
 		new Thread(new CheckForButtons()).start();
 	}
 
@@ -203,6 +306,76 @@ public class MultiplayerMenu extends JPanel {
 
 		public String getHint() {
 			return hint;
+		}
+	}
+
+	private class ButtonPulse extends Thread {
+
+		private JButton button;
+
+		public ButtonPulse(JButton button) {
+			this.button = button;
+		}
+
+		@Override
+		public void run() {
+			long oldTime;
+			long newTime;
+			if (button.getText().equals("Back")) {
+				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
+				while (backPulse) {
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
+					Font newFont = new Font(
+							"Livewired",
+							Font.PLAIN,
+							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
+					button.setFont(newFont);
+					oldTime = newTime;
+				}
+				Font oldFont = new Font("Livewired", Font.PLAIN,
+						(int) (getWidth() / 38.4));
+				button.setFont(oldFont);
+			} else if (button.getText().equals("Create Private Game")) {
+				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
+				while (privateGamePulse) {
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
+					Font newFont = new Font(
+							"Livewired",
+							Font.PLAIN,
+							(int) ((getWidth() / 43.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
+					button.setFont(newFont);
+					oldTime = newTime;
+				}
+				Font oldFont = new Font("Livewired", Font.PLAIN,
+						(int) (getWidth() / 38.4));
+				button.setFont(oldFont);
+			} else if (button.getText().equals("Join Game")) {
+				double i = 0;
+				newTime = System.currentTimeMillis();
+				oldTime = newTime;
+				while (joinGamePulse) {
+					newTime = System.currentTimeMillis();
+					long difference = newTime - oldTime;
+					i += difference / 250.0;
+					Font newFont = new Font(
+							"Livewired",
+							Font.PLAIN,
+							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
+					button.setFont(newFont);
+					oldTime = newTime;
+				}
+				Font oldFont = new Font("Livewired", Font.PLAIN,
+						(int) (getWidth() / 38.4));
+				button.setFont(oldFont);
+			}
 		}
 	}
 }

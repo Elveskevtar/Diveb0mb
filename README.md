@@ -11,3 +11,4 @@ Create a short end-game screen with battle stats<br>
 <s>Allow for switching weapons in game</s><br>
 <s>Create a database with user info</s><br>
 <s>Create a basic login authentication server and login client</s><br>
+<s>Fix the multiplayer menu buttons</s><br>

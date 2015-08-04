@@ -2,6 +2,7 @@ package com.elveskevtar.divebomb.weapons;
 
 import java.util.ArrayList;
 
+import com.elveskevtar.divebomb.gfx.GameDeathmatchMP;
 import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.race.Player;
 
@@ -35,13 +36,25 @@ public class Projectile extends Weapon {
 			p.setHealth(p.getHealth() + (Math.random() * -10)
 					+ p.getInHand().getDefense() - getDamage());
 			if (p.getHealth() <= 0) {
-				if (!p.getName().equalsIgnoreCase(getPlayer().getName()))
+				if (!p.getName().equalsIgnoreCase(getPlayer().getName())) {
 					getPlayer().setKills(getPlayer().getKills() + 1);
+				}
 				p.setDeaths(p.getDeaths() + 1);
 				if (server) {
 					Packet06Kill packet = new Packet06Kill(getPlayer()
 							.getName(), p.getName());
 					packet.writeData(getPlayer().getGame().getSocketServer());
+					if (getPlayer().getGame() instanceof GameDeathmatchMP
+							&& getPlayer().getGame().getSocketClient() == null
+							&& (((GameDeathmatchMP) getPlayer().getGame())
+									.getFirstPlaceName() == null
+							|| getPlayer().getKills() > ((GameDeathmatchMP) getPlayer()
+									.getGame()).getFirstPlaceKills())) {
+						((GameDeathmatchMP) getPlayer().getGame())
+								.setFirstPlaceKills(getPlayer().getKills());
+						((GameDeathmatchMP) getPlayer().getGame())
+								.setFirstPlaceName(getPlayer().getName());
+					}
 				}
 			}
 		}

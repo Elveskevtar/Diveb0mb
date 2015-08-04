@@ -112,6 +112,15 @@ public abstract class Game extends JPanel implements KeyListener,
 			setUserColor(" ");
 	}
 
+	public Game(int gameID) {
+		this.players = new ArrayList<Player>();
+		this.timer = new Timer();
+		this.setGameID(gameID);
+		this.collisionRecs = new ArrayList<Rectangle>();
+		this.projectiles = new CopyOnWriteArrayList<Projectile>();
+		this.projectileIDs = new ArrayList<Integer>();
+	}
+
 	public void updatePlayer() {
 		if (userRace.equalsIgnoreCase("human"))
 			user = new Human(this, userName, null, -1);
@@ -134,10 +143,13 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setTimers() {
 		this.timer = new Timer();
-		this.timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
-		this.timer.scheduleAtFixedRate(new Repaint(), 0, speed);
-		this.timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
-		this.timer.scheduleAtFixedRate(new Input(), 0, speed);
+		if (socketClient != null
+				|| (socketClient == null && socketServer == null)) {
+			this.timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
+			this.timer.scheduleAtFixedRate(new Repaint(), 0, speed);
+			this.timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
+			this.timer.scheduleAtFixedRate(new Input(), 0, speed);
+		}
 		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
 		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
@@ -163,6 +175,20 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
 		this.requestFocusInWindow();
+		this.setTimers();
+	}
+
+	public void startPublicServerGame(Map map) {
+		if (map.getMap() != null)
+			this.map = map.getMap();
+		if (map.getCollisionMap() != null)
+			this.collisionMap = map.getCollisionMap();
+		for (int x = 0; x <= collisionMap.getWidth() - 1; x++) {
+			for (int y = 0; y <= collisionMap.getHeight() - 1; y++) {
+				if (collisionMap.getRGB(x, y) != -16777216)
+					collisionRecs.add(new Rectangle(x * 8, y * 8, 8, 8));
+			}
+		}
 		this.setTimers();
 	}
 
@@ -608,6 +634,7 @@ public abstract class Game extends JPanel implements KeyListener,
 							}
 						if (socketServer != null)
 							for (Player player : socketServer.connectedPlayers) {
+								//System.out.println(socketServer.connectedPlayers.size());
 								if (new Rectangle((int) -p.getxPosition(),
 										(int) -p.getyPosition(), p.getWidth(),
 										p.getHeight())
@@ -618,6 +645,7 @@ public abstract class Game extends JPanel implements KeyListener,
 												.getBounds().height - 14))
 										&& !player.isDead()
 										&& (p.getVelox() != 0 || p.getVeloy() != 0)) {
+									//System.out.println("SET");
 									ArrayList<Player> attacked = new ArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, true);

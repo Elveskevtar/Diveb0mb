@@ -213,9 +213,11 @@ public class GameClient extends Thread {
 						((Packet13SendNewProjectile) packet).getxPosition(),
 						((Packet13SendNewProjectile) packet).getyPosition(),
 						((Packet13SendNewProjectile) packet).getrAngle());
-				game.getProjectiles().add(arrow);
-				game.getProjectileIDs().add(
-						((Packet13SendNewProjectile) packet).getId());
+				if (!game.getProjectileIDs().contains(arrow.getId())) {
+					game.getProjectiles().add(arrow);
+					game.getProjectileIDs().add(
+							((Packet13SendNewProjectile) packet).getId());
+				}
 			}
 			break;
 		case UPDATEPROJECTILE:

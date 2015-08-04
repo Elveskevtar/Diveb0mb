@@ -59,6 +59,18 @@ public class GameDeathmatchMP extends Game {
 		packet.writeData(getSocketClient());
 	}
 
+	public GameDeathmatchMP(String graphicsMapName, String collisionMapName,
+			int id) {
+		super(01);
+		this.setPlayerSize(2);
+		this.setMaxKills(3);
+		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
+		this.setSocketServer(new GameServer(this));
+		this.getSocketServer().start();
+		this.setHosting(true);
+		this.setServerIP("localhost");
+	}
+
 	public GameDeathmatchMP(String ip, JFrame frame, String username) {
 		super(01, frame);
 		this.setPlayerSize(2);
@@ -105,7 +117,8 @@ public class GameDeathmatchMP extends Game {
 	@Override
 	public void setTimers() {
 		super.setTimers();
-		new Thread(new SendMovePacket()).start();
+		if (getSocketClient() != null)
+			new Thread(new SendMovePacket()).start();
 		if (getSocketServer() != null) {
 			new Thread(new SendHealthPacket()).start();
 			new Thread(new CheckForEndGame()).start();

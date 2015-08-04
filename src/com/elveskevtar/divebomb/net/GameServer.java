@@ -314,6 +314,8 @@ public class GameServer extends Thread {
 					if (index == connectedPlayers.size())
 						break;
 				}
+				if (game.getSocketClient() == null)
+					game.startPublicServerGame(game.getGraphicsMap());
 			} else {
 				int index = 0;
 				while (index < connectedPlayers.size()) {

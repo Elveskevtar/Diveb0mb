@@ -2,6 +2,7 @@ package com.elveskevtar.divebomb.weapons;
 
 import java.util.ArrayList;
 
+import com.elveskevtar.divebomb.gfx.GameDeathmatchMP;
 import com.elveskevtar.divebomb.net.packets.Packet04Attack;
 import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.race.Player;
@@ -90,6 +91,17 @@ public abstract class Melee extends Weapon {
 								.getName(), p.getName());
 						packet.writeData(getPlayer().getGame()
 								.getSocketServer());
+						if (getPlayer().getGame() instanceof GameDeathmatchMP
+								&& getPlayer().getGame().getSocketClient() == null
+								&& ((GameDeathmatchMP) getPlayer().getGame())
+										.getFirstPlaceName() == null
+								|| getPlayer().getKills() > ((GameDeathmatchMP) getPlayer()
+										.getGame()).getFirstPlaceKills()) {
+							((GameDeathmatchMP) getPlayer().getGame())
+									.setFirstPlaceKills(getPlayer().getKills());
+							((GameDeathmatchMP) getPlayer().getGame())
+									.setFirstPlaceName(getPlayer().getName());
+						}
 					}
 				}
 			}

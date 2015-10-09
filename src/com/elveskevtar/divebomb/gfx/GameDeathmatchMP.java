@@ -237,6 +237,11 @@ public class GameDeathmatchMP extends Game {
 					Packet07Endgame packet = new Packet07Endgame(
 							firstPlaceName, firstPlaceKills);
 					packet.writeData(getSocketServer());
+					getSocketServer().getSocket().close();
+					getSocketServer().stop();
+					setRunning(false);
+					new GameDeathmatchMP("res/img/Map.png",
+							"res/img/CollisionMap.png", 0);
 					break;
 				}
 				try {

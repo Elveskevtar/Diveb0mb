@@ -230,6 +230,7 @@ public class GameDeathmatchMP extends Game {
 
 	private class CheckForEndGame extends Thread {
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void run() {
 			while (true) {

@@ -612,6 +612,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		this.userRanged = userRanged;
 	}
 
+	/* Handles projectile motion and angles */
 	private class Projectiles extends TimerTask {
 
 		@Override
@@ -634,7 +635,7 @@ public abstract class Game extends JPanel implements KeyListener,
 							}
 						if (socketServer != null)
 							for (Player player : socketServer.connectedPlayers) {
-								//System.out.println(socketServer.connectedPlayers.size());
+								// System.out.println(socketServer.connectedPlayers.size());
 								if (new Rectangle((int) -p.getxPosition(),
 										(int) -p.getyPosition(), p.getWidth(),
 										p.getHeight())
@@ -645,7 +646,7 @@ public abstract class Game extends JPanel implements KeyListener,
 												.getBounds().height - 14))
 										&& !player.isDead()
 										&& (p.getVelox() != 0 || p.getVeloy() != 0)) {
-									//System.out.println("SET");
+									// System.out.println("SET");
 									ArrayList<Player> attacked = new ArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, true);
@@ -697,6 +698,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
+	/* Handles the animation of player weapons (only matters for clients) */
 	private class PlayerWeapons extends TimerTask {
 
 		@Override
@@ -747,6 +749,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
+	/* Handles the input from the keyboard (only matters for clients) */
 	private class Input extends TimerTask {
 
 		@Override
@@ -869,6 +872,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
+	/* Handles the animation of the players (only matters for clients) */
 	private class AnimatePlayers extends TimerTask {
 
 		int t = 0;
@@ -941,6 +945,10 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
+	/*
+	 * This is the subclass for handling the stamina value for each player (only
+	 * matters if server or singleplayer)
+	 */
 	private class Stamina extends TimerTask {
 
 		@Override
@@ -962,6 +970,12 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
+	/*
+	 * When editing this subclass, make sure to edit both the code for single
+	 * player (socketClient == null) and multiplayer (socketClient != null).
+	 * Also, in player.checkCollisions(), 1 = left or right; 3 = up, and 4 =
+	 * down.
+	 */
 	private class MovePlayers extends TimerTask {
 
 		@Override
@@ -971,6 +985,21 @@ public abstract class Game extends JPanel implements KeyListener,
 					if (p.getVeloX() != 0 && !p.checkCollisions().contains(1)
 							&& !p.isDead())
 						p.setxPosition(p.getxPosition() + p.getVeloX());
+					else if (p.getVeloX() != 0
+							&& p.checkCollisions().contains(1)) {
+						boolean flag = false;
+						for (Rectangle r : getCollisionRecs())
+							if (new Rectangle(
+									(int) (p.getBounds().x + 10 - p.getVeloX()),
+									p.getBounds().y + 6,
+									p.getBounds().width - 20,
+									p.getBounds().height - 14).intersects(r))
+								flag = true;
+						if (!flag) {
+							p.setyPosition(p.getyPosition() + 8);
+							p.setxPosition(p.getxPosition() + p.getVeloX());
+						}
+					}
 					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)
 							&& !p.isDead())
 						p.setyPosition(p.getyPosition() + p.getVeloY());
@@ -1036,6 +1065,22 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (user.getVeloX() != 0 && !user.checkCollisions().contains(1)
 						&& !user.isDead())
 					user.setxPosition(user.getxPosition() + user.getVeloX());
+				else if (user.getVeloX() != 0
+						&& user.checkCollisions().contains(1)) {
+					boolean flag = false;
+					for (Rectangle r : getCollisionRecs())
+						if (new Rectangle(
+								(int) (user.getBounds().x + 10 - user
+										.getVeloX()),
+								user.getBounds().y + 6,
+								user.getBounds().width - 20,
+								user.getBounds().height - 14).intersects(r))
+							flag = true;
+					if (!flag) {
+						user.setyPosition(user.getyPosition() + 8);
+						user.setxPosition(user.getxPosition() + user.getVeloX());
+					}
+				}
 				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)
 						&& !user.isDead())
 					user.setyPosition(user.getyPosition() + user.getVeloY());
@@ -1110,6 +1155,7 @@ public abstract class Game extends JPanel implements KeyListener,
 		}
 	}
 
+	/* TimerTask that repaints the screen */
 	private class Repaint extends TimerTask {
 
 		@Override

@@ -7,6 +7,7 @@ Make servers more customizable (being able to change gamemode between matches, c
 Make more races, weapons, maps, etc<br>
 Improve all graphics<br>
 Create a short end-game screen with battle stats<br>
+Fix multiplayer reconnect bug<br>
 <s>Allow for weapon selection at game lobby and respawn screen</s><br>
 <s>Allow for switching weapons in game</s><br>
 <s>Create a database with user info</s><br>

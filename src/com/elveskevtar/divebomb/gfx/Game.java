@@ -37,8 +37,8 @@ import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
-public abstract class Game extends JPanel implements KeyListener,
-		MouseListener, MouseMotionListener, MouseWheelListener {
+public abstract class Game extends JPanel
+		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
 	public static enum GameTypes {
 		DEATHMATCH(00), DEATHMATCHMP(01);
@@ -124,11 +124,9 @@ public abstract class Game extends JPanel implements KeyListener,
 	public void updatePlayer() {
 		if (userRace.equalsIgnoreCase("human"))
 			user = new Human(this, userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg")
-				&& userColor.equalsIgnoreCase("purple"))
+		else if (userRace.equalsIgnoreCase("cyborg") && userColor.equalsIgnoreCase("purple"))
 			user = new Cyborg(this, "purple", userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg")
-				&& userColor.equalsIgnoreCase("blue"))
+		else if (userRace.equalsIgnoreCase("cyborg") && userColor.equalsIgnoreCase("blue"))
 			user = new Cyborg(this, "blue", userName, null, -1);
 		else if (userRace.equalsIgnoreCase("cyborg"))
 			user = new Cyborg(this, userName, -1, null, -1);
@@ -143,8 +141,7 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	public void setTimers() {
 		this.timer = new Timer();
-		if (socketClient != null
-				|| (socketClient == null && socketServer == null)) {
+		if (socketClient != null || (socketClient == null && socketServer == null)) {
 			this.timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
 			this.timer.scheduleAtFixedRate(new Repaint(), 0, speed);
 			this.timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
@@ -256,117 +253,81 @@ public abstract class Game extends JPanel implements KeyListener,
 	public void paintGame(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
 		font = new Font("Livewired", Font.PLAIN, 10);
-		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight()
-				* (0.5 * zoom - 0.5));
+		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight() * (0.5 * zoom - 0.5));
 		g2d.scale(zoom, zoom);
 		g2d.setColor(new Color(10, 200, 80));
 		g2d.setFont(font);
-		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2),
-				(int) (user.getyPosition() + getHeight() / 2), null);
+		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2), (int) (user.getyPosition() + getHeight() / 2),
+				null);
 		for (Player p : players) {
 			if (p != user && !p.isDead()) {
-				g2d.drawImage(p.getPlayerSprite(),
-						(int) (getWidth() / 2 + (user.getxPosition() - p
-								.getxPosition())),
-						(int) (getHeight() / 2 + (user.getyPosition() - p
-								.getyPosition())), null);
+				g2d.drawImage(p.getPlayerSprite(), (int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())),
+						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())), null);
 				double rAngle = 0;
 				double x = 0;
 				double y = 0;
 				if (p.getInHand() instanceof ProjectileShooter) {
 					rAngle = ((ProjectileShooter) p.getInHand()).getrAngle();
 					if (p.isFacingRight()) {
-						x = getWidth() / 2
-								+ (user.getxPosition() - p.getxPosition())
-								+ p.getWeaponXTweak()
+						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
 								+ p.getInHand().getxAdjustment();
-						y = getHeight() / 2
-								+ (user.getyPosition() - p.getyPosition())
-								+ p.getInHand().getyAdjustment()
-								+ p.getWeaponYTweak()
-								+ p.getInHand().getHeight() / 2;
+						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) + p.getInHand().getyAdjustment()
+								+ p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
 					} else {
-						x = getWidth() / 2
-								+ (user.getxPosition() - p.getxPosition())
-								+ p.getWeaponXTweak()
-								+ p.getInHand().getxAdjustment()
-								+ p.getInHand().getWidth();
-						y = getHeight() / 2
-								+ (user.getyPosition() - p.getyPosition())
-								+ p.getInHand().getyAdjustment()
-								+ p.getWeaponYTweak()
-								+ p.getInHand().getHeight() / 2;
+						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
+								+ p.getInHand().getxAdjustment() + p.getInHand().getWidth();
+						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) + p.getInHand().getyAdjustment()
+								+ p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
 					}
 				}
-				g2d.drawImage(
-						p.getInHand().getSprite(),
-						getWidth()
-								/ 2
-								+ (int) (user.getxPosition() - p.getxPosition())
-								+ p.getWeaponXTweak()
+				g2d.drawImage(p.getInHand().getSprite(),
+						getWidth() / 2 + (int) (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
 								+ p.getInHand().getxAdjustment(),
-						getHeight()
-								/ 2
-								+ (int) (user.getyPosition() - p.getyPosition())
-								+ p.getWeaponYTweak()
-								+ p.getInHand().getyAdjustment(), null);
+						getHeight() / 2 + (int) (user.getyPosition() - p.getyPosition()) + p.getWeaponYTweak()
+								+ p.getInHand().getyAdjustment(),
+						null);
 				if (p.getInHand() instanceof ProjectileShooter)
 					g2d.rotate(-rAngle, x, y);
-				g2d.drawString(p.getName(), (int) (getWidth() / 2 + (user
-						.getxPosition() - p.getxPosition())),
-						(int) (getHeight() / 2 + (user.getyPosition() - p
-								.getyPosition())) - 10);
+				g2d.drawString(p.getName(), (int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())),
+						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) - 10);
 			}
 		}
 		if (!user.isDead()) {
-			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2,
-					getHeight() / 2, null);
+			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2, getHeight() / 2, null);
 			double rAngle = 0;
 			double x = 0;
 			double y = 0;
 			if (user.getInHand() instanceof ProjectileShooter) {
 				rAngle = ((ProjectileShooter) user.getInHand()).getrAngle();
 				if (user.isFacingRight()) {
-					x = getWidth() / 2 + user.getWeaponXTweak()
-							+ user.getInHand().getxAdjustment();
-					y = getHeight() / 2 + user.getInHand().getyAdjustment()
-							+ user.getWeaponYTweak()
+					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment();
+					y = getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
 							+ user.getInHand().getHeight() / 2;
 					g2d.rotate(rAngle, x, y);
 				} else {
-					x = getWidth() / 2 + user.getWeaponXTweak()
-							+ user.getInHand().getxAdjustment()
+					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
 							+ user.getInHand().getWidth();
-					y = getHeight() / 2 + user.getInHand().getyAdjustment()
-							+ user.getWeaponYTweak()
+					y = getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
 							+ user.getInHand().getHeight() / 2;
 					g2d.rotate(rAngle, x, y);
 				}
 			}
-			g2d.drawImage(
-					user.getInHand().getSprite(),
-					getWidth() / 2 + user.getWeaponXTweak()
-							+ user.getInHand().getxAdjustment(),
-					getHeight() / 2 + user.getInHand().getyAdjustment()
-							+ user.getWeaponYTweak(), null);
+			g2d.drawImage(user.getInHand().getSprite(),
+					getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment(),
+					getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak(), null);
 			if (user.getInHand() instanceof ProjectileShooter)
 				g2d.rotate(-rAngle, x, y);
 			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
 		}
 		for (Projectile p : projectiles) {
 			double rAngle = p.getrAngle() + Math.PI;
-			double x = user.getxPosition() - p.getxPosition() + getWidth() / 2
-					+ p.getWidth() / 2;
-			double y = user.getyPosition() - p.getyPosition() + getHeight() / 2
-					+ p.getHeight() / 2;
+			double x = user.getxPosition() - p.getxPosition() + getWidth() / 2 + p.getWidth() / 2;
+			double y = user.getyPosition() - p.getyPosition() + getHeight() / 2 + p.getHeight() / 2;
 			g2d.rotate(rAngle, x, y);
-			g2d.drawImage(
-					p.getSprite(),
-					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
-					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2),
-					null);
+			g2d.drawImage(p.getSprite(), (int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
+					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2), null);
 			g2d.rotate(-rAngle, x, y);
 		}
 		requestFocusInWindow();
@@ -391,16 +352,12 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	@Override
 	public void keyTyped(KeyEvent e) {
-		if (keys.contains(KeyEvent.VK_COMMA) && speed - 50 >= 1) {
-			timer.cancel();
-			speed -= 50;
-			setTimers();
-		}
-		if (keys.contains(KeyEvent.VK_PERIOD)) {
-			timer.cancel();
-			speed += 50;
-			setTimers();
-		}
+		/*
+		 * if (keys.contains(KeyEvent.VK_COMMA) && speed - 50 >= 1) {
+		 * timer.cancel(); speed -= 50; setTimers(); } if
+		 * (keys.contains(KeyEvent.VK_PERIOD)) { timer.cancel(); speed += 50;
+		 * setTimers(); }
+		 */
 		if (keys.contains(KeyEvent.VK_ESCAPE)) {
 			if (state == 0) {
 				state = 1;
@@ -412,35 +369,38 @@ public abstract class Game extends JPanel implements KeyListener,
 
 	@Override
 	public void mousePressed(MouseEvent e) {
-		if (!user.isDead())
-			user.getInHand().attack(players, false);
+		if (state == 0)
+			if (!user.isDead())
+				user.getInHand().attack(players, false);
 	}
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
-		if (e.getX() > getWidth() / 2 + 16) {
-			user.setFacingRight(true);
-		} else {
-			user.setFacingRight(false);
+		if (state == 0) {
+			if (e.getX() > getWidth() / 2 + 16) {
+				user.setFacingRight(true);
+			} else {
+				user.setFacingRight(false);
+			}
+			if (user.getInHand() instanceof ProjectileShooter)
+				if (user.isFacingRight())
+					((ProjectileShooter) user.getInHand()).setrAngle(
+							Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2 - 16 * zoom));
+				else
+					((ProjectileShooter) user.getInHand()).setrAngle(
+							Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2 - 16 * zoom)
+									- Math.PI);
 		}
-		if (user.getInHand() instanceof ProjectileShooter)
-			if (user.isFacingRight())
-				((ProjectileShooter) user.getInHand()).setrAngle(Math.atan2(
-						e.getY() - getHeight() / 2 - 32 * zoom, e.getX()
-								- getWidth() / 2 - 16 * zoom));
-			else
-				((ProjectileShooter) user.getInHand()).setrAngle(Math.atan2(
-						e.getY() - getHeight() / 2 - 32 * zoom, e.getX()
-								- getWidth() / 2 - 16 * zoom)
-						- Math.PI);
 	}
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
-		if (user.getInHand().equals(user.getMelee()))
-			user.setInHand(user.getRanged());
-		else
-			user.setInHand(user.getMelee());
+		if (state == 0) {
+			if (user.getInHand().equals(user.getMelee()))
+				user.setInHand(user.getRanged());
+			else
+				user.setInHand(user.getMelee());
+		}
 	}
 
 	@Override
@@ -627,48 +587,34 @@ public abstract class Game extends JPanel implements KeyListener,
 							p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
 						}
 						for (Rectangle r : collisionRecs)
-							if (new Rectangle((int) -p.getxPosition(),
-									(int) -p.getyPosition(), p.getWidth(),
+							if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
 									p.getHeight()).intersects(r)) {
 								p.setVelox(0);
 								p.setVeloy(0);
 							}
 						if (socketServer != null)
 							for (Player player : socketServer.connectedPlayers) {
-								// System.out.println(socketServer.connectedPlayers.size());
-								if (new Rectangle((int) -p.getxPosition(),
-										(int) -p.getyPosition(), p.getWidth(),
-										p.getHeight())
-										.intersects(new Rectangle(player
-												.getBounds().x + 10, player
-												.getBounds().y + 14, player
-												.getBounds().width - 20, player
-												.getBounds().height - 14))
-										&& !player.isDead()
-										&& (p.getVelox() != 0 || p.getVeloy() != 0)) {
-									// System.out.println("SET");
+								if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
+										p.getHeight()).intersects(
+												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
+														player.getBounds().width - 20, player.getBounds().height - 14))
+										&& !player.isDead() && (p.getVelox() != 0 || p.getVeloy() != 0)) {
 									ArrayList<Player> attacked = new ArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, true);
 									projectiles.remove(p);
 									projectileIDs.remove((Integer) p.getId());
-									Packet15RemoveProjectile packet = new Packet15RemoveProjectile(
-											(int) p.getId());
+									Packet15RemoveProjectile packet = new Packet15RemoveProjectile((int) p.getId());
 									packet.writeData(socketServer);
 								}
 							}
 						else
 							for (Player player : players) {
-								if (new Rectangle((int) -p.getxPosition(),
-										(int) -p.getyPosition(), p.getWidth(),
-										p.getHeight())
-										.intersects(new Rectangle(player
-												.getBounds().x + 10, player
-												.getBounds().y + 14, player
-												.getBounds().width - 20, player
-												.getBounds().height - 14))
-										&& !player.isDead()
-										&& (p.getVelox() != 0 || p.getVeloy() != 0)) {
+								if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
+										p.getHeight()).intersects(
+												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
+														player.getBounds().width - 20, player.getBounds().height - 14))
+										&& !player.isDead() && (p.getVelox() != 0 || p.getVeloy() != 0)) {
 									ArrayList<Player> attacked = new ArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, false);
@@ -676,17 +622,14 @@ public abstract class Game extends JPanel implements KeyListener,
 									projectileIDs.remove((Integer) p.getId());
 								}
 							}
-						if (p.getVelox() == 0 && p.getVeloy() == 0
-								&& p.getDeadTime() == 0)
+						if (p.getVelox() == 0 && p.getVeloy() == 0 && p.getDeadTime() == 0)
 							p.setDeadTime(System.nanoTime());
-						else if (p.getVelox() == 0
-								&& p.getVeloy() == 0
+						else if (p.getVelox() == 0 && p.getVeloy() == 0
 								&& System.nanoTime() >= p.getDeadTime() + 2000000000) {
 							projectiles.remove(p);
 							projectileIDs.remove((Integer) p.getId());
 							if (socketServer != null) {
-								Packet15RemoveProjectile packet = new Packet15RemoveProjectile(
-										(int) p.getId());
+								Packet15RemoveProjectile packet = new Packet15RemoveProjectile((int) p.getId());
 								packet.writeData(socketServer);
 							}
 						}
@@ -710,26 +653,17 @@ public abstract class Game extends JPanel implements KeyListener,
 					if (p.getInHand().getSpriteY() != 1)
 						p.getInHand().setSpriteY(1);
 				}
-				p.getInHand().setSprite(
-						p.getInHand()
-								.getImage()
-								.getSubimage(
-										p.getInHand().getSpriteX()
-												* p.getInHand().getWidth(),
-										p.getInHand().getSpriteY()
-												* p.getInHand().getHeight(),
-										p.getInHand().getWidth(),
-										p.getInHand().getHeight()));
+				p.getInHand()
+						.setSprite(p.getInHand().getImage().getSubimage(
+								p.getInHand().getSpriteX() * p.getInHand().getWidth(),
+								p.getInHand().getSpriteY() * p.getInHand().getHeight(), p.getInHand().getWidth(),
+								p.getInHand().getHeight()));
 				if (p.isFacingRight()) {
-					p.getInHand().setxAdjustment(
-							p.getInHand().getHoldingRightX());
-					p.getInHand().setyAdjustment(
-							p.getInHand().getHoldingRightY());
+					p.getInHand().setxAdjustment(p.getInHand().getHoldingRightX());
+					p.getInHand().setyAdjustment(p.getInHand().getHoldingRightY());
 				} else {
-					p.getInHand().setxAdjustment(
-							p.getInHand().getHoldingLeftX());
-					p.getInHand().setyAdjustment(
-							p.getInHand().getHoldingLeftY());
+					p.getInHand().setxAdjustment(p.getInHand().getHoldingLeftX());
+					p.getInHand().setyAdjustment(p.getInHand().getHoldingLeftY());
 				}
 				if (!p.isWalking() && !p.isRunning() && p.isFacingRight()) {
 					p.setWeaponXTweak(p.getStandingRightHandX());
@@ -737,8 +671,7 @@ public abstract class Game extends JPanel implements KeyListener,
 				} else if (!p.isWalking() && !p.isRunning()) {
 					p.setWeaponXTweak(p.getStandingLeftHandX());
 					p.setWeaponYTweak(p.getStandingLeftHandY());
-				} else if ((p.isWalking() || p.isRunning())
-						&& p.isFacingRight()) {
+				} else if ((p.isWalking() || p.isRunning()) && p.isFacingRight()) {
 					p.setWeaponXTweak(p.getWalkingRightHandX());
 					p.setWeaponYTweak(p.getWalkingRightHandY());
 				} else if ((p.isWalking() || p.isRunning())) {
@@ -760,114 +693,97 @@ public abstract class Game extends JPanel implements KeyListener,
 			 * Packet01Disconnect( user.getName());
 			 * packet.writeData(socketClient); } System.exit(0); }
 			 */
-			if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
-				zoom++;
-				keys.remove((Integer) KeyEvent.VK_EQUALS);
-			}
-			if (keys.contains(KeyEvent.VK_MINUS) && zoom > 1) {
-				zoom--;
-				keys.remove((Integer) KeyEvent.VK_MINUS);
-			}
-			if (keys.contains(KeyEvent.VK_D)
-					&& !keys.contains(KeyEvent.VK_SHIFT)
-					|| keys.contains(KeyEvent.VK_D)
-					&& keys.contains(KeyEvent.VK_SHIFT)
-					&& !user.isStaminaRefilled()) {
-				user.setMovingRight(true);
-				user.setWalking(true);
-				user.setRunning(false);
-				user.setVeloX(-user.getWalkSpeed());
-			}
-			if (keys.contains(KeyEvent.VK_A)
-					&& !keys.contains(KeyEvent.VK_SHIFT)
-					|| keys.contains(KeyEvent.VK_A)
-					&& keys.contains(KeyEvent.VK_SHIFT)
-					&& !user.isStaminaRefilled()) {
-				user.setMovingRight(false);
-				user.setWalking(true);
-				user.setRunning(false);
-				user.setVeloX(user.getWalkSpeed());
-			}
-			if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_D)
-					&& !keys.contains(KeyEvent.VK_SHIFT)
-					|| keys.contains(KeyEvent.VK_D)
-					&& keys.contains(KeyEvent.VK_A)
-					&& keys.contains(KeyEvent.VK_SHIFT)
-					&& !user.isStaminaRefilled()) {
-				if (keys.indexOf(KeyEvent.VK_A) > keys.indexOf(KeyEvent.VK_D)) {
-					user.setMovingRight(false);
-					user.setWalking(true);
-					user.setRunning(false);
-					user.setVeloX(user.getWalkSpeed());
-				} else {
+			if (state == 0) {
+				if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
+					zoom++;
+					keys.remove((Integer) KeyEvent.VK_EQUALS);
+				}
+				if (keys.contains(KeyEvent.VK_MINUS) && zoom > 1) {
+					zoom--;
+					keys.remove((Integer) KeyEvent.VK_MINUS);
+				}
+				if (keys.contains(KeyEvent.VK_D) && !keys.contains(KeyEvent.VK_SHIFT) || keys.contains(KeyEvent.VK_D)
+						&& keys.contains(KeyEvent.VK_SHIFT) && !user.isStaminaRefilled()) {
 					user.setMovingRight(true);
 					user.setWalking(true);
 					user.setRunning(false);
 					user.setVeloX(-user.getWalkSpeed());
 				}
-			}
-			if (keys.contains(KeyEvent.VK_D)
-					&& keys.contains(KeyEvent.VK_SHIFT)
-					&& user.isStaminaRefilled()) {
-				user.setMovingRight(true);
-				user.setWalking(false);
-				user.setRunning(true);
-				user.setVeloX(-user.getRunSpeed());
-			}
-			if (keys.contains(KeyEvent.VK_A)
-					&& keys.contains(KeyEvent.VK_SHIFT)
-					&& user.isStaminaRefilled()) {
-				user.setMovingRight(false);
-				user.setWalking(false);
-				user.setRunning(true);
-				user.setVeloX(user.getRunSpeed());
-			}
-			if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_D)
-					&& keys.contains(KeyEvent.VK_SHIFT)
-					&& user.isStaminaRefilled()) {
-				if (keys.indexOf(KeyEvent.VK_A) > keys.indexOf(KeyEvent.VK_D)) {
+				if (keys.contains(KeyEvent.VK_A) && !keys.contains(KeyEvent.VK_SHIFT) || keys.contains(KeyEvent.VK_A)
+						&& keys.contains(KeyEvent.VK_SHIFT) && !user.isStaminaRefilled()) {
 					user.setMovingRight(false);
-					user.setWalking(false);
-					user.setRunning(true);
-					user.setVeloX(user.getRunSpeed());
-				} else {
+					user.setWalking(true);
+					user.setRunning(false);
+					user.setVeloX(user.getWalkSpeed());
+				}
+				if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_D) && !keys.contains(KeyEvent.VK_SHIFT)
+						|| keys.contains(KeyEvent.VK_D) && keys.contains(KeyEvent.VK_A)
+								&& keys.contains(KeyEvent.VK_SHIFT) && !user.isStaminaRefilled()) {
+					if (keys.indexOf(KeyEvent.VK_A) > keys.indexOf(KeyEvent.VK_D)) {
+						user.setMovingRight(false);
+						user.setWalking(true);
+						user.setRunning(false);
+						user.setVeloX(user.getWalkSpeed());
+					} else {
+						user.setMovingRight(true);
+						user.setWalking(true);
+						user.setRunning(false);
+						user.setVeloX(-user.getWalkSpeed());
+					}
+				}
+				if (keys.contains(KeyEvent.VK_D) && keys.contains(KeyEvent.VK_SHIFT) && user.isStaminaRefilled()) {
 					user.setMovingRight(true);
 					user.setWalking(false);
 					user.setRunning(true);
 					user.setVeloX(-user.getRunSpeed());
 				}
-			}
-			if ((keys.contains(KeyEvent.VK_W) || keys
-					.contains(KeyEvent.VK_SPACE))
-					&& !user.isJumping()
-					&& !user.isFalling())
-				user.setVeloY(user.getInitJumpSpeed());
-			if (keys.contains(KeyEvent.VK_T) && !user.isDead()) {
-				user.setHealth(0);
-				user.setDead(true);
-				if (socketClient != null) {
-					Packet05Health packet = new Packet05Health(user.getName(),
-							user.getHealth());
-					packet.writeData(socketClient);
-					Packet16Suicide suicidePacket = new Packet16Suicide(
-							user.getName());
-					suicidePacket.writeData(socketClient);
+				if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_SHIFT) && user.isStaminaRefilled()) {
+					user.setMovingRight(false);
+					user.setWalking(false);
+					user.setRunning(true);
+					user.setVeloX(user.getRunSpeed());
 				}
-			}
-			if (keys.contains(KeyEvent.VK_R) && !keys.contains(KeyEvent.VK_T)
-					&& user.isDead()) {
-				if (socketClient == null) {
-					user.setHealth(user.getMaxHealth());
-					user.setDead(false);
-				} else {
-					Packet17Respawn packet = new Packet17Respawn(user.getName());
-					packet.writeData(socketClient);
+				if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_D) && keys.contains(KeyEvent.VK_SHIFT)
+						&& user.isStaminaRefilled()) {
+					if (keys.indexOf(KeyEvent.VK_A) > keys.indexOf(KeyEvent.VK_D)) {
+						user.setMovingRight(false);
+						user.setWalking(false);
+						user.setRunning(true);
+						user.setVeloX(user.getRunSpeed());
+					} else {
+						user.setMovingRight(true);
+						user.setWalking(false);
+						user.setRunning(true);
+						user.setVeloX(-user.getRunSpeed());
+					}
 				}
-			}
-			if (!keys.contains(KeyEvent.VK_A) && !keys.contains(KeyEvent.VK_D)) {
-				user.setWalking(false);
-				user.setRunning(false);
-				user.setVeloX(0);
+				if ((keys.contains(KeyEvent.VK_W) || keys.contains(KeyEvent.VK_SPACE)) && !user.isJumping()
+						&& !user.isFalling())
+					user.setVeloY(user.getInitJumpSpeed());
+				if (keys.contains(KeyEvent.VK_T) && !user.isDead()) {
+					user.setHealth(0);
+					user.setDead(true);
+					if (socketClient != null) {
+						Packet05Health packet = new Packet05Health(user.getName(), user.getHealth());
+						packet.writeData(socketClient);
+						Packet16Suicide suicidePacket = new Packet16Suicide(user.getName());
+						suicidePacket.writeData(socketClient);
+					}
+				}
+				if (keys.contains(KeyEvent.VK_R) && !keys.contains(KeyEvent.VK_T) && user.isDead()) {
+					if (socketClient == null) {
+						user.setHealth(user.getMaxHealth());
+						user.setDead(false);
+					} else {
+						Packet17Respawn packet = new Packet17Respawn(user.getName());
+						packet.writeData(socketClient);
+					}
+				}
+				if (!keys.contains(KeyEvent.VK_A) && !keys.contains(KeyEvent.VK_D)) {
+					user.setWalking(false);
+					user.setRunning(false);
+					user.setVeloX(0);
+				}
 			}
 		}
 	}
@@ -896,8 +812,7 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && p.isMovingRight() && p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(0);
-				} else if (p.isRunning() && p.isMovingRight()
-						&& p.isFacingRight()) {
+				} else if (p.isRunning() && p.isMovingRight() && p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(0);
 				} else if (p.isMovingRight() && p.isFacingRight()) {
@@ -907,8 +822,7 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(2);
-				} else if (p.isRunning() && p.isMovingRight()
-						&& !p.isFacingRight()) {
+				} else if (p.isRunning() && p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(2);
 				} else if (p.isMovingRight() && !p.isFacingRight()) {
@@ -918,8 +832,7 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && !p.isMovingRight() && p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(1);
-				} else if (p.isRunning() && !p.isMovingRight()
-						&& p.isFacingRight()) {
+				} else if (p.isRunning() && !p.isMovingRight() && p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(1);
 				} else if (!p.isMovingRight() && p.isFacingRight()) {
@@ -929,18 +842,15 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (p.isWalking() && !p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(w);
 					p.setSpriteY(3);
-				} else if (p.isRunning() && !p.isMovingRight()
-						&& !p.isFacingRight()) {
+				} else if (p.isRunning() && !p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(r);
 					p.setSpriteY(3);
 				} else if (!p.isMovingRight() && !p.isFacingRight()) {
 					p.setSpriteX(0);
 					p.setSpriteY(3);
 				}
-				p.setPlayerSprite(p.getPlayerSpriteSheet().getSubimage(
-						p.getSpriteX() * p.getSpriteWidth(),
-						p.getSpriteY() * p.getSpriteHeight(),
-						p.getSpriteWidth(), p.getSpriteHeight()));
+				p.setPlayerSprite(p.getPlayerSpriteSheet().getSubimage(p.getSpriteX() * p.getSpriteWidth(),
+						p.getSpriteY() * p.getSpriteHeight(), p.getSpriteWidth(), p.getSpriteHeight()));
 			}
 		}
 	}
@@ -982,35 +892,27 @@ public abstract class Game extends JPanel implements KeyListener,
 		public void run() {
 			if (socketClient == null) {
 				for (Player p : players) {
-					if (p.getVeloX() != 0 && !p.checkCollisions().contains(1)
-							&& !p.isDead())
+					if (p.getVeloX() != 0 && !p.checkCollisions().contains(1) && !p.isDead())
 						p.setxPosition(p.getxPosition() + p.getVeloX());
-					else if (p.getVeloX() != 0
-							&& p.checkCollisions().contains(1)) {
+					else if (p.getVeloX() != 0 && p.checkCollisions().contains(1)) {
 						boolean flag = false;
 						for (Rectangle r : getCollisionRecs())
-							if (new Rectangle(
-									(int) (p.getBounds().x + 10 - p.getVeloX()),
-									p.getBounds().y + 6,
-									p.getBounds().width - 20,
-									p.getBounds().height - 14).intersects(r))
+							if (new Rectangle((int) (p.getBounds().x + 10 - p.getVeloX()), p.getBounds().y + 6,
+									p.getBounds().width - 20, p.getBounds().height - 14).intersects(r))
 								flag = true;
 						if (!flag) {
 							p.setyPosition(p.getyPosition() + 8);
 							p.setxPosition(p.getxPosition() + p.getVeloX());
 						}
 					}
-					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)
-							&& !p.isDead())
+					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3) && !p.isDead())
 						p.setyPosition(p.getyPosition() + p.getVeloY());
 					else if (p.getVeloY() > 0 && !p.isDead()) {
 						int h = 0;
 						outerloop: for (Rectangle r : getCollisionRecs()) {
 							h = 0;
-							while (!new Rectangle(p.getBounds().x,
-									p.getBounds().y - h + (64 - p.getHeight()),
-									p.getBounds().width, p.getBounds().height)
-									.intersects(r)) {
+							while (!new Rectangle(p.getBounds().x, p.getBounds().y - h + (64 - p.getHeight()),
+									p.getBounds().width, p.getBounds().height).intersects(r)) {
 								if (h > p.getVeloY())
 									continue outerloop;
 								h++;
@@ -1020,15 +922,13 @@ public abstract class Game extends JPanel implements KeyListener,
 						p.setyPosition(p.getyPosition() + h - 1);
 						p.setVeloY(-0.5);
 					}
-					if (p.getVeloY() < 0 && !p.checkCollisions().contains(4)
-							&& !p.isDead())
+					if (p.getVeloY() < 0 && !p.checkCollisions().contains(4) && !p.isDead())
 						p.setyPosition(p.getyPosition() + p.getVeloY());
 					else if (p.getVeloY() < 0 && !p.isDead()) {
 						int h = 0;
 						outerloop: for (Rectangle r : getCollisionRecs()) {
 							h = 0;
-							while (!new Rectangle(p.getBounds().x,
-									p.getBounds().y - h, p.getBounds().width,
+							while (!new Rectangle(p.getBounds().x, p.getBounds().y - h, p.getBounds().width,
 									p.getBounds().height).intersects(r)) {
 								if (h < p.getVeloY())
 									continue outerloop;
@@ -1042,8 +942,7 @@ public abstract class Game extends JPanel implements KeyListener,
 					if (p.getVeloY() == 0) {
 						p.setJumping(false);
 						p.setFalling(false);
-					} else if (p.getVeloY() > 0
-							&& !p.checkCollisions().contains(3)) {
+					} else if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)) {
 						p.setJumping(true);
 						p.setFalling(false);
 						p.setVeloY(p.getVeloY() / 1.1);
@@ -1057,42 +956,32 @@ public abstract class Game extends JPanel implements KeyListener,
 					}
 					if (p.getVeloY() > 0 && p.getVeloY() < 1)
 						p.setVeloY(-0.5);
-					if (p.canFall() && !p.isFalling() && !p.isJumping()
-							&& !p.checkCollisions().contains(4) && !p.isDead())
+					if (p.canFall() && !p.isFalling() && !p.isJumping() && !p.checkCollisions().contains(4)
+							&& !p.isDead())
 						p.setVeloY(-0.5);
 				}
 			} else {
-				if (user.getVeloX() != 0 && !user.checkCollisions().contains(1)
-						&& !user.isDead())
+				if (user.getVeloX() != 0 && !user.checkCollisions().contains(1) && !user.isDead())
 					user.setxPosition(user.getxPosition() + user.getVeloX());
-				else if (user.getVeloX() != 0
-						&& user.checkCollisions().contains(1)) {
+				else if (user.getVeloX() != 0 && user.checkCollisions().contains(1)) {
 					boolean flag = false;
 					for (Rectangle r : getCollisionRecs())
-						if (new Rectangle(
-								(int) (user.getBounds().x + 10 - user
-										.getVeloX()),
-								user.getBounds().y + 6,
-								user.getBounds().width - 20,
-								user.getBounds().height - 14).intersects(r))
+						if (new Rectangle((int) (user.getBounds().x + 10 - user.getVeloX()), user.getBounds().y + 6,
+								user.getBounds().width - 20, user.getBounds().height - 14).intersects(r))
 							flag = true;
 					if (!flag) {
 						user.setyPosition(user.getyPosition() + 8);
 						user.setxPosition(user.getxPosition() + user.getVeloX());
 					}
 				}
-				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)
-						&& !user.isDead())
+				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3) && !user.isDead())
 					user.setyPosition(user.getyPosition() + user.getVeloY());
 				else if (user.getVeloY() > 0 && !user.isDead()) {
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
-						while (!new Rectangle(user.getBounds().x,
-								user.getBounds().y - h
-										+ (64 - user.getHeight()),
-								user.getBounds().width, user.getBounds().height)
-								.intersects(r)) {
+						while (!new Rectangle(user.getBounds().x, user.getBounds().y - h + (64 - user.getHeight()),
+								user.getBounds().width, user.getBounds().height).intersects(r)) {
 							if (h > user.getVeloY())
 								continue outerloop;
 							h++;
@@ -1102,15 +991,13 @@ public abstract class Game extends JPanel implements KeyListener,
 					user.setyPosition(user.getyPosition() + h - 1);
 					user.setVeloY(-0.5);
 				}
-				if (user.getVeloY() < 0 && !user.checkCollisions().contains(4)
-						&& !user.isDead())
+				if (user.getVeloY() < 0 && !user.checkCollisions().contains(4) && !user.isDead())
 					user.setyPosition(user.getyPosition() + user.getVeloY());
 				else if (user.getVeloY() < 0 && !user.isDead()) {
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
-						while (!new Rectangle(user.getBounds().x,
-								user.getBounds().y - h, user.getBounds().width,
+						while (!new Rectangle(user.getBounds().x, user.getBounds().y - h, user.getBounds().width,
 								user.getBounds().height).intersects(r)) {
 							if (h < user.getVeloY())
 								continue outerloop;
@@ -1124,8 +1011,7 @@ public abstract class Game extends JPanel implements KeyListener,
 				if (user.getVeloY() == 0) {
 					user.setJumping(false);
 					user.setFalling(false);
-				} else if (user.getVeloY() > 0
-						&& !user.checkCollisions().contains(3)) {
+				} else if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)) {
 					user.setJumping(true);
 					user.setFalling(false);
 					user.setVeloY(user.getVeloY() / 1.1);
@@ -1139,8 +1025,7 @@ public abstract class Game extends JPanel implements KeyListener,
 				}
 				if (user.getVeloY() > 0 && user.getVeloY() < 1)
 					user.setVeloY(-0.5);
-				if (user.canFall() && !user.isFalling() && !user.isJumping()
-						&& !user.checkCollisions().contains(4)
+				if (user.canFall() && !user.isFalling() && !user.isJumping() && !user.checkCollisions().contains(4)
 						&& !user.isDead())
 					user.setVeloY(-0.5);
 			}

@@ -71,8 +71,10 @@ public class GameServer extends Thread {
 		case INVALID:
 			break;
 		case LOGIN:
+			System.out.println("CHECK");
 			if (connectedPlayers.size() != game.getPlayerSize()
 					&& !game.isRunning()) {
+				System.out.println("CONFIRM");
 				packet = new Packet00Login(data);
 				System.out.println("[" + address.getHostAddress() + ":" + port
 						+ "] " + ((Packet00Login) packet).getName()

@@ -24,8 +24,7 @@ public class Packet02Startgame extends Packet {
 		this.startY = Double.parseDouble(dataArray[4]);
 	}
 
-	public Packet02Startgame(int mapID, String graphicsMap,
-			String collisionMap, double startX, double startY) {
+	public Packet02Startgame(int mapID, String graphicsMap, String collisionMap, double startX, double startY) {
 		super(02);
 		this.mapID = mapID;
 		this.graphicsMap = graphicsMap;
@@ -50,8 +49,7 @@ public class Packet02Startgame extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("02" + mapID + "," + graphicsMap + "," + collisionMap + ","
-				+ startX + "," + startY).getBytes();
+		return ("02" + mapID + "," + graphicsMap + "," + collisionMap + "," + startX + "," + startY).getBytes();
 	}
 
 	public String getGraphicsMap() {

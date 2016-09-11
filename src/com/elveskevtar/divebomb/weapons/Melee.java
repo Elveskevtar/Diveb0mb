@@ -15,8 +15,8 @@ public abstract class Melee extends Weapon {
 	private static String[] example3Files = { "res/icon/meleeExample3.png" };
 
 	public static enum MeleeWeaponTypes {
-		SWORD(swordFiles, "sword"), EXAMPLE1(example1Files, "sword"), EXAMPLE2(
-				example2Files, "sword"), EXAMPLE3(example3Files, "sword");
+		SWORD(swordFiles, "sword"), EXAMPLE1(example1Files, "sword"), EXAMPLE2(example2Files,
+				"sword"), EXAMPLE3(example3Files, "sword");
 
 		private String[] files;
 		private String name;
@@ -63,53 +63,37 @@ public abstract class Melee extends Weapon {
 			ArrayList<Player> attackedPlayers = new ArrayList<Player>();
 			for (Player p : players)
 				if (p != getPlayer() && !p.isDead()) {
-					if (getPlayer().isFacingRight()
-							&& p.getxPosition() - getPlayer().getxPosition() <= 0
-							&& Math.sqrt(Math.pow(
-									(p.getxPosition() - getPlayer()
-											.getxPosition()), 2)
-									+ Math.pow((p.getyPosition() - getPlayer()
-											.getyPosition()), 2)) <= getDistance())
+					if (getPlayer().isFacingRight() && p.getxPosition() - getPlayer().getxPosition() <= 0
+							&& Math.sqrt(Math.pow((p.getxPosition() - getPlayer().getxPosition()), 2)
+									+ Math.pow((p.getyPosition() - getPlayer().getyPosition()), 2)) <= getDistance())
 						attackedPlayers.add(p);
-					if (!getPlayer().isFacingRight()
-							&& p.getxPosition() - getPlayer().getxPosition() >= 0
-							&& Math.sqrt(Math.pow(
-									(p.getxPosition() - getPlayer()
-											.getxPosition()), 2)
-									+ Math.pow((p.getyPosition() - getPlayer()
-											.getyPosition()), 2)) <= getDistance())
+					if (!getPlayer().isFacingRight() && p.getxPosition() - getPlayer().getxPosition() >= 0
+							&& Math.sqrt(Math.pow((p.getxPosition() - getPlayer().getxPosition()), 2)
+									+ Math.pow((p.getyPosition() - getPlayer().getyPosition()), 2)) <= getDistance())
 						attackedPlayers.add(p);
 				}
 			for (Player p : attackedPlayers) {
-				p.setHealth(p.getHealth() + (Math.random() * -10)
-						+ p.getInHand().getDefense() - getDamage());
+				p.setHealth(p.getHealth() + (Math.random() * -10) + p.getInHand().getDefense() - getDamage());
 				if (p.getHealth() <= 0) {
 					getPlayer().setKills(getPlayer().getKills() + 1);
 					p.setDeaths(p.getDeaths() + 1);
 					if (server) {
-						Packet06Kill packet = new Packet06Kill(getPlayer()
-								.getName(), p.getName());
-						packet.writeData(getPlayer().getGame()
-								.getSocketServer());
+						Packet06Kill packet = new Packet06Kill(getPlayer().getName(), p.getName());
+						packet.writeData(getPlayer().getGame().getSocketServer());
 						if (getPlayer().getGame() instanceof GameDeathmatchMP
 								&& getPlayer().getGame().getSocketClient() == null
-								&& ((GameDeathmatchMP) getPlayer().getGame())
-										.getFirstPlaceName() == null
-								|| getPlayer().getKills() > ((GameDeathmatchMP) getPlayer()
-										.getGame()).getFirstPlaceKills()) {
-							((GameDeathmatchMP) getPlayer().getGame())
-									.setFirstPlaceKills(getPlayer().getKills());
-							((GameDeathmatchMP) getPlayer().getGame())
-									.setFirstPlaceName(getPlayer().getName());
+								&& ((GameDeathmatchMP) getPlayer().getGame()).getFirstPlaceName() == null
+								|| getPlayer().getKills() > ((GameDeathmatchMP) getPlayer().getGame())
+										.getFirstPlaceKills()) {
+							((GameDeathmatchMP) getPlayer().getGame()).setFirstPlaceKills(getPlayer().getKills());
+							((GameDeathmatchMP) getPlayer().getGame()).setFirstPlaceName(getPlayer().getName());
 						}
 					}
 				}
 			}
 			for (int i = 0; i < attackedPlayers.size(); i++)
 				attackedPlayers.remove(i);
-		} else if (getPlayer().getName().equalsIgnoreCase(
-				getPlayer().getGame().getUserName())
-				&& !server) {
+		} else if (getPlayer().getName().equalsIgnoreCase(getPlayer().getGame().getUserName()) && !server) {
 			Packet04Attack packet = new Packet04Attack(getPlayer().getName());
 			packet.writeData(getPlayer().getGame().getSocketClient());
 		}

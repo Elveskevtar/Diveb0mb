@@ -12,10 +12,8 @@ public class Driver {
 
 	public static void main(String[] args) {
 		try {
-			GraphicsEnvironment ge = GraphicsEnvironment
-					.getLocalGraphicsEnvironment();
-			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File(
-					"res/font/livewired.ttf")));
+			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("res/font/livewired.ttf")));
 		} catch (IOException | FontFormatException e) {
 			e.printStackTrace();
 		}

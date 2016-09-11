@@ -14,13 +14,11 @@ public class Human extends Player {
 	public Human(Game game, InetAddress ip, int port) {
 		super(game, ip, port);
 		try {
-			this.setPlayerSpriteSheet(ImageIO.read(new File(
-					"res/img/human_male.png")));
+			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/human_male.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(
-				getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
+		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
 		this.setHeight(40);
 		this.setStandingLeftHandX(15);
@@ -38,13 +36,11 @@ public class Human extends Player {
 	public Human(Game game, String name, InetAddress ip, int port) {
 		super(game, name, ip, port);
 		try {
-			this.setPlayerSpriteSheet(ImageIO.read(new File(
-					"res/img/human_male.png")));
+			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/human_male.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(
-				getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
+		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
 		this.setHeight(40);
 		this.setStandingLeftHandX(15);
@@ -62,8 +58,7 @@ public class Human extends Player {
 	@Override
 	public boolean canFall() {
 		for (Rectangle r : getGame().getCollisionRecs()) {
-			if (new Rectangle(getBounds().x + 10, getBounds().y + 16,
-					getBounds().width - 20, getBounds().height - 14)
+			if (new Rectangle(getBounds().x + 10, getBounds().y + 16, getBounds().width - 20, getBounds().height - 14)
 					.intersects(r))
 				return false;
 		}

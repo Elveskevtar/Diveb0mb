@@ -19,8 +19,7 @@ public class Packet14UpdateProjectile extends Packet {
 		this.id = Integer.parseInt(dataArray[3]);
 	}
 
-	public Packet14UpdateProjectile(double xPosition, double yPosition,
-			double rAngle, int id) {
+	public Packet14UpdateProjectile(double xPosition, double yPosition, double rAngle, int id) {
 		super(14);
 		this.xPosition = xPosition;
 		this.yPosition = yPosition;
@@ -40,8 +39,7 @@ public class Packet14UpdateProjectile extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("14" + xPosition + "," + yPosition + "," + rAngle + "," + id)
-				.getBytes();
+		return ("14" + xPosition + "," + yPosition + "," + rAngle + "," + id).getBytes();
 	}
 
 	public double getxPosition() {

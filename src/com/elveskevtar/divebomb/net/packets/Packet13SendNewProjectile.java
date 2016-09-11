@@ -23,8 +23,8 @@ public class Packet13SendNewProjectile extends Packet {
 		this.id = Integer.parseInt(dataArray[5]);
 	}
 
-	public Packet13SendNewProjectile(String type, double xPosition,
-			double yPosition, double rAngle, String name, int id) {
+	public Packet13SendNewProjectile(String type, double xPosition, double yPosition, double rAngle, String name,
+			int id) {
 		super(13);
 		this.type = type;
 		this.xPosition = xPosition;
@@ -46,8 +46,7 @@ public class Packet13SendNewProjectile extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("13" + type + "," + xPosition + "," + yPosition + "," + rAngle
-				+ "," + name + "," + id).getBytes();
+		return ("13" + type + "," + xPosition + "," + yPosition + "," + rAngle + "," + name + "," + id).getBytes();
 	}
 
 	public double getxPosition() {

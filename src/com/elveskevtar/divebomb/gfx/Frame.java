@@ -27,8 +27,7 @@ public class Frame extends JFrame {
 		this.width = width;
 		this.height = height;
 		this.pack();
-		this.setSize(getInsets().left + getInsets().right + width,
-				getInsets().top + getInsets().bottom + height);
+		this.setSize(getInsets().left + getInsets().right + width, getInsets().top + getInsets().bottom + height);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

@@ -14,13 +14,11 @@ public class Cyborg extends Player {
 	public Cyborg(Game game, InetAddress ip, int port) {
 		super(game, ip, port);
 		try {
-			this.setPlayerSpriteSheet(ImageIO.read(new File(
-					"res/img/cyborg_blue.png")));
+			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_blue.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(
-				getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
+		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
 		this.setHeight(50);
 		this.setWeaponXTweak(9);
@@ -40,13 +38,11 @@ public class Cyborg extends Player {
 	public Cyborg(Game game, String color, InetAddress ip, int port) {
 		super(game, ip, port);
 		try {
-			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_"
-					+ color + ".png")));
+			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_" + color + ".png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(
-				getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
+		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
 		this.setHeight(50);
 		this.setColor(color);
@@ -67,13 +63,11 @@ public class Cyborg extends Player {
 	public Cyborg(Game game, String color, String name, InetAddress ip, int port) {
 		super(game, name, ip, port);
 		try {
-			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_"
-					+ color + ".png")));
+			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_" + color + ".png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(
-				getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
+		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
 		this.setHeight(50);
 		this.setColor(color);
@@ -94,13 +88,11 @@ public class Cyborg extends Player {
 	public Cyborg(Game game, String name, int ignore, InetAddress ip, int port) {
 		super(game, name, ip, port);
 		try {
-			this.setPlayerSpriteSheet(ImageIO.read(new File(
-					"res/img/cyborg_blue.png")));
+			this.setPlayerSpriteSheet(ImageIO.read(new File("res/img/cyborg_blue.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(
-				getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
+		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
 		this.setHeight(50);
 		this.setWeaponXTweak(9);
@@ -120,8 +112,7 @@ public class Cyborg extends Player {
 	@Override
 	public boolean canFall() {
 		for (Rectangle r : getGame().getCollisionRecs()) {
-			if (new Rectangle(getBounds().x + 10, getBounds().y + 16,
-					getBounds().width - 20, getBounds().height - 14)
+			if (new Rectangle(getBounds().x + 10, getBounds().y + 16, getBounds().width - 20, getBounds().height - 14)
 					.intersects(r))
 				return false;
 		}

@@ -9,7 +9,7 @@ import javax.imageio.ImageIO;
 import com.elveskevtar.divebomb.race.Player;
 
 public class Sword extends Melee {
-	
+
 	public Sword(Player p) {
 		super(p, "sword");
 		this.setDamage(12);
@@ -28,8 +28,8 @@ public class Sword extends Melee {
 		this.setHoldingRightY(-21);
 		this.setxAdjustment(getHoldingLeftX());
 		this.setyAdjustment(getHoldingLeftY());
-		this.setSprite(getImage().getSubimage(getSpriteX() * getWidth(),
-				getSpriteY() * getHeight(), getWidth(), getHeight()));
+		this.setSprite(
+				getImage().getSubimage(getSpriteX() * getWidth(), getSpriteY() * getHeight(), getWidth(), getHeight()));
 	}
 
 	@Override

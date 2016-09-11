@@ -44,14 +44,10 @@ public class StartMenu extends JPanel {
 		this.options = new JButton("Options");
 		this.exit = new JButton("Exit Game");
 
-		this.campaignFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
-		this.multiplayerFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
-		this.optionsFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
-		this.exitFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
+		this.campaignFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
+		this.multiplayerFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
+		this.optionsFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
+		this.exitFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 
 		this.campaign.setForeground(Color.BLACK);
 		this.multiplayer.setForeground(Color.BLACK);
@@ -174,17 +170,13 @@ public class StartMenu extends JPanel {
 			}
 		});
 
-		this.campaign.setBounds(getWidth() / 2 - getWidth() / 6,
-				getHeight() / 2, getWidth() / 3, getHeight() / 16);
-		this.multiplayer.setBounds(getWidth() / 2 - getWidth() / 6,
-				(int) (getHeight() / 2 + getHeight() / 8), getWidth() / 3,
-				getHeight() / 16);
-		this.options.setBounds(getWidth() / 2 - getWidth() / 6,
-				(int) (getHeight() / 2 + getHeight() / 8 * 2), getWidth() / 3,
-				getHeight() / 16);
-		this.exit.setBounds(getWidth() / 2 - getWidth() / 6,
-				(int) (getHeight() / 2 + getHeight() / 8 * 3), getWidth() / 3,
-				getHeight() / 16);
+		this.campaign.setBounds(getWidth() / 2 - getWidth() / 6, getHeight() / 2, getWidth() / 3, getHeight() / 16);
+		this.multiplayer.setBounds(getWidth() / 2 - getWidth() / 6, (int) (getHeight() / 2 + getHeight() / 8),
+				getWidth() / 3, getHeight() / 16);
+		this.options.setBounds(getWidth() / 2 - getWidth() / 6, (int) (getHeight() / 2 + getHeight() / 8 * 2),
+				getWidth() / 3, getHeight() / 16);
+		this.exit.setBounds(getWidth() / 2 - getWidth() / 6, (int) (getHeight() / 2 + getHeight() / 8 * 3),
+				getWidth() / 3, getHeight() / 16);
 
 		this.add(campaign);
 		this.add(multiplayer);
@@ -195,9 +187,7 @@ public class StartMenu extends JPanel {
 	public void campaignAction() {
 		setVisible(false);
 		getFrame().remove(this);
-		getFrame().add(
-				new GameDeathmatch(getFrame(), new Map("res/img/Map.png",
-						"res/img/CollisionMap.png", 0)));
+		getFrame().add(new GameDeathmatch(getFrame(), new Map("res/img/Map.png", "res/img/CollisionMap.png", 0)));
 	}
 
 	public void multiplayerAction() {
@@ -274,15 +264,12 @@ public class StartMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Multiplayer")) {
 				double i = 0;
@@ -292,15 +279,12 @@ public class StartMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Options")) {
 				double i = 0;
@@ -310,15 +294,12 @@ public class StartMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Exit Game")) {
 				double i = 0;
@@ -328,15 +309,12 @@ public class StartMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			}
 		}

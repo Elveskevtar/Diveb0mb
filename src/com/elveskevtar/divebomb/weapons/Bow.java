@@ -10,7 +10,7 @@ import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.race.Player;
 
 public class Bow extends ProjectileShooter {
-	
+
 	public Bow(Player p) {
 		super(p, "bow");
 		this.setDefense(1);
@@ -28,8 +28,8 @@ public class Bow extends ProjectileShooter {
 		this.setHoldingRightY(-14);
 		this.setxAdjustment(getHoldingLeftX());
 		this.setyAdjustment(getHoldingLeftY());
-		this.setSprite(getImage().getSubimage(getSpriteX() * getWidth(),
-				getSpriteY() * getHeight(), getWidth(), getHeight()));
+		this.setSprite(
+				getImage().getSubimage(getSpriteX() * getWidth(), getSpriteY() * getHeight(), getWidth(), getHeight()));
 	}
 
 	@Override
@@ -38,25 +38,13 @@ public class Bow extends ProjectileShooter {
 		while (getPlayer().getGame().getProjectileIDs().contains(id))
 			id = (int) (Math.random() * 10000);
 		if (getPlayer().isFacingRight())
-			getPlayer()
-					.getGame()
-					.getProjectiles()
-					.add(new Arrow(getPlayer(), id, -Math.cos(getrAngle()) * 28
-							+ getPlayer().getxPosition(), -Math
-							.sin(getrAngle())
-							* 28
-							+ getPlayer().getyPosition()
-							- 32, getrAngle()));
+			getPlayer().getGame().getProjectiles()
+					.add(new Arrow(getPlayer(), id, -Math.cos(getrAngle()) * 28 + getPlayer().getxPosition(),
+							-Math.sin(getrAngle()) * 28 + getPlayer().getyPosition() - 32, getrAngle()));
 		else
-			getPlayer()
-					.getGame()
-					.getProjectiles()
-					.add(new Arrow(getPlayer(), id, Math.cos(getrAngle()) * 28
-							+ getPlayer().getxPosition() - 16, Math
-							.sin(getrAngle())
-							* 28
-							+ getPlayer().getyPosition()
-							- 32, getrAngle()));
+			getPlayer().getGame().getProjectiles()
+					.add(new Arrow(getPlayer(), id, Math.cos(getrAngle()) * 28 + getPlayer().getxPosition() - 16,
+							Math.sin(getrAngle()) * 28 + getPlayer().getyPosition() - 32, getrAngle()));
 		getPlayer().getGame().getProjectileIDs().add(id);
 	}
 
@@ -68,16 +56,14 @@ public class Bow extends ProjectileShooter {
 		} while (getPlayer().getGame().getProjectileIDs().contains(id));
 		Packet13SendNewProjectile packet;
 		if (getPlayer().isFacingRight())
-			packet = new Packet13SendNewProjectile("arrow",
-					-Math.cos(getrAngle()) * 28 + getPlayer().getxPosition(),
-					-Math.sin(getrAngle()) * 28 + getPlayer().getyPosition()
-							- 32, getrAngle(), getPlayer().getName(), id);
+			packet = new Packet13SendNewProjectile("arrow", -Math.cos(getrAngle()) * 28 + getPlayer().getxPosition(),
+					-Math.sin(getrAngle()) * 28 + getPlayer().getyPosition() - 32, getrAngle(), getPlayer().getName(),
+					id);
 		else
 			packet = new Packet13SendNewProjectile("arrow",
-					Math.cos(getrAngle()) * 28 + getPlayer().getxPosition()
-							- 16, Math.sin(getrAngle()) * 28
-							+ getPlayer().getyPosition() - 32, getrAngle(),
-					getPlayer().getName(), id);
+					Math.cos(getrAngle()) * 28 + getPlayer().getxPosition() - 16,
+					Math.sin(getrAngle()) * 28 + getPlayer().getyPosition() - 32, getrAngle(), getPlayer().getName(),
+					id);
 		packet.writeData(getPlayer().getGame().getSocketClient());
 	}
 

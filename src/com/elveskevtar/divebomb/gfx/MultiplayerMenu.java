@@ -49,12 +49,9 @@ public class MultiplayerMenu extends JPanel {
 
 		this.ipFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
 		this.userNameFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
-		this.backFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
-		this.privateGameFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
-		this.joinGameFont = new Font("Livewired", Font.PLAIN,
-				(int) (getWidth() / 38.4));
+		this.backFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
+		this.privateGameFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
+		this.joinGameFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 
 		this.ip = new HintTextField("IP Address");
 		this.userName = new HintTextField("Username");
@@ -154,14 +151,11 @@ public class MultiplayerMenu extends JPanel {
 		});
 
 		this.back.setBounds(0, 0, getWidth() / 8, getHeight() / 12);
-		this.ip.setBounds(getWidth() / 2 - getWidth() / 4, getHeight() / 2
-				- getHeight() / 12, getWidth() / 4, getHeight() / 12);
-		this.userName.setBounds(getWidth() / 2, getHeight() / 2 - getHeight()
-				/ 12, getWidth() / 4, getHeight() / 12);
-		this.privateGame.setBounds(0, getHeight() - getHeight() / 12,
-				getWidth() / 2, getHeight() / 12);
-		this.joinGame.setBounds(getWidth() / 2, getHeight() - getHeight() / 12,
-				getWidth() / 2, getHeight() / 12);
+		this.ip.setBounds(getWidth() / 2 - getWidth() / 4, getHeight() / 2 - getHeight() / 12, getWidth() / 4,
+				getHeight() / 12);
+		this.userName.setBounds(getWidth() / 2, getHeight() / 2 - getHeight() / 12, getWidth() / 4, getHeight() / 12);
+		this.privateGame.setBounds(0, getHeight() - getHeight() / 12, getWidth() / 2, getHeight() / 12);
+		this.joinGame.setBounds(getWidth() / 2, getHeight() - getHeight() / 12, getWidth() / 2, getHeight() / 12);
 
 		this.ip.setFont(ipFont);
 		this.userName.setFont(userNameFont);
@@ -265,11 +259,9 @@ public class MultiplayerMenu extends JPanel {
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				if (!userName.getText().isEmpty()
-						&& !userName.getText().equals(userName.getHint())) {
+				if (!userName.getText().isEmpty() && !userName.getText().equals(userName.getHint())) {
 					privateGame.setEnabled(true);
-					if (!ip.getText().isEmpty()
-							&& !ip.getText().equals(ip.getHint()))
+					if (!ip.getText().isEmpty() && !ip.getText().equals(ip.getHint()))
 						joinGame.setEnabled(true);
 					else
 						joinGame.setEnabled(false);
@@ -329,15 +321,12 @@ public class MultiplayerMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Create Private Game")) {
 				double i = 0;
@@ -347,15 +336,12 @@ public class MultiplayerMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 43.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			} else if (button.getText().equals("Join Game")) {
 				double i = 0;
@@ -365,15 +351,12 @@ public class MultiplayerMenu extends JPanel {
 					newTime = System.currentTimeMillis();
 					long difference = newTime - oldTime;
 					i += difference / 250.0;
-					Font newFont = new Font(
-							"Livewired",
-							Font.PLAIN,
+					Font newFont = new Font("Livewired", Font.PLAIN,
 							(int) ((getWidth() / 38.4 * Math.abs(Math.sin(i))) + getWidth() / 38.4));
 					button.setFont(newFont);
 					oldTime = newTime;
 				}
-				Font oldFont = new Font("Livewired", Font.PLAIN,
-						(int) (getWidth() / 38.4));
+				Font oldFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 				button.setFont(oldFont);
 			}
 		}

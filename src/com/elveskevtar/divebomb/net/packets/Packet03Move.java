@@ -34,9 +34,8 @@ public class Packet03Move extends Packet {
 		this.setWeaponInHand(dataArray[10]);
 	}
 
-	public Packet03Move(String name, double x, double y, double veloX,
-			double veloY, double rAngle, boolean isWalking, boolean isRunning,
-			boolean isMovingRight, boolean isFacingRight, String weaponInHand) {
+	public Packet03Move(String name, double x, double y, double veloX, double veloY, double rAngle, boolean isWalking,
+			boolean isRunning, boolean isMovingRight, boolean isFacingRight, String weaponInHand) {
 		super(03);
 		this.name = name;
 		this.x = x;
@@ -61,10 +60,8 @@ public class Packet03Move extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("03" + name + "," + x + "," + y + "," + veloX + "," + veloY
-				+ "," + rAngle + "," + isWalking + "," + isRunning + ","
-				+ isMovingRight + "," + isFacingRight + "," + weaponInHand)
-				.getBytes();
+		return ("03" + name + "," + x + "," + y + "," + veloX + "," + veloY + "," + rAngle + "," + isWalking + ","
+				+ isRunning + "," + isMovingRight + "," + isFacingRight + "," + weaponInHand).getBytes();
 	}
 
 	public String getName() {

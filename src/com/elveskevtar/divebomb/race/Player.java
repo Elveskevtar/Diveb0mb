@@ -18,13 +18,11 @@ import com.elveskevtar.divebomb.weapons.Weapon;
 public abstract class Player {
 
 	private static String[] humanFiles = { "res/img/human_male.png" };
-	private static String[] cyborgFiles = { "res/img/cyborg_blue.png",
-			"res/img/cyborg_purple.png" };
+	private static String[] cyborgFiles = { "res/img/cyborg_blue.png", "res/img/cyborg_purple.png" };
 	private static Color[] cyborgColors = { Color.BLUE, new Color(76, 0, 153) };
 
 	public static enum PlayerTypes {
-		HUMAN(humanFiles, null, "human"), CYBORG(cyborgFiles, cyborgColors,
-				"cyborg");
+		HUMAN(humanFiles, null, "human"), CYBORG(cyborgFiles, cyborgColors, "cyborg");
 
 		private String[] files;
 		private Color[] colors;
@@ -120,15 +118,13 @@ public abstract class Player {
 		this.port = port;
 		this.timer = new Timer();
 		try {
-			this.playerSpriteSheet = ImageIO
-					.read(new File("res/img/player.png"));
+			this.playerSpriteSheet = ImageIO.read(new File("res/img/player.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.setSpriteWidth(32);
 		this.setSpriteHeight(64);
-		this.setPlayerSprite(playerSpriteSheet.getSubimage(spriteX * 32,
-				spriteY * 32, spriteWidth, spriteHeight));
+		this.setPlayerSprite(playerSpriteSheet.getSubimage(spriteX * 32, spriteY * 32, spriteWidth, spriteHeight));
 		this.setMaxStamina(20);
 		this.setMinStamina(5);
 		this.setStamina(getMaxStamina());
@@ -146,15 +142,13 @@ public abstract class Player {
 		this.port = port;
 		this.timer = new Timer();
 		try {
-			this.playerSpriteSheet = ImageIO
-					.read(new File("res/img/player.png"));
+			this.playerSpriteSheet = ImageIO.read(new File("res/img/player.png"));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		this.setSpriteWidth(32);
 		this.setSpriteHeight(64);
-		this.setPlayerSprite(playerSpriteSheet.getSubimage(0, 0, spriteWidth,
-				spriteHeight));
+		this.setPlayerSprite(playerSpriteSheet.getSubimage(0, 0, spriteWidth, spriteHeight));
 		this.setMaxStamina(20);
 		this.setMinStamina(5);
 		this.setStamina(getMaxStamina());
@@ -218,8 +212,7 @@ public abstract class Player {
 	}
 
 	public Rectangle getBounds() {
-		return new Rectangle((int) -getxPosition(), (int) -getyPosition(), 32,
-				64);
+		return new Rectangle((int) -getxPosition(), (int) -getyPosition(), 32, 64);
 	}
 
 	public int getLevel() {
@@ -232,8 +225,7 @@ public abstract class Player {
 
 	public boolean canFall() {
 		for (Rectangle r : game.getCollisionRecs()) {
-			if (new Rectangle(getBounds().x, getBounds().y + 2,
-					getBounds().width, getBounds().height).intersects(r))
+			if (new Rectangle(getBounds().x, getBounds().y + 2, getBounds().width, getBounds().height).intersects(r))
 				return false;
 		}
 		return true;
@@ -245,19 +237,14 @@ public abstract class Player {
 	public ArrayList<Integer> checkCollisions() {
 		ArrayList<Integer> ints = new ArrayList<Integer>();
 		for (Rectangle r : getGame().getCollisionRecs()) {
-			if (new Rectangle((int) (getBounds().x + 10 - getVeloX()),
-					getBounds().y + 14, getBounds().width - 20,
+			if (new Rectangle((int) (getBounds().x + 10 - getVeloX()), getBounds().y + 14, getBounds().width - 20,
 					getBounds().height - 14).intersects(r))
 				ints.add(1);
-			if (new Rectangle(getBounds().x + 10,
-					(int) (getBounds().y + 10 - getVeloY()),
-					getBounds().width - 20, getBounds().height - 14)
-					.intersects(r))
+			if (new Rectangle(getBounds().x + 10, (int) (getBounds().y + 10 - getVeloY()), getBounds().width - 20,
+					getBounds().height - 14).intersects(r))
 				ints.add(3);
-			if (new Rectangle(getBounds().x + 10,
-					(int) (getBounds().y + 14 - getVeloY()),
-					getBounds().width - 20, getBounds().height - 14)
-					.intersects(r)) {
+			if (new Rectangle(getBounds().x + 10, (int) (getBounds().y + 14 - getVeloY()), getBounds().width - 20,
+					getBounds().height - 14).intersects(r)) {
 				ints.add(4);
 			}
 		}

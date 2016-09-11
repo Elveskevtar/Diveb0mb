@@ -64,8 +64,7 @@ public class GameClient extends Thread {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			this.parsePacket(packet.getData(), packet.getAddress(),
-					packet.getPort());
+			this.parsePacket(packet.getData(), packet.getAddress(), packet.getPort());
 		}
 	}
 
@@ -84,24 +83,19 @@ public class GameClient extends Thread {
 			break;
 		case DISCONNECT:
 			packet = new Packet01Disconnect(data);
-			System.out.println("[" + address.getHostAddress() + ":" + port
-					+ "] " + ((Packet01Disconnect) packet).getName()
-					+ " has left the game...");
+			System.out.println("[" + address.getHostAddress() + ":" + port + "] "
+					+ ((Packet01Disconnect) packet).getName() + " has left the game...");
 			for (int i = 0; i < game.getPlayers().size(); i++)
-				if (((Packet01Disconnect) packet).getName().equalsIgnoreCase(
-						game.getPlayers().get(i).getName()))
+				if (((Packet01Disconnect) packet).getName().equalsIgnoreCase(game.getPlayers().get(i).getName()))
 					game.getPlayers().remove(i);
 			break;
 		case STARTGAME:
 			packet = new Packet02Startgame(data);
-			game.setGraphicsMap(new Map(((Packet02Startgame) packet)
-					.getGraphicsMap(), ((Packet02Startgame) packet)
-					.getCollisionMap(), ((Packet02Startgame) packet).getMapID()));
+			game.setGraphicsMap(new Map(((Packet02Startgame) packet).getGraphicsMap(),
+					((Packet02Startgame) packet).getCollisionMap(), ((Packet02Startgame) packet).getMapID()));
 			game.startGame(game.getGraphicsMap());
-			game.getUser().setxPosition(
-					((Packet02Startgame) packet).getStartX());
-			game.getUser().setyPosition(
-					((Packet02Startgame) packet).getStartY());
+			game.getUser().setxPosition(((Packet02Startgame) packet).getStartX());
+			game.getUser().setyPosition(((Packet02Startgame) packet).getStartY());
 			break;
 		case MOVE:
 			packet = new Packet03Move(data);
@@ -115,61 +109,46 @@ public class GameClient extends Thread {
 			player.setRunning(movePacket.isRunning());
 			player.setMovingRight(movePacket.isMovingRight());
 			player.setFacingRight(movePacket.isFacingRight());
-			if (!movePacket.getWeaponInHand().equalsIgnoreCase(
-					player.getInHand().getName())) {
-				if (player.getInHand().getName()
-						.equalsIgnoreCase(player.getMelee().getName()))
+			if (!movePacket.getWeaponInHand().equalsIgnoreCase(player.getInHand().getName())) {
+				if (player.getInHand().getName().equalsIgnoreCase(player.getMelee().getName()))
 					player.setInHand(player.getRanged());
 				else
 					player.setInHand(player.getMelee());
 			}
 			if (player.getInHand() instanceof ProjectileShooter)
-				((ProjectileShooter) player.getInHand()).setrAngle(movePacket
-						.getrAngle());
+				((ProjectileShooter) player.getInHand()).setrAngle(movePacket.getrAngle());
 			break;
 		case ATTACK:
 			packet = new Packet04Attack(data);
-			getPlayer(((Packet04Attack) packet).getName()).getInHand().attack(
-					game.getPlayers(), false);
+			getPlayer(((Packet04Attack) packet).getName()).getInHand().attack(game.getPlayers(), false);
 			break;
 		case HEALTH:
 			packet = new Packet05Health(data);
-			getPlayer(((Packet05Health) packet).getName()).setHealth(
-					((Packet05Health) packet).getHealth());
+			getPlayer(((Packet05Health) packet).getName()).setHealth(((Packet05Health) packet).getHealth());
 			break;
 		case KILL:
 			packet = new Packet06Kill(data);
 			if (getPlayer(((Packet06Kill) packet).getMurderer()) != null
-					&& !((Packet06Kill) packet).getMurderer().equalsIgnoreCase(
-							((Packet06Kill) packet).getVictim()))
-				getPlayer(((Packet06Kill) packet).getMurderer()).setKills(
-						getPlayer(((Packet06Kill) packet).getMurderer())
-								.getKills() + 1);
+					&& !((Packet06Kill) packet).getMurderer().equalsIgnoreCase(((Packet06Kill) packet).getVictim()))
+				getPlayer(((Packet06Kill) packet).getMurderer())
+						.setKills(getPlayer(((Packet06Kill) packet).getMurderer()).getKills() + 1);
 			getPlayer(((Packet06Kill) packet).getVictim())
-					.setDeaths(
-							getPlayer(((Packet06Kill) packet).getVictim())
-									.getDeaths() + 1);
-			System.out.println("[" + address.getHostAddress() + ":" + port
-					+ "] " + ((Packet06Kill) packet).getMurderer()
-					+ " has killed " + ((Packet06Kill) packet).getVictim());
+					.setDeaths(getPlayer(((Packet06Kill) packet).getVictim()).getDeaths() + 1);
+			System.out.println("[" + address.getHostAddress() + ":" + port + "] "
+					+ ((Packet06Kill) packet).getMurderer() + " has killed " + ((Packet06Kill) packet).getVictim());
 			if (game instanceof GameDeathmatchMP) {
 				if (getPlayer(((Packet06Kill) packet).getMurderer()) != null
 						&& (((GameDeathmatchMP) game).getFirstPlaceName() == null || ((GameDeathmatchMP) game)
-								.getFirstPlaceKills() < getPlayer(
-								((Packet06Kill) packet).getMurderer())
-								.getKills())) {
-					((GameDeathmatchMP) game).setFirstPlaceKills(getPlayer(
-							((Packet06Kill) packet).getMurderer()).getKills());
+								.getFirstPlaceKills() < getPlayer(((Packet06Kill) packet).getMurderer()).getKills())) {
 					((GameDeathmatchMP) game)
-							.setFirstPlaceName(((Packet06Kill) packet)
-									.getMurderer());
+							.setFirstPlaceKills(getPlayer(((Packet06Kill) packet).getMurderer()).getKills());
+					((GameDeathmatchMP) game).setFirstPlaceName(((Packet06Kill) packet).getMurderer());
 				}
 			}
 			break;
 		case ENDGAME:
 			packet = new Packet07Endgame(data);
-			System.out.println(((Packet07Endgame) packet).getWinner()
-					+ " is the winner with a score of "
+			System.out.println(((Packet07Endgame) packet).getWinner() + " is the winner with a score of "
 					+ ((Packet07Endgame) packet).getScore() + "!");
 			game.setVisible(false);
 			game.getFrame().remove(game);
@@ -178,20 +157,18 @@ public class GameClient extends Thread {
 			if (game.getSocketServer() != null) {
 				game.getSocketServer().getSocket().close();
 				game.getSocketServer().stop();
-				game.getFrame().add(
-						new GameLobbyMenu(game.getFrame(), game.getUserName()));
+				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getUserName()));
 			} else {
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				game.getFrame().add(
-						new GameLobbyMenu(game.getFrame(), game
-								.getSocketClient().getIP().getHostAddress(),
-								game.getUserName()));
+				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getSocketClient().getIP().getHostAddress(),
+						game.getUserName()));
 			}
 			game.getFrame().repaint();
+			getSocket().close();
 			stop();
 			break;
 		case UPDATEUSERINFO:
@@ -204,19 +181,15 @@ public class GameClient extends Thread {
 			break;
 		case SENDNEWPROJECTILE:
 			packet = new Packet13SendNewProjectile(data);
-			if (((Packet13SendNewProjectile) packet).getType()
-					.equalsIgnoreCase("arrow")) {
-				Arrow arrow = new Arrow(
-						getPlayer(((Packet13SendNewProjectile) packet)
-								.getName()),
+			if (((Packet13SendNewProjectile) packet).getType().equalsIgnoreCase("arrow")) {
+				Arrow arrow = new Arrow(getPlayer(((Packet13SendNewProjectile) packet).getName()),
 						((Packet13SendNewProjectile) packet).getId(),
 						((Packet13SendNewProjectile) packet).getxPosition(),
 						((Packet13SendNewProjectile) packet).getyPosition(),
 						((Packet13SendNewProjectile) packet).getrAngle());
 				if (!game.getProjectileIDs().contains(arrow.getId())) {
 					game.getProjectiles().add(arrow);
-					game.getProjectileIDs().add(
-							((Packet13SendNewProjectile) packet).getId());
+					game.getProjectileIDs().add(((Packet13SendNewProjectile) packet).getId());
 				}
 			}
 			break;
@@ -224,23 +197,10 @@ public class GameClient extends Thread {
 			packet = new Packet14UpdateProjectile(data);
 			try {
 				for (int i = 0; i < game.getProjectiles().size(); i++) {
-					if (((Packet14UpdateProjectile) packet).getId() == game
-							.getProjectiles().get(i).getId()) {
-						game.getProjectiles()
-								.get(i)
-								.setxPosition(
-										((Packet14UpdateProjectile) packet)
-												.getxPosition());
-						game.getProjectiles()
-								.get(i)
-								.setyPosition(
-										((Packet14UpdateProjectile) packet)
-												.getyPosition());
-						game.getProjectiles()
-								.get(i)
-								.setrAngle(
-										((Packet14UpdateProjectile) packet)
-												.getrAngle());
+					if (((Packet14UpdateProjectile) packet).getId() == game.getProjectiles().get(i).getId()) {
+						game.getProjectiles().get(i).setxPosition(((Packet14UpdateProjectile) packet).getxPosition());
+						game.getProjectiles().get(i).setyPosition(((Packet14UpdateProjectile) packet).getyPosition());
+						game.getProjectiles().get(i).setrAngle(((Packet14UpdateProjectile) packet).getrAngle());
 						break;
 					}
 				}
@@ -252,12 +212,9 @@ public class GameClient extends Thread {
 			packet = new Packet15RemoveProjectile(data);
 			try {
 				for (int i = 0; i < game.getProjectiles().size(); i++) {
-					if (game.getProjectiles().get(i).getId() == ((Packet15RemoveProjectile) packet)
-							.getId()) {
+					if (game.getProjectiles().get(i).getId() == ((Packet15RemoveProjectile) packet).getId()) {
 						game.getProjectiles().remove(i);
-						game.getProjectileIDs().remove(
-								(Integer) ((Packet15RemoveProjectile) packet)
-										.getId());
+						game.getProjectileIDs().remove((Integer) ((Packet15RemoveProjectile) packet).getId());
 						break;
 					}
 				}
@@ -267,10 +224,10 @@ public class GameClient extends Thread {
 			break;
 		case RESPAWNPLAYER:
 			packet = new Packet18RespawnPlayer(data);
-			getPlayer(((Packet18RespawnPlayer) packet).getName()).setxPosition(
-					((Packet18RespawnPlayer) packet).getxPosition());
-			getPlayer(((Packet18RespawnPlayer) packet).getName()).setyPosition(
-					((Packet18RespawnPlayer) packet).getyPosition());
+			getPlayer(((Packet18RespawnPlayer) packet).getName())
+					.setxPosition(((Packet18RespawnPlayer) packet).getxPosition());
+			getPlayer(((Packet18RespawnPlayer) packet).getName())
+					.setyPosition(((Packet18RespawnPlayer) packet).getyPosition());
 			break;
 		}
 	}
@@ -285,18 +242,15 @@ public class GameClient extends Thread {
 	}
 
 	public void handleLogin(Packet00Login packet, InetAddress address, int port) {
-		System.out.println("[" + address.getHostAddress() + ":" + port + "] "
-				+ packet.getName() + " has joined the game...");
+		System.out.println(
+				"[" + address.getHostAddress() + ":" + port + "] " + packet.getName() + " has joined the game...");
 		Player player = null;
 		if (packet.getRace().equalsIgnoreCase("human"))
 			player = new Human(game, packet.getName(), address, port);
-		else if (packet.getRace().equalsIgnoreCase("cyborg")
-				&& packet.getColor().equalsIgnoreCase(" "))
+		else if (packet.getRace().equalsIgnoreCase("cyborg") && packet.getColor().equalsIgnoreCase(" "))
 			player = new Cyborg(game, packet.getName(), -1, address, port);
-		else if (packet.getRace().equalsIgnoreCase("cyborg")
-				&& !packet.getColor().equalsIgnoreCase(" "))
-			player = new Cyborg(game, packet.getColor(), packet.getName(),
-					address, port);
+		else if (packet.getRace().equalsIgnoreCase("cyborg") && !packet.getColor().equalsIgnoreCase(" "))
+			player = new Cyborg(game, packet.getColor(), packet.getName(), address, port);
 		else
 			player = new Human(game, packet.getName(), address, port);
 		if (packet.getWeapon().equalsIgnoreCase("sword"))
@@ -308,18 +262,14 @@ public class GameClient extends Thread {
 		game.getPlayers().add(player);
 	}
 
-	public void handleUpdateUserInfo(Packet10UpdateUserInfo packet,
-			InetAddress address, int port) {
+	public void handleUpdateUserInfo(Packet10UpdateUserInfo packet, InetAddress address, int port) {
 		Player player = null;
 		if (packet.getRace().equalsIgnoreCase("human"))
 			player = new Human(game, packet.getName(), address, port);
-		else if (packet.getRace().equalsIgnoreCase("cyborg")
-				&& packet.getColor().equalsIgnoreCase(" "))
+		else if (packet.getRace().equalsIgnoreCase("cyborg") && packet.getColor().equalsIgnoreCase(" "))
 			player = new Cyborg(game, packet.getName(), -1, address, port);
-		else if (packet.getRace().equalsIgnoreCase("cyborg")
-				&& !packet.getColor().equalsIgnoreCase(" "))
-			player = new Cyborg(game, packet.getColor(), packet.getName(),
-					address, port);
+		else if (packet.getRace().equalsIgnoreCase("cyborg") && !packet.getColor().equalsIgnoreCase(" "))
+			player = new Cyborg(game, packet.getColor(), packet.getName(), address, port);
 		else
 			player = new Human(game, packet.getName(), address, port);
 		Weapon melee = null;
@@ -336,8 +286,7 @@ public class GameClient extends Thread {
 		else
 			player.setRanged(new Bow(player));
 		for (int i = 0; i < game.getPlayers().size(); i++)
-			if (game.getPlayers().get(i).getName()
-					.equalsIgnoreCase(player.getName()))
+			if (game.getPlayers().get(i).getName().equalsIgnoreCase(player.getName()))
 				game.getPlayers().set(i, player);
 	}
 

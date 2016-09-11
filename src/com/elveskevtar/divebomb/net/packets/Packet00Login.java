@@ -39,8 +39,7 @@ public class Packet00Login extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("00" + name + "," + race + "," + color + "," + weapon)
-				.getBytes();
+		return ("00" + name + "," + race + "," + color + "," + weapon).getBytes();
 	}
 
 	public String getName() {

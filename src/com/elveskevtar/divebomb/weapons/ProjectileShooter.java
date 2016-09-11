@@ -12,8 +12,8 @@ public abstract class ProjectileShooter extends Weapon {
 	private static String[] example3Files = { "res/icon/rangedExample3.png" };
 
 	public static enum ProjectileShooterTypes {
-		BOW(bowFiles, "bow"), EXAMPLE1(example1Files, "bow"), EXAMPLE2(
-				example2Files, "bow"), EXAMPLE3(example3Files, "bow");
+		BOW(bowFiles, "bow"), EXAMPLE1(example1Files, "bow"), EXAMPLE2(example2Files, "bow"), EXAMPLE3(example3Files,
+				"bow");
 
 		private String[] files;
 		private String name;
@@ -54,9 +54,7 @@ public abstract class ProjectileShooter extends Weapon {
 	public void attack(ArrayList<Player> players, boolean server) {
 		if (getPlayer().getGame().getSocketClient() == null || server == true) {
 			addProjectile();
-		} else if (getPlayer().getName().equalsIgnoreCase(
-				getPlayer().getGame().getUserName())
-				&& !server) {
+		} else if (getPlayer().getName().equalsIgnoreCase(getPlayer().getGame().getUserName()) && !server) {
 			addProjectileToServer();
 		}
 	}

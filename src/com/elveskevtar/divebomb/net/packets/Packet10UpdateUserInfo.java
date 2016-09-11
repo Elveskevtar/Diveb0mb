@@ -21,8 +21,7 @@ public class Packet10UpdateUserInfo extends Packet {
 		this.rangedWeapon = dataArray[4];
 	}
 
-	public Packet10UpdateUserInfo(String name, String race, String color,
-			String meleeWeapon, String rangedWeapon) {
+	public Packet10UpdateUserInfo(String name, String race, String color, String meleeWeapon, String rangedWeapon) {
 		super(10);
 		this.name = name;
 		this.race = race;
@@ -43,8 +42,7 @@ public class Packet10UpdateUserInfo extends Packet {
 
 	@Override
 	public byte[] getData() {
-		return ("10" + name + "," + race + "," + color + "," + meleeWeapon
-				+ "," + rangedWeapon).getBytes();
+		return ("10" + name + "," + race + "," + color + "," + meleeWeapon + "," + rangedWeapon).getBytes();
 	}
 
 	public String getName() {

@@ -18,8 +18,8 @@ public class Projectile extends Weapon {
 	private double veloy;
 	private double rAngle;
 
-	public Projectile(Player p, int id, double xPosition, double yPosition,
-			double startingVelocity, double rAngle, String name) {
+	public Projectile(Player p, int id, double xPosition, double yPosition, double startingVelocity, double rAngle,
+			String name) {
 		super(p, name);
 		this.id = id;
 		this.xPosition = xPosition;
@@ -33,27 +33,21 @@ public class Projectile extends Weapon {
 	public void attack(ArrayList<Player> players, boolean server) {
 		ArrayList<Player> attackedPlayers = players;
 		for (Player p : attackedPlayers) {
-			p.setHealth(p.getHealth() + (Math.random() * -10)
-					+ p.getInHand().getDefense() - getDamage());
+			p.setHealth(p.getHealth() + (Math.random() * -10) + p.getInHand().getDefense() - getDamage());
 			if (p.getHealth() <= 0) {
 				if (!p.getName().equalsIgnoreCase(getPlayer().getName())) {
 					getPlayer().setKills(getPlayer().getKills() + 1);
 				}
 				p.setDeaths(p.getDeaths() + 1);
 				if (server) {
-					Packet06Kill packet = new Packet06Kill(getPlayer()
-							.getName(), p.getName());
+					Packet06Kill packet = new Packet06Kill(getPlayer().getName(), p.getName());
 					packet.writeData(getPlayer().getGame().getSocketServer());
 					if (getPlayer().getGame() instanceof GameDeathmatchMP
 							&& getPlayer().getGame().getSocketClient() == null
-							&& (((GameDeathmatchMP) getPlayer().getGame())
-									.getFirstPlaceName() == null
-							|| getPlayer().getKills() > ((GameDeathmatchMP) getPlayer()
-									.getGame()).getFirstPlaceKills())) {
-						((GameDeathmatchMP) getPlayer().getGame())
-								.setFirstPlaceKills(getPlayer().getKills());
-						((GameDeathmatchMP) getPlayer().getGame())
-								.setFirstPlaceName(getPlayer().getName());
+							&& (((GameDeathmatchMP) getPlayer().getGame()).getFirstPlaceName() == null || getPlayer()
+									.getKills() > ((GameDeathmatchMP) getPlayer().getGame()).getFirstPlaceKills())) {
+						((GameDeathmatchMP) getPlayer().getGame()).setFirstPlaceKills(getPlayer().getKills());
+						((GameDeathmatchMP) getPlayer().getGame()).setFirstPlaceName(getPlayer().getName());
 					}
 				}
 			}

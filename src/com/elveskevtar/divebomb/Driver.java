@@ -11,6 +11,7 @@ import com.elveskevtar.divebomb.gfx.Frame;
 public class Driver {
 
 	public static void main(String[] args) {
+		// get system graphics environment; then register the font to it
 		try {
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
 			ge.registerFont(Font.createFont(Font.TRUETYPE_FONT, new File("res/font/livewired.ttf")));

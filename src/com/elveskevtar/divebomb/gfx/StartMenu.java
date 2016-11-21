@@ -34,6 +34,10 @@ public class StartMenu extends JPanel {
 	private Font optionsFont;
 	private Font exitFont;
 
+	/*
+	 * Called by Frame class or other menus; everything is called in blocks of
+	 * 4, one for each JButton
+	 */
 	public StartMenu(JFrame frame) {
 		this.setFrame(frame);
 		this.setSize(frame.getWidth(), frame.getHeight());
@@ -84,6 +88,7 @@ public class StartMenu extends JPanel {
 		this.options.setOpaque(false);
 		this.exit.setOpaque(false);
 
+		/* add action listeners to buttons (listens to clicks) */
 		this.campaign.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -113,6 +118,10 @@ public class StartMenu extends JPanel {
 			}
 		});
 
+		/*
+		 * Add mouse listeners to buttons (listens for mouse collision with
+		 * button hit box to start pulsing)
+		 */
 		this.campaign.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -170,6 +179,10 @@ public class StartMenu extends JPanel {
 			}
 		});
 
+		/*
+		 * Positioning for these buttons should center based on JFrame and
+		 * JPanel bounds
+		 */
 		this.campaign.setBounds(getWidth() / 2 - getWidth() / 6, getHeight() / 2, getWidth() / 3, getHeight() / 16);
 		this.multiplayer.setBounds(getWidth() / 2 - getWidth() / 6, (int) (getHeight() / 2 + getHeight() / 8),
 				getWidth() / 3, getHeight() / 16);
@@ -184,6 +197,9 @@ public class StartMenu extends JPanel {
 		this.add(exit);
 	}
 
+	/*
+	 * Action methods are called from action listeners on buttons
+	 */
 	public void campaignAction() {
 		setVisible(false);
 		getFrame().remove(this);
@@ -204,6 +220,7 @@ public class StartMenu extends JPanel {
 		System.exit(0);
 	}
 
+	/* Standard get/set methods */
 	public JButton getCampaign() {
 		return campaign;
 	}
@@ -244,6 +261,7 @@ public class StartMenu extends JPanel {
 		this.frame = frame;
 	}
 
+	/* Thread for pulsing buttons; optimized to not lag program */
 	private class ButtonPulse extends Thread {
 
 		private JButton button;
@@ -252,6 +270,13 @@ public class StartMenu extends JPanel {
 			this.button = button;
 		}
 
+		/*
+		 * Pulsing is done by changing the font size of individual buttons using
+		 * an absolute value sine function; when pulsing is done, old font size
+		 * is set again; uses system time to avoid laggy pulsing;each
+		 * buttonPulse boolean variable is dealt with separately; this can be
+		 * optimized in the future
+		 */
 		@Override
 		public void run() {
 			long oldTime;

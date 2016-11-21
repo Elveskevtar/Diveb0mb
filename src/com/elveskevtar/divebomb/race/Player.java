@@ -90,6 +90,8 @@ public abstract class Player {
 	private double yPosition;
 	private double veloX;
 	private double veloY;
+	private long oldTimeStamp;
+	private long latency;
 	private int walkingRightHandX;
 	private int walkingRightHandY;
 	private int standingRightHandX;
@@ -133,6 +135,8 @@ public abstract class Player {
 		this.setInitJumpSpeed(16);
 		this.setWalkSpeed(3);
 		this.setRunSpeed(6);
+		this.setOldTimeStamp(0);
+		this.setLatency(0);
 	}
 
 	public Player(Game game, String name, InetAddress ip, int port) {
@@ -157,6 +161,8 @@ public abstract class Player {
 		this.setInitJumpSpeed(16);
 		this.setWalkSpeed(3);
 		this.setRunSpeed(6);
+		this.setOldTimeStamp(0);
+		this.setLatency(0);
 	}
 
 	public void waitForStamina() {
@@ -585,6 +591,22 @@ public abstract class Player {
 
 	public void setRanged(Weapon ranged) {
 		this.ranged = ranged;
+	}
+
+	public long getOldTimeStamp() {
+		return oldTimeStamp;
+	}
+
+	public void setOldTimeStamp(long oldTimeStamp) {
+		this.oldTimeStamp = oldTimeStamp;
+	}
+
+	public long getLatency() {
+		return latency;
+	}
+
+	public void setLatency(long latency) {
+		this.latency = latency;
 	}
 
 	private class StaminaRegen extends TimerTask {

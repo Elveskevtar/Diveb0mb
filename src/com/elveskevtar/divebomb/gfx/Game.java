@@ -40,6 +40,7 @@ import com.elveskevtar.divebomb.weapons.Sword;
 public abstract class Game extends JPanel
 		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
+	/* enumeration of all different game types */
 	public static enum GameTypes {
 		DEATHMATCH(00), DEATHMATCHMP(01);
 
@@ -55,8 +56,6 @@ public abstract class Game extends JPanel
 	}
 
 	private static final long serialVersionUID = 8757407166624267693L;
-	private boolean hosting;
-	private boolean running;
 	private int speed = 16;
 	private int state;
 	private int zoom;
@@ -79,6 +78,7 @@ public abstract class Game extends JPanel
 	private Player user;
 	private Timer timer;
 	private Map graphicsMap;
+
 	private String userName;
 	private String userRace;
 	private String userColor;
@@ -86,6 +86,10 @@ public abstract class Game extends JPanel
 	private String userRanged;
 	private String serverIP;
 
+	private boolean hosting;
+	private boolean running;
+
+	/* main (regular) constructor */
 	public Game(int gameID, JFrame frame) {
 		super();
 		this.setSize(frame.getWidth(), frame.getHeight());
@@ -99,8 +103,9 @@ public abstract class Game extends JPanel
 		this.keys = new ArrayList<Integer>();
 		this.projectiles = new CopyOnWriteArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
-		this.zoom = 2;
+		this.zoom = 3;
 		this.setFrame(frame);
+		/* default values for user info */
 		this.userName = "Bob";
 		this.userRace = "human";
 		this.userMelee = "sword";
@@ -112,6 +117,7 @@ public abstract class Game extends JPanel
 			setUserColor(" ");
 	}
 
+	/* server only constructor */
 	public Game(int gameID) {
 		this.players = new ArrayList<Player>();
 		this.timer = new Timer();
@@ -187,54 +193,6 @@ public abstract class Game extends JPanel
 			}
 		}
 		this.setTimers();
-	}
-
-	public Timer getTimer() {
-		return timer;
-	}
-
-	public void setTimer(Timer timer) {
-		this.timer = timer;
-	}
-
-	public void setCollisionRecs(ArrayList<Rectangle> collisions) {
-		this.collisionRecs = collisions;
-	}
-
-	public ArrayList<Rectangle> getCollisionRecs() {
-		return collisionRecs;
-	}
-
-	public ArrayList<Player> getPlayers() {
-		return players;
-	}
-
-	public void setPlayers(ArrayList<Player> players) {
-		this.players = players;
-	}
-
-	public Player getUser() {
-		return user;
-	}
-
-	public void setUser(Player user) {
-		this.user = user;
-	}
-
-	public BufferedImage getMap() {
-		return map;
-	}
-
-	public void setMap(BufferedImage map) {
-		this.map = map;
-	}
-
-	public BufferedImage getCollisionMap() {
-		return collisionMap;
-	}
-
-	public void setCollisionMap(BufferedImage collisionMap) {
-		this.collisionMap = collisionMap;
 	}
 
 	@Override
@@ -428,6 +386,7 @@ public abstract class Game extends JPanel
 
 	}
 
+	/* standard get/set methods */
 	public int getZoom() {
 		return zoom;
 	}
@@ -570,6 +529,54 @@ public abstract class Game extends JPanel
 
 	public void setUserRanged(String userRanged) {
 		this.userRanged = userRanged;
+	}
+
+	public Timer getTimer() {
+		return timer;
+	}
+
+	public void setTimer(Timer timer) {
+		this.timer = timer;
+	}
+
+	public void setCollisionRecs(ArrayList<Rectangle> collisions) {
+		this.collisionRecs = collisions;
+	}
+
+	public ArrayList<Rectangle> getCollisionRecs() {
+		return collisionRecs;
+	}
+
+	public ArrayList<Player> getPlayers() {
+		return players;
+	}
+
+	public void setPlayers(ArrayList<Player> players) {
+		this.players = players;
+	}
+
+	public Player getUser() {
+		return user;
+	}
+
+	public void setUser(Player user) {
+		this.user = user;
+	}
+
+	public BufferedImage getMap() {
+		return map;
+	}
+
+	public void setMap(BufferedImage map) {
+		this.map = map;
+	}
+
+	public BufferedImage getCollisionMap() {
+		return collisionMap;
+	}
+
+	public void setCollisionMap(BufferedImage collisionMap) {
+		this.collisionMap = collisionMap;
 	}
 
 	/* Handles projectile motion and angles */

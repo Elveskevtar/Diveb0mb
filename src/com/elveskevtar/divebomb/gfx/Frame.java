@@ -10,6 +10,7 @@ public class Frame extends JFrame {
 	private int width;
 	private int height;
 
+	/* borderless screen constructor */
 	public Frame() {
 		super();
 		this.setUndecorated(true);
@@ -22,6 +23,7 @@ public class Frame extends JFrame {
 		this.setVisible(true);
 	}
 
+	/* bordered screen constructor */
 	public Frame(int width, int height) {
 		super("DiveBomb");
 		this.width = width;

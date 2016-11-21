@@ -31,6 +31,7 @@ public class GameDeathmatchMP extends Game {
 
 	private String firstPlaceName;
 
+	/* server + client bundle constructor */
 	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, JFrame frame, String username) {
 		super(01, frame);
 		this.setPlayerSize(2);
@@ -50,14 +51,17 @@ public class GameDeathmatchMP extends Game {
 			weapon = "bow";
 		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(), getUserColor(), weapon);
 		try {
-			getSocketClient().setIP(InetAddress.getLocalHost());
+			getSocketClient().setIP(InetAddress.getByName(getServerIP()));
+			Thread.sleep(200);
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
-		System.out.println(getSocketClient().getIP());
 		packet.writeData(getSocketClient());
 	}
 
+	/* server-side only constructor */
 	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id) {
 		super(01);
 		this.setPlayerSize(2);
@@ -69,6 +73,7 @@ public class GameDeathmatchMP extends Game {
 		this.setServerIP("localhost");
 	}
 
+	/* client-side only constructor */
 	public GameDeathmatchMP(String ip, JFrame frame, String username) {
 		super(01, frame);
 		this.setPlayerSize(2);
@@ -85,12 +90,16 @@ public class GameDeathmatchMP extends Game {
 		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(), getUserColor(), weapon);
 		try {
 			getSocketClient().setIP(InetAddress.getByName(ip));
+			Thread.sleep(200);
 		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		packet.writeData(getSocketClient());
 	}
 
+	/* calls super method and paints gamemode specific GUI over it */
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
@@ -102,8 +111,12 @@ public class GameDeathmatchMP extends Game {
 		g2d.drawString("Stamina: " + getUser().getStamina(), 0, g2d.getFont().getSize() * 15 / 8);
 		g2d.drawString("Kills: " + getUser().getKills(), 0, g2d.getFont().getSize() * 3);
 		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont().getSize() * 33 / 8);
+		g2d.drawString("Ping Latency: " + (int) (getUser().getLatency() * Math.pow(10, -6)), 0,
+				g2d.getFont().getSize() * 21 / 4);
+		;
 	}
 
+	/* calls super method and starts gamemode specific timers as well */
 	@Override
 	public void setTimers() {
 		super.setTimers();
@@ -116,6 +129,7 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
+	/* standard get/set methods */
 	public int getFirstPlaceKills() {
 		return firstPlaceKills;
 	}
@@ -140,6 +154,7 @@ public class GameDeathmatchMP extends Game {
 		this.maxKills = maxKills;
 	}
 
+	/* server-side thread; sends projectile info packets to all clients */
 	private class UpdateProjectiles extends Thread {
 
 		@Override
@@ -163,6 +178,10 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
+	/*
+	 * client-side thread; sends move packets to the server to be redistributed
+	 * to every other client; sends this info to all clients
+	 */
 	private class SendMovePacket extends Thread {
 
 		@Override
@@ -190,6 +209,10 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
+	/*
+	 * server-side thread; only server handles health values (since only server
+	 * handles attacks after attack requests are sent to the server)
+	 */
 	private class SendHealthPacket extends Thread {
 
 		@Override
@@ -212,6 +235,7 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
+	/* server-side thread; checks to see if the game conditions have been met */
 	private class CheckForEndGame extends Thread {
 
 		@Override

@@ -28,6 +28,7 @@ import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet14UpdateProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet15RemoveProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet18RespawnPlayer;
+import com.elveskevtar.divebomb.net.packets.Packet19Ping;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -117,6 +118,8 @@ public class GameClient extends Thread {
 			}
 			if (player.getInHand() instanceof ProjectileShooter)
 				((ProjectileShooter) player.getInHand()).setrAngle(movePacket.getrAngle());
+			player.setLatency(movePacket.getTimeStamp() - player.getOldTimeStamp());
+			player.setOldTimeStamp(movePacket.getTimeStamp());
 			break;
 		case ATTACK:
 			packet = new Packet04Attack(data);
@@ -157,8 +160,10 @@ public class GameClient extends Thread {
 			if (game.getSocketServer() != null) {
 				game.getSocketServer().getSocket().close();
 				game.getSocketServer().stop();
+				getSocket().close();
 				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getUserName()));
 			} else {
+				getSocket().close();
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -168,7 +173,6 @@ public class GameClient extends Thread {
 						game.getUserName()));
 			}
 			game.getFrame().repaint();
-			getSocket().close();
 			stop();
 			break;
 		case UPDATEUSERINFO:
@@ -228,6 +232,11 @@ public class GameClient extends Thread {
 					.setxPosition(((Packet18RespawnPlayer) packet).getxPosition());
 			getPlayer(((Packet18RespawnPlayer) packet).getName())
 					.setyPosition(((Packet18RespawnPlayer) packet).getyPosition());
+			break;
+		case PING:
+			packet = new Packet19Ping(data);
+			getPlayer(((Packet19Ping) packet).getName()).setOldTimeStamp(((Packet19Ping) packet).getTimeStamp());
+			getPlayer(((Packet19Ping) packet).getName()).setLatency(((Packet19Ping) packet).getPingLatency());
 			break;
 		}
 	}

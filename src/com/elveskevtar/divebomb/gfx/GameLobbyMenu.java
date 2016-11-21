@@ -30,6 +30,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 
 	private static final long serialVersionUID = -3823209600661844336L;
 	private boolean switchRunning;
+
 	private int raceSelectionPointer;
 	private int colorSelectionPointer;
 	private int meleeSelectionPointer;
@@ -44,10 +45,12 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> meleeWeapons = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> rangedWeapons = new ArrayList<BufferedImage>();
+
 	private JFrame frame;
 	private String ip;
 	private Game game;
 
+	/* constructor for creating a private multiplayer game */
 	public GameLobbyMenu(JFrame frame, String username) {
 		this.frame = frame;
 		this.setLayout(null);
@@ -84,6 +87,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		}
 	}
 
+	/* constructor for joining a private multiplayer game */
 	public GameLobbyMenu(JFrame frame, String ip, String username) {
 		this.frame = frame;
 		this.ip = ip;
@@ -121,6 +125,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		}
 	}
 
+	/* paint the game lobby menu */
 	@Override
 	public void paint(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
@@ -143,6 +148,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		/* draw races */
 		for (BufferedImage race : races) {
 			g2d.drawImage(race,
 					(int) ((getWidth() / 2 - getWidth() / 8)
@@ -165,6 +171,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 				}
 			}
 		}
+		/* draw melee weapons */
 		for (BufferedImage melee : meleeWeapons) {
 			if ((int) ((getWidth() / 4 - getWidth() / 20)
 					+ (meleeWeapons.indexOf(melee) - meleeSelectionPointer) * 1.5 * (getWidth() / 10)
@@ -179,6 +186,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 								+ meleeOffset),
 						getHeight(), 0, 0, 32, 32, null);
 		}
+		/* draw ranged weapons */
 		for (BufferedImage ranged : rangedWeapons) {
 			if ((int) ((getWidth() * 3 / 4 - getWidth() / 20)
 					+ (rangedWeapons.indexOf(ranged) - rangedSelectionPointer) * 1.5 * (getWidth() / 10)
@@ -193,6 +201,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 								+ rangedOffset),
 						getHeight(), 0, 0, 32, 32, null);
 		}
+		/* draw slight tint based on where the mouse is */
 		g2d.setColor(new Color(0, 0, 0, 20));
 		if (mouseY < getHeight() * 7 / 8) {
 			g2d.fillRect(0, getHeight() / 8, getWidth(), getHeight() * 3 / 4);
@@ -204,6 +213,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 			g2d.fillRect(getWidth() / 2, getHeight() * 7 / 8, getWidth() / 2, getHeight() / 8);
 			mouseSelection = 3;
 		}
+		/* draw gradient around melee and ranged */
 		Paint meleePaint = new GradientPaint(0, 0,
 				new Color(getBackground().getRed(), getBackground().getGreen(), getBackground().getBlue(), 255),
 				getWidth() / 4, 0,
@@ -230,13 +240,15 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		g2d.fillRect(getWidth() * 3 / 4, getHeight() * 7 / 8, getWidth() / 4, getHeight() / 8);
 		g2d.setColor(g2d.getBackground());
 		if (game.getLobbyTime() == 0)
-			initGame();
+			initGame(); // start game when lobby time = 0
 		requestFocusInWindow();
 		repaint();
 	}
 
+	/* starts game */
 	public void initGame() {
-		game.setLobbyTime(-1);
+		game.setLobbyTime(-1); // sets lobby time to default value
+		/* receive color values for race */
 		if (PlayerTypes.values()[raceSelectionPointer].getColors() != null) {
 			if (PlayerTypes.values()[raceSelectionPointer].getColors()[colorSelectionPointer].equals(Color.BLUE))
 				game.setUserColor("blue");
@@ -244,14 +256,17 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 					.equals(new Color(76, 0, 153)))
 				game.setUserColor("purple");
 		}
+		/* quick update to user info before start of game */
 		Packet10UpdateUserInfo packet = new Packet10UpdateUserInfo(game.getUserName(), game.getUserRace(),
 				game.getUserColor(), game.getUserMelee(), game.getUserRanged());
 		packet.writeData(game.getSocketClient());
+		/* replace lobby menu panel with game panel */
 		setVisible(false);
 		getFrame().remove(this);
 		getFrame().add(game);
 	}
 
+	/* standard get/set methods */
 	public Game getGame() {
 		return game;
 	}
@@ -274,58 +289,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 
 	public void setFrame(JFrame frame) {
 		this.frame = frame;
-	}
-
-	@Override
-	public void keyPressed(KeyEvent e) {
-		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) && mouseSelection == 1
-				&& raceSelectionPointer < PlayerTypes.values().length - 1 && !switchRunning) {
-			switchRunning = true;
-			colorSelectionPointer = 0;
-			new Thread(new SwitchRace(1)).start();
-			repaint();
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) && mouseSelection == 1
-				&& raceSelectionPointer > 0 && !switchRunning) {
-			switchRunning = true;
-			colorSelectionPointer = 0;
-			new Thread(new SwitchRace(-1)).start();
-			repaint();
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) && mouseSelection == 2
-				&& meleeSelectionPointer < MeleeWeaponTypes.values().length - 1 && !switchRunning) {
-			switchRunning = true;
-			new Thread(new SwitchMelee(1)).start();
-			repaint();
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) && mouseSelection == 2
-				&& meleeSelectionPointer > 0 && !switchRunning) {
-			switchRunning = true;
-			new Thread(new SwitchMelee(-1)).start();
-			repaint();
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) && mouseSelection == 3
-				&& rangedSelectionPointer < ProjectileShooterTypes.values().length - 1 && !switchRunning) {
-			switchRunning = true;
-			new Thread(new SwitchRanged(1)).start();
-			repaint();
-		}
-		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) && mouseSelection == 3
-				&& rangedSelectionPointer > 0 && !switchRunning) {
-			switchRunning = true;
-			new Thread(new SwitchRanged(-1)).start();
-			repaint();
-		}
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-
 	}
 
 	public int getRaceSelectionPointer() {
@@ -362,51 +325,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 
 	public int getColorSelectionPointer() {
 		return colorSelectionPointer;
-	}
-
-	public void setColorSelectionPointer(int colorSelectionPointer) {
-		this.colorSelectionPointer = colorSelectionPointer;
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		if (PlayerTypes.values()[raceSelectionPointer].getColors() != null)
-			for (int i = 0; i < PlayerTypes.values()[raceSelectionPointer].getColors().length; i++)
-				if (new Rectangle(getWidth() / 2 - getWidth() / 8 + getWidth() / 32 + i % 2 * getWidth() / 8,
-						getHeight() / 8 + (i / 2 + 1) * getWidth() / 32, getWidth() / 16, getWidth() / 16)
-								.intersects(e.getX(), e.getY(), 1, 1))
-					colorSelectionPointer = i;
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseDragged(MouseEvent e) {
-
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		this.mouseX = e.getX();
-		this.mouseY = e.getY();
 	}
 
 	public int getMeleeSelectionPointer() {
@@ -465,6 +383,115 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		this.mouseSelection = mouseSelection;
 	}
 
+	public void setColorSelectionPointer(int colorSelectionPointer) {
+		this.colorSelectionPointer = colorSelectionPointer;
+	}
+
+	/*
+	 * Called when keys are pressed; check to see if user wants to switch
+	 * between races, melee, or ranged
+	 */
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) && mouseSelection == 1
+				&& raceSelectionPointer < PlayerTypes.values().length - 1 && !switchRunning) {
+			switchRunning = true;
+			colorSelectionPointer = 0;
+			new Thread(new SwitchRace(1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) && mouseSelection == 1
+				&& raceSelectionPointer > 0 && !switchRunning) {
+			switchRunning = true;
+			colorSelectionPointer = 0;
+			new Thread(new SwitchRace(-1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) && mouseSelection == 2
+				&& meleeSelectionPointer < MeleeWeaponTypes.values().length - 1 && !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchMelee(1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) && mouseSelection == 2
+				&& meleeSelectionPointer > 0 && !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchMelee(-1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_D || e.getKeyCode() == KeyEvent.VK_RIGHT) && mouseSelection == 3
+				&& rangedSelectionPointer < ProjectileShooterTypes.values().length - 1 && !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchRanged(1)).start();
+			repaint();
+		}
+		if ((e.getKeyCode() == KeyEvent.VK_A || e.getKeyCode() == KeyEvent.VK_LEFT) && mouseSelection == 3
+				&& rangedSelectionPointer > 0 && !switchRunning) {
+			switchRunning = true;
+			new Thread(new SwitchRanged(-1)).start();
+			repaint();
+		}
+	}
+
+	/* unnecessary key listener methods */
+	@Override
+	public void keyReleased(KeyEvent e) {
+
+	}
+
+	@Override
+	public void keyTyped(KeyEvent e) {
+
+	}
+
+	/* checks for clicks on race colors */
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		if (PlayerTypes.values()[raceSelectionPointer].getColors() != null)
+			for (int i = 0; i < PlayerTypes.values()[raceSelectionPointer].getColors().length; i++)
+				if (new Rectangle(getWidth() / 2 - getWidth() / 8 + getWidth() / 32 + i % 2 * getWidth() / 8,
+						getHeight() / 8 + (i / 2 + 1) * getWidth() / 32, getWidth() / 16, getWidth() / 16)
+								.intersects(e.getX(), e.getY(), 1, 1))
+					colorSelectionPointer = i;
+	}
+
+	/* unnecessary mouse listener events */
+	@Override
+	public void mousePressed(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+
+	}
+
+	/* tracks mouse movement for other methods */
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		this.mouseX = e.getX();
+		this.mouseY = e.getY();
+	}
+
+	/*
+	 * Class that deals with the transition of races in the lobby; deals with
+	 * both raceSelectionPointer and animation of switch
+	 */
 	private class SwitchRace extends Thread {
 
 		private int sign;
@@ -503,6 +530,10 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		}
 	}
 
+	/*
+	 * Class that deals with the transition of melee in the lobby; deals with
+	 * both meleeSelectionPointer and animation of switch
+	 */
 	private class SwitchMelee extends Thread {
 
 		private int sign;
@@ -541,6 +572,10 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		}
 	}
 
+	/*
+	 * Class that deals with the transition of ranged in the lobby; deals with
+	 * both rangedSelectionPointer and animation of switch
+	 */
 	private class SwitchRanged extends Thread {
 
 		private int sign;

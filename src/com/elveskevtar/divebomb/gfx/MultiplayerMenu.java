@@ -37,6 +37,10 @@ public class MultiplayerMenu extends JPanel {
 	private Font privateGameFont;
 	private Font joinGameFont;
 
+	/*
+	 * Called by StartMenu class or other menus; most things are called in
+	 * blocks of 3, one for each JButton
+	 */
 	public MultiplayerMenu(JFrame frame) {
 		this.setFrame(frame);
 		this.setSize(frame.getWidth(), frame.getHeight());
@@ -84,6 +88,7 @@ public class MultiplayerMenu extends JPanel {
 		this.privateGame.setOpaque(false);
 		this.joinGame.setOpaque(false);
 
+		/* add action listeners to buttons (listens to clicks) */
 		this.back.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -107,6 +112,10 @@ public class MultiplayerMenu extends JPanel {
 
 		});
 
+		/*
+		 * Add mouse listeners to buttons (listens for mouse collision with
+		 * button hit box to start pulsing)
+		 */
 		this.back.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
@@ -150,6 +159,10 @@ public class MultiplayerMenu extends JPanel {
 			}
 		});
 
+		/*
+		 * Positioning for these buttons should center based on JFrame and
+		 * JPanel bounds
+		 */
 		this.back.setBounds(0, 0, getWidth() / 8, getHeight() / 12);
 		this.ip.setBounds(getWidth() / 2 - getWidth() / 4, getHeight() / 2 - getHeight() / 12, getWidth() / 4,
 				getHeight() / 12);
@@ -169,9 +182,11 @@ public class MultiplayerMenu extends JPanel {
 		this.joinGame.setEnabled(false);
 		this.privateGame.setEnabled(false);
 
+		/* starts a new thread to check if buttons can be enbaled */
 		new Thread(new CheckForButtons()).start();
 	}
 
+	/* action methods are called on button clicks from action listeneres */
 	public void backAction() {
 		setVisible(false);
 		getFrame().remove(this);
@@ -193,6 +208,7 @@ public class MultiplayerMenu extends JPanel {
 		getFrame().add(new GameLobbyMenu(getFrame(), textIP, userText));
 	}
 
+	/* standard get/set methods */
 	public JFrame getFrame() {
 		return frame;
 	}
@@ -249,16 +265,16 @@ public class MultiplayerMenu extends JPanel {
 		this.userNameFont = userNameFont;
 	}
 
+	/*
+	 * Thread that can be run to check and see if buttons should or should not
+	 * be enabled; e.g. so that an ip address is required to join a game or a
+	 * username is required to create/join one
+	 */
 	private class CheckForButtons extends Thread {
 
 		@Override
 		public void run() {
 			while (isVisible()) {
-				try {
-					Thread.sleep(10);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
 				if (!userName.getText().isEmpty() && !userName.getText().equals(userName.getHint())) {
 					privateGame.setEnabled(true);
 					if (!ip.getText().isEmpty() && !ip.getText().equals(ip.getHint()))
@@ -273,23 +289,31 @@ public class MultiplayerMenu extends JPanel {
 		}
 	}
 
+	/*
+	 * Class that implements Focus Listener so that explanation text is filled
+	 * into the text boxes when the focus is not on that text box (when the box
+	 * has not been clicked or has been clicked away from)
+	 */
 	private class HintTextField extends JTextField implements FocusListener {
 
 		private static final long serialVersionUID = 4032504541558322544L;
 		private final String hint;
 
+		/* hint parameter is the text that should be filled in the text box */
 		public HintTextField(final String hint) {
 			super(hint);
 			this.hint = hint;
 			super.addFocusListener(this);
 		}
 
+		/* when box is clicked, empty box text */
 		@Override
 		public void focusGained(FocusEvent e) {
 			if (this.getText().equals(hint))
 				super.setText("");
 		}
 
+		/* when box is clicked away from, place hint back into box */
 		@Override
 		public void focusLost(FocusEvent e) {
 			if (this.getText().isEmpty())
@@ -301,6 +325,7 @@ public class MultiplayerMenu extends JPanel {
 		}
 	}
 
+	/* Thread for pulsing buttons; optimized to not lag program */
 	private class ButtonPulse extends Thread {
 
 		private JButton button;
@@ -309,6 +334,13 @@ public class MultiplayerMenu extends JPanel {
 			this.button = button;
 		}
 
+		/*
+		 * Pulsing is done by changing the font size of individual buttons using
+		 * an absolute value sine function; when pulsing is done, old font size
+		 * is set again; uses system time to avoid laggy pulsing;each
+		 * buttonPulse boolean variable is dealt with separately; this can be
+		 * optimized in the future
+		 */
 		@Override
 		public void run() {
 			long oldTime;

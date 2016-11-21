@@ -25,6 +25,7 @@ import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet16Suicide;
 import com.elveskevtar.divebomb.net.packets.Packet17Respawn;
 import com.elveskevtar.divebomb.net.packets.Packet18RespawnPlayer;
+import com.elveskevtar.divebomb.net.packets.Packet19Ping;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -313,9 +314,13 @@ public class GameServer extends Thread {
 			else
 				player.setInHand(player.getMelee());
 		}
+		player.setLatency(packet.getTimeStamp() - player.getOldTimeStamp());
+		player.setOldTimeStamp(packet.getTimeStamp());
 		for (Player p : connectedPlayers)
 			if (!p.getName().equalsIgnoreCase(player.getName()))
 				sendData(packet.getData(), p.getIP(), p.getPort());
+		Packet19Ping pingPacket = new Packet19Ping(player.getOldTimeStamp(), player.getLatency(), player.getName());
+		pingPacket.writeData(this);
 	}
 
 	public Player getPlayerMP(String name) {

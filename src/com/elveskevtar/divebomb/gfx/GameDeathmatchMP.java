@@ -3,6 +3,7 @@ package com.elveskevtar.divebomb.gfx;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ConcurrentModificationException;
@@ -104,6 +105,7 @@ public class GameDeathmatchMP extends Game {
 	public void paint(Graphics g) {
 		super.paint(g);
 		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.translate((-getWidth() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1,
 				(-getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1);
 		g2d.setFont(new Font("Livewired", Font.PLAIN, 20 / getZoom()));
@@ -111,7 +113,7 @@ public class GameDeathmatchMP extends Game {
 		g2d.drawString("Stamina: " + getUser().getStamina(), 0, g2d.getFont().getSize() * 15 / 8);
 		g2d.drawString("Kills: " + getUser().getKills(), 0, g2d.getFont().getSize() * 3);
 		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont().getSize() * 33 / 8);
-		g2d.drawString("Ping Latency: " + (int) (getUser().getLatency() * Math.pow(10, -6)), 0,
+		g2d.drawString("Ping Latency: " + Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999), 0,
 				g2d.getFont().getSize() * 21 / 4);
 		;
 	}
@@ -120,8 +122,10 @@ public class GameDeathmatchMP extends Game {
 	@Override
 	public void setTimers() {
 		super.setTimers();
-		if (getSocketClient() != null)
+		if (getSocketClient() != null) {
 			new Thread(new SendMovePacket()).start();
+			new Thread(new CheckForPingDrops()).start();
+		}
 		if (getSocketServer() != null) {
 			new Thread(new SendHealthPacket()).start();
 			new Thread(new CheckForEndGame()).start();
@@ -238,18 +242,53 @@ public class GameDeathmatchMP extends Game {
 	/* server-side thread; checks to see if the game conditions have been met */
 	private class CheckForEndGame extends Thread {
 
+		@SuppressWarnings("deprecation")
 		@Override
 		public void run() {
 			while (true) {
 				if (firstPlaceKills >= maxKills) {
 					Packet07Endgame packet = new Packet07Endgame(firstPlaceName, firstPlaceKills);
 					packet.writeData(getSocketServer());
+					if (getSocketClient() == null) {
+						getTimer().cancel();
+						setRunning(false);
+						getSocketServer().getSocket().close();
+						getSocketServer().stop();
+						new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0);
+					}
 					break;
 				}
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
+				}
+			}
+		}
+	}
+
+	/*
+	 * checks for giant lag spikes and disconnects; has different uses for both
+	 * server and client side
+	 */
+	private class CheckForPingDrops extends Thread {
+
+		@Override
+		public void run() {
+			while (true) {
+				if (getSocketServer() == null) {
+					getUser().setLatency(System.nanoTime() - getUser().getOldTimeStamp());
+					if (Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999) == 999)
+						setState(2);
+					else
+						setState(0);
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else if (getSocketClient() == null) {
+					
 				}
 			}
 		}

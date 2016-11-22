@@ -5,6 +5,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
+import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -103,18 +104,16 @@ public abstract class Game extends JPanel
 		this.keys = new ArrayList<Integer>();
 		this.projectiles = new CopyOnWriteArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
-		this.zoom = 3;
+		this.zoom = 2;
 		this.setFrame(frame);
 		/* default values for user info */
 		this.userName = "Bob";
 		this.userRace = "human";
 		this.userMelee = "sword";
 		this.userRanged = "bow";
-		this.userColor = "";
+		this.userColor = " ";
 		this.updatePlayer();
 		this.user.setInHand(new Sword(user));
-		if (userColor.equalsIgnoreCase(""))
-			setUserColor(" ");
 	}
 
 	/* server only constructor */
@@ -204,12 +203,16 @@ public abstract class Game extends JPanel
 			} else if (state == 1) {
 				paintGame(g);
 				paintPauseMenu(g);
+			} else if (state == 2) {
+				paintGame(g);
+				paintReconnect(g);
 			}
 		}
 	}
 
 	public void paintGame(Graphics g) {
 		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		font = new Font("Livewired", Font.PLAIN, 10);
 		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight() * (0.5 * zoom - 0.5));
 		g2d.scale(zoom, zoom);
@@ -248,8 +251,9 @@ public abstract class Game extends JPanel
 						null);
 				if (p.getInHand() instanceof ProjectileShooter)
 					g2d.rotate(-rAngle, x, y);
-				g2d.drawString(p.getName(), (int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())),
-						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) - 10);
+				g2d.drawString(p.getName(),
+						(int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - p.getName().length() * 3), //
+						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) + 5);
 			}
 		}
 		if (!user.isDead()) {
@@ -277,7 +281,7 @@ public abstract class Game extends JPanel
 					getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak(), null);
 			if (user.getInHand() instanceof ProjectileShooter)
 				g2d.rotate(-rAngle, x, y);
-			g2d.drawString(user.getName(), getWidth() / 2, getHeight() / 2 - 10);
+			g2d.drawString(user.getName(), getWidth() / 2 - user.getName().length() * 3, getHeight() / 2 + 5); //
 		}
 		for (Projectile p : projectiles) {
 			double rAngle = p.getrAngle() + Math.PI;
@@ -292,9 +296,27 @@ public abstract class Game extends JPanel
 	}
 
 	public void paintPauseMenu(Graphics g) {
-		Graphics g2d = (Graphics2D) g;
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.setColor(new Color(32, 32, 32, 100));
 		g2d.fillRect(0, 0, getWidth(), getHeight());
+	}
+
+	public void paintReconnect(Graphics g) {
+		Graphics2D g2d = (Graphics2D) g;
+		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+		g2d.setColor(new Color(32, 32, 32, 100));
+		g2d.fillRect(0, 0, getWidth(), getHeight());
+		String reconnecting;
+		if ((System.currentTimeMillis() / 1000) % 3 == 0)
+			reconnecting = "Reconnecting.";
+		else if ((System.currentTimeMillis() / 1000) % 3 == 1)
+			reconnecting = "Reconnecting..";
+		else
+			reconnecting = "Reconnecting...";
+		g2d.setColor(new Color(10, 200, 80));
+		g2d.setFont(new Font("Livewired", Font.PLAIN, 30));
+		g2d.drawString(reconnecting, (int) (getWidth() / 2 - reconnecting.length() * 8), getHeight() / 2);
 	}
 
 	@Override
@@ -393,6 +415,14 @@ public abstract class Game extends JPanel
 
 	public void setZoom(int zoom) {
 		this.zoom = zoom;
+	}
+
+	public int getState() {
+		return state;
+	}
+
+	public void setState(int state) {
+		this.state = state;
 	}
 
 	public Map getGraphicsMap() {

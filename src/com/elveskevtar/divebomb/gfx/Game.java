@@ -116,7 +116,7 @@ public abstract class Game extends JPanel
 		this.user.setInHand(new Sword(user));
 	}
 
-	/* server only constructor */
+	/* server-side only constructor */
 	public Game(int gameID) {
 		this.players = new ArrayList<Player>();
 		this.timer = new Timer();

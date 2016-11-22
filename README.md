@@ -7,6 +7,7 @@ Add music to game<br>
 Add options menu that branches off start menu<br>
 Start on a campaign mode<br>
 Allow for disconnects after game starts<br>
+Fill disconnects in with AI players<br>
 Stop count-down if player disconnects from lobby<br>
 Introduce ping packets at lobby<br>
 Create end-game stats screen w/ voting for new gamemode/map<br>

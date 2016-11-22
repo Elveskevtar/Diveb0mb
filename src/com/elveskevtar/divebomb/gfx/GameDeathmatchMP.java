@@ -9,11 +9,13 @@ import java.net.UnknownHostException;
 import java.util.ConcurrentModificationException;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 import com.elveskevtar.divebomb.maps.Map;
 import com.elveskevtar.divebomb.net.GameClient;
 import com.elveskevtar.divebomb.net.GameServer;
 import com.elveskevtar.divebomb.net.packets.Packet00Login;
+import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
 import com.elveskevtar.divebomb.net.packets.Packet03Move;
 import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
@@ -122,9 +124,9 @@ public class GameDeathmatchMP extends Game {
 	@Override
 	public void setTimers() {
 		super.setTimers();
+		new Thread(new CheckForPingDrops()).start();
 		if (getSocketClient() != null) {
 			new Thread(new SendMovePacket()).start();
-			new Thread(new CheckForPingDrops()).start();
 		}
 		if (getSocketServer() != null) {
 			new Thread(new SendHealthPacket()).start();
@@ -245,7 +247,7 @@ public class GameDeathmatchMP extends Game {
 		@SuppressWarnings("deprecation")
 		@Override
 		public void run() {
-			while (true) {
+			while (isRunning()) {
 				if (firstPlaceKills >= maxKills) {
 					Packet07Endgame packet = new Packet07Endgame(firstPlaceName, firstPlaceKills);
 					packet.writeData(getSocketServer());
@@ -275,20 +277,51 @@ public class GameDeathmatchMP extends Game {
 
 		@Override
 		public void run() {
-			while (true) {
+			while (isRunning()) {
 				if (getSocketServer() == null) {
 					getUser().setLatency(System.nanoTime() - getUser().getOldTimeStamp());
-					if (Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999) == 999)
+					if (Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999) == 999
+							&& getUser().getOldTimeStamp() != 0)
 						setState(2);
-					else
+					else if (GameDeathmatchMP.this.getState() == 2
+							&& Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999) != 999)
 						setState(0);
+					if (((int) (getUser().getLatency() * Math.pow(10, -6)) >= 5000)
+							&& getUser().getOldTimeStamp() != 0) {
+						setVisible(false);
+						getFrame().remove(GameDeathmatchMP.this);
+						getTimer().cancel();
+						setRunning(false);
+						getFrame().add(new StartMenu(getFrame()));
+						getFrame().repaint();
+						JOptionPane.showMessageDialog(getFrame(),
+								"You have unexpectedly been disconnected from the server", "Server Disconnection",
+								JOptionPane.INFORMATION_MESSAGE);
+					}
 					try {
 						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
-				} else if (getSocketClient() == null) {
-					
+				} else {
+					try {
+						for (Player p : getSocketServer().connectedPlayers) {
+							p.setLatency(System.nanoTime() - p.getOldTimeStamp());
+							if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
+								Packet01Disconnect packet = new Packet01Disconnect(p.getName());
+								packet.writeData(getSocketServer());
+								getSocketServer().connectedPlayers.remove(p);
+								getPlayers().remove(p);
+							}
+						}
+					} catch (ConcurrentModificationException e) {
+						e.printStackTrace();
+					}
+					try {
+						Thread.sleep(250);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

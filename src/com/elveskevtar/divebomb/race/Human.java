@@ -20,7 +20,7 @@ public class Human extends Player {
 		}
 		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
-		this.setHeight(40);
+		this.setHeight(47);
 		this.setStandingLeftHandX(14);
 		this.setStandingLeftHandY(35);
 		this.setWalkingLeftHandX(11);
@@ -42,7 +42,7 @@ public class Human extends Player {
 		}
 		this.setPlayerSprite(getPlayerSpriteSheet().getSubimage(getSpriteX() * 32, getSpriteY() * 32, getSpriteWidth(),
 				getSpriteHeight()));
-		this.setHeight(40);
+		this.setHeight(47);
 		this.setStandingLeftHandX(14);
 		this.setStandingLeftHandY(35);
 		this.setWalkingLeftHandX(11);

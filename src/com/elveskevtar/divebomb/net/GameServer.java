@@ -361,4 +361,12 @@ public class GameServer extends Thread {
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
 	}
+
+	public ArrayList<Player> getConnectedPlayers() {
+		return connectedPlayers;
+	}
+
+	public void setConnectedPlayers(ArrayList<Player> connectedPlayers) {
+		this.connectedPlayers = connectedPlayers;
+	}
 }

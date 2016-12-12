@@ -43,7 +43,8 @@ public class MultiplayerMenu extends JPanel {
 	 */
 	public MultiplayerMenu(JFrame frame) {
 		this.setFrame(frame);
-		this.setSize(frame.getWidth(), frame.getHeight());
+		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
+				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		this.setLayout(null);
 		this.setFocusable(true);
 

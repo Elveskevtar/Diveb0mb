@@ -295,7 +295,7 @@ public class GameDeathmatchMP extends Game {
 						getFrame().add(new StartMenu(getFrame()));
 						getFrame().repaint();
 						JOptionPane.showMessageDialog(getFrame(),
-								"You have unexpectedly been disconnected from the server", "Server Disconnection",
+								"You have been unexpectedly disconnected from the server", "Server Disconnection",
 								JOptionPane.INFORMATION_MESSAGE);
 					}
 					try {
@@ -310,15 +310,17 @@ public class GameDeathmatchMP extends Game {
 							if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
 								Packet01Disconnect packet = new Packet01Disconnect(p.getName());
 								packet.writeData(getSocketServer());
+								System.out
+										.println("[" + getSocketServer().getSocket().getLocalAddress().getHostAddress()
+												+ ":" + getSocketServer().getSocket().getLocalPort() + "] "
+												+ p.getName() + " has disconnected...");
 								getSocketServer().connectedPlayers.remove(p);
 								getPlayers().remove(p);
 							}
 						}
+						Thread.sleep(250);
 					} catch (ConcurrentModificationException e) {
 						e.printStackTrace();
-					}
-					try {
-						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}

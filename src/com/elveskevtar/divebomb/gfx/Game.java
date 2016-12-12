@@ -93,7 +93,8 @@ public abstract class Game extends JPanel
 	/* main (regular) constructor */
 	public Game(int gameID, JFrame frame) {
 		super();
-		this.setSize(frame.getWidth(), frame.getHeight());
+		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
+				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		this.setDoubleBuffered(true);
 		this.setFocusable(true);
 		this.setBackground(new Color(0, 0, 0));

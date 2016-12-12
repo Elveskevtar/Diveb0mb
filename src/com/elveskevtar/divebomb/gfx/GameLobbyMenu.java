@@ -17,12 +17,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
+import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.race.Player.PlayerTypes;
 import com.elveskevtar.divebomb.weapons.Melee.MeleeWeaponTypes;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter.ProjectileShooterTypes;
@@ -56,7 +60,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		this.frame = frame;
 		this.setLayout(null);
 		this.setDoubleBuffered(true);
-		this.setSize(frame.getWidth(), frame.getHeight());
+		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
+				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		this.setFocusable(true);
 		this.addKeyListener(this);
 		this.addMouseListener(this);
@@ -94,7 +99,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		this.ip = ip;
 		this.setLayout(null);
 		this.setDoubleBuffered(true);
-		this.setSize(frame.getWidth(), frame.getHeight());
+		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
+				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		this.setFocusable(true);
 		this.addKeyListener(this);
 		this.addMouseListener(this);
@@ -613,6 +619,60 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 			}
 			switchRunning = false;
 			game.setUserRanged(ProjectileShooterTypes.values()[rangedSelectionPointer].getName());
+		}
+	}
+
+	/*
+	 * checks for giant lag spikes and disconnects; has different uses for both
+	 * server and client side
+	 */
+	@SuppressWarnings("unused")
+	private class CheckForPingDrops extends Thread {
+
+		@Override
+		public void run() {
+			while (!game.isRunning()) {
+				if (game.getSocketServer() == null) {
+					// Packet19Ping pingPacket = new Packet19Ping();
+					game.getUser().setLatency(System.nanoTime() - game.getUser().getOldTimeStamp());
+					if (((int) (game.getUser().getLatency() * Math.pow(10, -6)) >= 2000)
+							&& game.getUser().getOldTimeStamp() != 0) {
+						frame.setVisible(false);
+						frame.remove(GameLobbyMenu.this);
+						frame.add(new StartMenu(frame));
+						frame.repaint();
+						JOptionPane.showMessageDialog(getFrame(),
+								"You have been unexpectedly disconnected from the server", "Server Disconnection",
+								JOptionPane.INFORMATION_MESSAGE);
+					}
+					try {
+						Thread.sleep(16);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				} else {
+					try {
+						for (Player p : game.getSocketServer().connectedPlayers) {
+							p.setLatency(System.nanoTime() - p.getOldTimeStamp());
+							if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
+								Packet01Disconnect packet = new Packet01Disconnect(p.getName());
+								packet.writeData(game.getSocketServer());
+								System.out.println(
+										"[" + game.getSocketServer().getSocket().getLocalAddress().getHostAddress()
+												+ ":" + game.getSocketServer().getSocket().getLocalPort() + "] "
+												+ p.getName() + " has disconnected...");
+								game.getSocketServer().connectedPlayers.remove(p);
+								game.getPlayers().remove(p);
+							}
+						}
+						Thread.sleep(250);
+					} catch (ConcurrentModificationException e) {
+						e.printStackTrace();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+			}
 		}
 	}
 }

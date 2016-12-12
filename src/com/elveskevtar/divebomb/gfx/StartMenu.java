@@ -2,19 +2,25 @@ package com.elveskevtar.divebomb.gfx;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 
 import com.elveskevtar.divebomb.maps.Map;
 
-public class StartMenu extends JPanel {
+public class StartMenu extends JLayeredPane {
 
 	private static final long serialVersionUID = -229487886910550057L;
 
@@ -40,8 +46,8 @@ public class StartMenu extends JPanel {
 	 */
 	public StartMenu(JFrame frame) {
 		this.setFrame(frame);
-		this.setSize(frame.getWidth(), frame.getHeight());
-		this.setLayout(null);
+		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
+				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 
 		this.campaign = new JButton("Campaign");
 		this.multiplayer = new JButton("Multiplayer");
@@ -191,10 +197,11 @@ public class StartMenu extends JPanel {
 		this.exit.setBounds(getWidth() / 2 - getWidth() / 6, (int) (getHeight() / 2 + getHeight() / 8 * 3),
 				getWidth() / 3, getHeight() / 16);
 
-		this.add(campaign);
-		this.add(multiplayer);
-		this.add(options);
-		this.add(exit);
+		this.add(campaign, -1);
+		this.add(multiplayer, -1);
+		this.add(options, -1);
+		this.add(exit, -1);
+		this.add(new Background(), -1);
 	}
 
 	/*
@@ -259,6 +266,28 @@ public class StartMenu extends JPanel {
 
 	public void setFrame(JFrame frame) {
 		this.frame = frame;
+	}
+
+	private class Background extends JPanel {
+
+		private static final long serialVersionUID = -678879425070878600L;
+
+		private BufferedImage image;
+
+		public Background() {
+			this.setSize(StartMenu.this.getSize());
+			this.setIgnoreRepaint(true);
+			try {
+				this.image = ImageIO.read(new File("res/img/DiveB0mbBackground.jpg"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
+		}
 	}
 
 	/* Thread for pulsing buttons; optimized to not lag program */

@@ -6,7 +6,7 @@ Add background design for in-game<br>
 Add music to game<br>
 Add options menu that branches off start menu<br>
 Start on a campaign mode<br>
-Allow for disconnects after game starts<br>
+<s>Allow for disconnects after game starts</s><br>
 Fill disconnects in with AI players<br>
 Stop count-down if player disconnects from lobby<br>
 Introduce ping packets at lobby<br>

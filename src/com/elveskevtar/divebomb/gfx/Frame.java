@@ -1,5 +1,6 @@
 package com.elveskevtar.divebomb.gfx;
 
+import java.awt.Dimension;
 import java.awt.Toolkit;
 
 import javax.swing.JFrame;
@@ -28,11 +29,12 @@ public class Frame extends JFrame {
 		super("DiveBomb");
 		this.width = width;
 		this.height = height;
-		this.pack();
 		this.setSize(getInsets().left + getInsets().right + width, getInsets().top + getInsets().bottom + height);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.setPreferredSize(new Dimension(width, height));
+		this.pack();
 		this.add(new StartMenu(this));
 		this.setVisible(true);
 	}

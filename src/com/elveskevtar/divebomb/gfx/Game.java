@@ -57,11 +57,18 @@ public abstract class Game extends JPanel
 	}
 
 	private static final long serialVersionUID = 8757407166624267693L;
+	private static final Color NAMETAG_GREEN = new Color(7, 192, 44);
+	private static final Color PAUSE_OVERLAY = new Color(32, 32, 32, 100);
+
+	/* speed gives the number of milliseconds between repitions of timertasks */
 	private int speed = 16;
+	/* integer value for how graphically zoomed things should be painted */
+	private int zoom = 2;
+	/* state = 0, game; state = 1, pause menu; state = 2, reconnect menu */
 	private int state;
-	private int zoom;
-	private int playerSize;
+	/* gameID = 0, deathmatch; gameID = 1, multiplayer deathmatch */
 	private int gameID;
+	private int playerSize;
 	private int lobbyTime;
 
 	private ArrayList<Rectangle> collisionRecs;
@@ -93,41 +100,51 @@ public abstract class Game extends JPanel
 	/* main (regular) constructor */
 	public Game(int gameID, JFrame frame) {
 		super();
+
+		/* takes into account the insets of the jframe */
 		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
 				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
 		this.setDoubleBuffered(true);
 		this.setFocusable(true);
-		this.setBackground(new Color(0, 0, 0));
+		this.setBackground(Color.BLACK);
+
+		/* initializes arraylists, sets the gameID, and frame */
 		this.players = new ArrayList<Player>();
-		this.timer = new Timer();
-		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.keys = new ArrayList<Integer>();
 		this.projectiles = new CopyOnWriteArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
-		this.zoom = 2;
+		this.setGameID(gameID);
 		this.setFrame(frame);
+
 		/* default values for user info */
 		this.userName = "Bob";
 		this.userRace = "human";
 		this.userMelee = "sword";
 		this.userRanged = "bow";
 		this.userColor = " ";
+
 		this.updatePlayer();
-		this.user.setInHand(new Sword(user));
 	}
 
 	/* server-side only constructor */
 	public Game(int gameID) {
+		super();
+
+		/* initializes arraylists and sets the gameID */
 		this.players = new ArrayList<Player>();
-		this.timer = new Timer();
-		this.setGameID(gameID);
 		this.collisionRecs = new ArrayList<Rectangle>();
 		this.projectiles = new CopyOnWriteArrayList<Projectile>();
 		this.projectileIDs = new ArrayList<Integer>();
+		this.setGameID(gameID);
 	}
 
+	/*
+	 * basically updates the users parameters such as race, color, name, melee
+	 * weapon, ranged weapon, and weapon in hand
+	 */
 	public void updatePlayer() {
+		/* first block of if statements deals with user race and color */
 		if (userRace.equalsIgnoreCase("human"))
 			user = new Human(this, userName, null, -1);
 		else if (userRace.equalsIgnoreCase("cyborg") && userColor.equalsIgnoreCase("purple"))
@@ -138,6 +155,8 @@ public abstract class Game extends JPanel
 			user = new Cyborg(this, userName, -1, null, -1);
 		else
 			user = new Human(this, userName, null, -1);
+
+		/* second block of if statements deals all with weapons */
 		if (userMelee.equalsIgnoreCase("sword"))
 			user.setMelee(new Sword(user));
 		if (userRanged.equalsIgnoreCase("bow"))
@@ -145,59 +164,100 @@ public abstract class Game extends JPanel
 		user.setInHand(user.getMelee());
 	}
 
+	/* sets the general timers used for all gamemodes */
 	public void setTimers() {
 		this.timer = new Timer();
+
+		/* timers set for client side only or offline gameplay */
 		if (socketClient != null || (socketClient == null && socketServer == null)) {
 			this.timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
 			this.timer.scheduleAtFixedRate(new Repaint(), 0, speed);
 			this.timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
 			this.timer.scheduleAtFixedRate(new Input(), 0, speed);
 		}
+
+		/* timers set for all gamemodes */
 		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
 		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
 		this.timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
+
+		/*
+		 * sets the game to 'run' mode which affects loop threads in subclasses
+		 * of Game as well as online gameplay
+		 */
 		this.running = true;
 	}
 
+	/*
+	 * typically called by either socketclient or constructor of subclasses;
+	 * officially starts the game by setting maps, updating collisionRecs,
+	 * updating the player, adding keylisteners, and setting timers
+	 */
 	public void startGame(Map map) {
+		/* sets the map and collision maps */
 		if (map.getMap() != null)
 			this.map = map.getMap();
 		if (map.getCollisionMap() != null)
 			this.collisionMap = map.getCollisionMap();
+
+		/* updates collisionRecs based on RGB values of collisionMap */
 		for (int x = 0; x <= collisionMap.getWidth() - 1; x++) {
 			for (int y = 0; y <= collisionMap.getHeight() - 1; y++) {
 				if (collisionMap.getRGB(x, y) != -16777216)
 					collisionRecs.add(new Rectangle(x * 8, y * 8, 8, 8));
 			}
 		}
+
+		/* updates the user and puts them in the players arraylist */
 		this.updatePlayer();
-		this.user.setInHand(new Sword(user)); // get rid of this asap
 		this.players.add(user);
+
+		/* add/start listeners for user input */
 		this.addKeyListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addMouseWheelListener(this);
+
+		/*
+		 * requests focus in the window and brings jframe to the front of the
+		 * users screen
+		 */
 		this.requestFocusInWindow();
+		this.frame.toFront();
+
+		/* calls setTimers() which sets the game timertasks */
 		this.setTimers();
 	}
 
+	/* starts online games that involve server-side only servers */
 	public void startPublicServerGame(Map map) {
+		/* sets the map and collision maps */
 		if (map.getMap() != null)
 			this.map = map.getMap();
 		if (map.getCollisionMap() != null)
 			this.collisionMap = map.getCollisionMap();
+
+		/* updates collisionRecs based on RGB values of collisionMap */
 		for (int x = 0; x <= collisionMap.getWidth() - 1; x++) {
 			for (int y = 0; y <= collisionMap.getHeight() - 1; y++) {
 				if (collisionMap.getRGB(x, y) != -16777216)
 					collisionRecs.add(new Rectangle(x * 8, y * 8, 8, 8));
 			}
 		}
+
+		/* calls setTimers() which sets the game timertasks */
 		this.setTimers();
 	}
 
+	/*
+	 * the overriden paint method; this branches off into other paint methods
+	 * based on the state variable
+	 */
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
+
+		/* if the game is running, calls various paint functions */
 		if (running) {
 			if (state == 0) {
 				paintGame(g);
@@ -211,23 +271,53 @@ public abstract class Game extends JPanel
 		}
 	}
 
+	/*
+	 * paints general aspects of the actual game itself that are needed for
+	 * every gamemode
+	 */
 	public void paintGame(Graphics g) {
+		/* creates a graphics2d object from the graphics object */
 		Graphics2D g2d = (Graphics2D) g;
+
+		/*
+		 * sets antialiasing rendering hints for fonts and sets the font to
+		 * Livewired
+		 */
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		font = new Font("Livewired", Font.PLAIN, 10);
+
+		/* translates and scales graphics based on zoom value */
 		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight() * (0.5 * zoom - 0.5));
 		g2d.scale(zoom, zoom);
-		g2d.setColor(new Color(10, 200, 80));
+
+		/* sets the color and font of the graphics */
+		g2d.setColor(NAMETAG_GREEN);
 		g2d.setFont(font);
+
+		/* draws and moves the map in relation to the users position */
 		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2), (int) (user.getyPosition() + getHeight() / 2),
 				null);
+
+		/*
+		 * draws every other player and their weapon in relation to user client
+		 * assuming that player is different from the user and is not dead
+		 */
 		for (Player p : players) {
 			if (p != user && !p.isDead()) {
+				/* draws the player in relation to user */
 				g2d.drawImage(p.getPlayerSprite(), (int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())),
 						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())), null);
+
+				/* initializes weapon drawing variables */
 				double rAngle = 0;
 				double x = 0;
 				double y = 0;
+
+				/*
+				 * calculates weapon drawing variables assuming that the weapon
+				 * is a projectile shooter; then, rotates graphics based on
+				 * rAngle
+				 */
 				if (p.getInHand() instanceof ProjectileShooter) {
 					rAngle = ((ProjectileShooter) p.getInHand()).getrAngle();
 					if (p.isFacingRight()) {
@@ -244,24 +334,41 @@ public abstract class Game extends JPanel
 						g2d.rotate(rAngle, x, y);
 					}
 				}
+
+				/* draws weapon for players in relation to user position */
 				g2d.drawImage(p.getInHand().getSprite(),
 						getWidth() / 2 + (int) (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
 								+ p.getInHand().getxAdjustment(),
 						getHeight() / 2 + (int) (user.getyPosition() - p.getyPosition()) + p.getWeaponYTweak()
 								+ p.getInHand().getyAdjustment(),
 						null);
+
+				/* 'unrotates' graphics for projectile shooter weapons */
 				if (p.getInHand() instanceof ProjectileShooter)
 					g2d.rotate(-rAngle, x, y);
+
+				/* draw names for players above their heads */
 				g2d.drawString(p.getName(),
 						(int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - p.getName().length() * 3), //
 						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) + 5);
 			}
 		}
+
+		/* draws user. weapon, and name assuming user is not dead */
 		if (!user.isDead()) {
+			/* draws user in the middle of the screen */
 			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2, getHeight() / 2, null);
+
+			/* initializes weapon drawing variables for user */
 			double rAngle = 0;
 			double x = 0;
 			double y = 0;
+
+			/*
+			 * calculates weapon drawing variables assuming that the weapon is a
+			 * projectile shooter; then, rotates graphics based on rAngle for
+			 * user
+			 */
 			if (user.getInHand() instanceof ProjectileShooter) {
 				rAngle = ((ProjectileShooter) user.getInHand()).getrAngle();
 				if (user.isFacingRight()) {
@@ -277,13 +384,24 @@ public abstract class Game extends JPanel
 					g2d.rotate(rAngle, x, y);
 				}
 			}
+
+			/* draw user weapon */
 			g2d.drawImage(user.getInHand().getSprite(),
 					getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment(),
 					getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak(), null);
+
+			/* 'unrotates' graphics for projectile shooter weapons */
 			if (user.getInHand() instanceof ProjectileShooter)
 				g2d.rotate(-rAngle, x, y);
+
+			/* draws name of user above their head */
 			g2d.drawString(user.getName(), getWidth() / 2 - user.getName().length() * 3, getHeight() / 2 + 5); //
 		}
+
+		/*
+		 * cycles through projectiles arraylist and draws them with the proper
+		 * angle
+		 */
 		for (Projectile p : projectiles) {
 			double rAngle = p.getrAngle() + Math.PI;
 			double x = user.getxPosition() - p.getxPosition() + getWidth() / 2 + p.getWidth() / 2;
@@ -293,21 +411,44 @@ public abstract class Game extends JPanel
 					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2), null);
 			g2d.rotate(-rAngle, x, y);
 		}
+
+		/* repeatedly requests input focus for this jpanel */
 		requestFocusInWindow();
 	}
 
+	/* paints the pause menu */
 	public void paintPauseMenu(Graphics g) {
+		/*
+		 * creates graphics2d object from graphics object and sets antialiasing
+		 * rendering hints for font
+		 */
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.setColor(new Color(32, 32, 32, 100));
+
+		/* draws a semi-transparent color on the entire screen */
+		g2d.setColor(PAUSE_OVERLAY);
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 	}
 
+	/* paints the reconnect menu when the user is having connection issues */
 	public void paintReconnect(Graphics g) {
+		/*
+		 * creates graphics2d object from graphics object and sets antialiasing
+		 * rendering hints for font
+		 */
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.setColor(new Color(32, 32, 32, 100));
+
+		/* draws a semi-transpart color on the entire screen */
+		g2d.setColor(PAUSE_OVERLAY);
 		g2d.fillRect(0, 0, getWidth(), getHeight());
+
+		/*
+		 * creates a string with the word reconnecting and either 1, 2, or 3
+		 * periods after it based on system time (each second, another period is
+		 * added until 3 periods are reached where it will cycle back to 1
+		 * period)
+		 */
 		String reconnecting;
 		if ((System.currentTimeMillis() / 1000) % 3 == 0)
 			reconnecting = "Reconnecting.";
@@ -315,29 +456,40 @@ public abstract class Game extends JPanel
 			reconnecting = "Reconnecting..";
 		else
 			reconnecting = "Reconnecting...";
-		g2d.setColor(new Color(10, 200, 80));
+
+		/*
+		 * draws the string with green livewired font in the middle of the
+		 * screen
+		 */
+		g2d.setColor(NAMETAG_GREEN);
 		g2d.setFont(new Font("Livewired", Font.PLAIN, 30));
 		g2d.drawString(reconnecting, (int) (getWidth() / 2 - reconnecting.length() * 8), getHeight() / 2);
 	}
 
+	/* all of the required listener methods */
 	@Override
 	public void keyPressed(KeyEvent e) {
+		/*
+		 * when a key is pressed, add it to the list of keys that are being
+		 * pressed assuming that it is not already in there
+		 */
 		if (!keys.contains(e.getKeyCode()))
 			keys.add(e.getKeyCode());
 	}
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		/*
+		 * when a key is released, remove it from the list of keys being pressed
+		 */
 		keys.remove((Integer) e.getKeyCode());
 	}
 
 	@Override
 	public void keyTyped(KeyEvent e) {
 		/*
-		 * if (keys.contains(KeyEvent.VK_COMMA) && speed - 50 >= 1) {
-		 * timer.cancel(); speed -= 50; setTimers(); } if
-		 * (keys.contains(KeyEvent.VK_PERIOD)) { timer.cancel(); speed += 50;
-		 * setTimers(); }
+		 * when escape is typed, toggle the state between 0 and 1 (unpaused and
+		 * paused)
 		 */
 		if (keys.contains(KeyEvent.VK_ESCAPE)) {
 			if (state == 0) {
@@ -350,6 +502,10 @@ public abstract class Game extends JPanel
 
 	@Override
 	public void mousePressed(MouseEvent e) {
+		/*
+		 * when the mouse is pressed, the game is unpaused, and the user is not
+		 * dead, initialize an attack
+		 */
 		if (state == 0)
 			if (!user.isDead())
 				user.getInHand().attack(players, false);
@@ -357,6 +513,11 @@ public abstract class Game extends JPanel
 
 	@Override
 	public void mouseMoved(MouseEvent e) {
+		/*
+		 * when the mouse is moved, calculate if the user is facing right or
+		 * left and calculate the angle of their weapon if it is a projectile
+		 * shooter
+		 */
 		if (state == 0) {
 			if (e.getX() > getWidth() / 2 + 16) {
 				user.setFacingRight(true);
@@ -376,6 +537,10 @@ public abstract class Game extends JPanel
 
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e) {
+		/*
+		 * if the mouse wheel is moved and the game is unpaused, switch the
+		 * weapon that is in the user's hand
+		 */
 		if (state == 0) {
 			if (user.getInHand().equals(user.getMelee()))
 				user.setInHand(user.getRanged());
@@ -384,6 +549,7 @@ public abstract class Game extends JPanel
 		}
 	}
 
+	/* unused listener methods that are necessary to declare */
 	@Override
 	public void mouseClicked(MouseEvent e) {
 
@@ -610,7 +776,7 @@ public abstract class Game extends JPanel
 		this.collisionMap = collisionMap;
 	}
 
-	/* Handles projectile motion and angles */
+	/* handles projectile motion and angles */
 	private class Projectiles extends TimerTask {
 
 		@Override
@@ -679,7 +845,7 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* Handles the animation of player weapons (only matters for clients) */
+	/* handles the animation of player weapons (only matters for clients) */
 	private class PlayerWeapons extends TimerTask {
 
 		@Override
@@ -720,17 +886,11 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* Handles the input from the keyboard (only matters for clients) */
+	/* handles the input from the keyboard (only matters for clients) */
 	private class Input extends TimerTask {
 
 		@Override
 		public void run() {
-			/*
-			 * if (keys.contains(KeyEvent.VK_ESCAPE)) { if (!hosting &&
-			 * socketClient != null) { Packet01Disconnect packet = new
-			 * Packet01Disconnect( user.getName());
-			 * packet.writeData(socketClient); } System.exit(0); }
-			 */
 			if (state == 0) {
 				if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
 					zoom++;
@@ -826,7 +986,7 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* Handles the animation of the players (only matters for clients) */
+	/* handles the animation of the players (only matters for clients) */
 	private class AnimatePlayers extends TimerTask {
 
 		int t = 0;
@@ -894,8 +1054,8 @@ public abstract class Game extends JPanel
 	}
 
 	/*
-	 * This is the subclass for handling the stamina value for each player (only
-	 * matters if server or singleplayer)
+	 * this is the subclass for handling the stamina value for each player (only
+	 * matters if server or offline gameplay)
 	 */
 	private class Stamina extends TimerTask {
 
@@ -919,10 +1079,10 @@ public abstract class Game extends JPanel
 	}
 
 	/*
-	 * When editing this subclass, make sure to edit both the code for single
-	 * player (socketClient == null) and multiplayer (socketClient != null).
-	 * Also, in player.checkCollisions(), 1 = left or right; 3 = up, and 4 =
-	 * down.
+	 * when editing this subclass, make sure to edit both the code for single
+	 * player (socketClient == null) and multiplayer (socketClient != null);
+	 * also, in player.checkCollisions(), 1 = left or right; 3 = up, and 4 =
+	 * down
 	 */
 	private class MovePlayers extends TimerTask {
 
@@ -1078,7 +1238,7 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* TimerTask that repaints the screen */
+	/* timertask that repaints the screen */
 	private class Repaint extends TimerTask {
 
 		@Override

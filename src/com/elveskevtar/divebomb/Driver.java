@@ -10,7 +10,7 @@ import com.elveskevtar.divebomb.gfx.Frame;
 
 public class Driver {
 
-	/* The main method for clients */
+	/* the main method for clients */
 	public static void main(String[] args) {
 		/* get system graphics environment; then register the fonts to it */
 		try {
@@ -20,6 +20,11 @@ public class Driver {
 		} catch (IOException | FontFormatException e) {
 			e.printStackTrace();
 		}
+		/*
+		 * sets the size of the jframe; probably will keep it at 1280x720 and
+		 * implement the ability to change size/fullscreen mode in an options
+		 * menu
+		 */
 		new Frame(1280, 720);
 	}
 }

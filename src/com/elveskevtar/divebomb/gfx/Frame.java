@@ -8,13 +8,14 @@ import javax.swing.JFrame;
 public class Frame extends JFrame {
 
 	private static final long serialVersionUID = -5352440889178544005L;
-	
+
 	private int width;
 	private int height;
 
-	/* borderless screen constructor */
+	/* borderless fullscreen constructor */
 	public Frame() {
 		super();
+		/* sets the jframe to take up the entire screen and not have a border */
 		this.setUndecorated(true);
 		this.width = Toolkit.getDefaultToolkit().getScreenSize().width;
 		this.height = Toolkit.getDefaultToolkit().getScreenSize().height;
@@ -31,6 +32,10 @@ public class Frame extends JFrame {
 		super("DiveBomb");
 		this.width = width;
 		this.height = height;
+		/*
+		 * setSize(int width, int height) does not automatically take into
+		 * account insets of jframe
+		 */
 		this.setSize(getInsets().left + getInsets().right + width, getInsets().top + getInsets().bottom + height);
 		this.setResizable(false);
 		this.setLocationRelativeTo(null);
@@ -42,6 +47,7 @@ public class Frame extends JFrame {
 		this.setVisible(true);
 	}
 
+	/* standard getter/setter methods */
 	public int getWidth() {
 		return width;
 	}

@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 public class Frame extends JFrame {
 
 	private static final long serialVersionUID = -5352440889178544005L;
+	
 	private int width;
 	private int height;
 
@@ -18,6 +19,7 @@ public class Frame extends JFrame {
 		this.width = Toolkit.getDefaultToolkit().getScreenSize().width;
 		this.height = Toolkit.getDefaultToolkit().getScreenSize().height;
 		this.setSize(Toolkit.getDefaultToolkit().getScreenSize());
+		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
 		this.add(new StartMenu(this));
@@ -30,6 +32,7 @@ public class Frame extends JFrame {
 		this.width = width;
 		this.height = height;
 		this.setSize(getInsets().left + getInsets().right + width, getInsets().top + getInsets().bottom + height);
+		this.setResizable(false);
 		this.setLocationRelativeTo(null);
 		this.setLayout(null);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

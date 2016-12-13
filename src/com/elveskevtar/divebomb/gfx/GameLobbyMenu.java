@@ -34,7 +34,12 @@ import com.elveskevtar.divebomb.weapons.ProjectileShooter.ProjectileShooterTypes
 public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = -3823209600661844336L;
+	
 	private boolean switchRunning;
+	
+	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
+	private ArrayList<BufferedImage> meleeWeapons = new ArrayList<BufferedImage>();
+	private ArrayList<BufferedImage> rangedWeapons = new ArrayList<BufferedImage>();
 
 	private int raceSelectionPointer;
 	private int colorSelectionPointer;
@@ -46,10 +51,6 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 	private int rangedOffset;
 	private int mouseX;
 	private int mouseY;
-
-	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
-	private ArrayList<BufferedImage> meleeWeapons = new ArrayList<BufferedImage>();
-	private ArrayList<BufferedImage> rangedWeapons = new ArrayList<BufferedImage>();
 
 	private JFrame frame;
 	private String ip;

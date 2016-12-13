@@ -2,6 +2,7 @@ package com.elveskevtar.divebomb.gfx;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.Graphics;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -9,13 +10,19 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class MultiplayerMenu extends JPanel {
+public class MultiplayerMenu extends JLayeredPane {
 
 	private static final long serialVersionUID = 7789569217705480234L;
 
@@ -60,7 +67,13 @@ public class MultiplayerMenu extends JPanel {
 
 		this.ip = new HintTextField("IP Address");
 		this.userName = new HintTextField("Username");
-
+		
+		this.ip.setOpaque(false);
+		this.userName.setOpaque(false);
+		
+		this.ip.setBorder(BorderFactory.createEmptyBorder());
+		this.userName.setBorder(BorderFactory.createEmptyBorder());
+		
 		this.back.setForeground(Color.BLACK);
 		this.privateGame.setForeground(Color.BLACK);
 		this.joinGame.setForeground(Color.BLACK);
@@ -174,11 +187,12 @@ public class MultiplayerMenu extends JPanel {
 		this.ip.setFont(ipFont);
 		this.userName.setFont(userNameFont);
 
-		this.add(privateGame);
-		this.add(joinGame);
-		this.add(back);
-		this.add(ip);
-		this.add(userName);
+		this.add(privateGame, -1);
+		this.add(joinGame, -1);
+		this.add(back, -1);
+		this.add(ip, -1);
+		this.add(userName, -1);
+		this.add(new Background(), -1);
 
 		this.joinGame.setEnabled(false);
 		this.privateGame.setEnabled(false);
@@ -323,6 +337,28 @@ public class MultiplayerMenu extends JPanel {
 
 		public String getHint() {
 			return hint;
+		}
+	}
+
+	private class Background extends JPanel {
+
+		private static final long serialVersionUID = -678879425070878600L;
+
+		private BufferedImage image;
+
+		public Background() {
+			this.setSize(MultiplayerMenu.this.getSize());
+			this.setIgnoreRepaint(true);
+			try {
+				this.image = ImageIO.read(new File("res/img/DiveB0mbBackground.jpg"));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		@Override
+		public void paint(Graphics g) {
+			g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
 		}
 	}
 

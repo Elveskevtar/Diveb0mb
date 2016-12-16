@@ -345,7 +345,7 @@ public class StartMenu extends JLayeredPane {
 		/*
 		 * Pulsing is done by changing the font size of individual buttons using
 		 * an absolute value sine function; when pulsing is done, old font size
-		 * is set again; uses system time to avoid laggy pulsing;each
+		 * is set again; uses system time to avoid laggy pulsing; each
 		 * buttonPulse boolean variable is dealt with separately; this can be
 		 * optimized in the future
 		 */

@@ -10,6 +10,7 @@ public abstract class Weapon {
 	private BufferedImage image;
 	private BufferedImage sprite;
 	private String name;
+	
 	private Player player;
 
 	private int damage;

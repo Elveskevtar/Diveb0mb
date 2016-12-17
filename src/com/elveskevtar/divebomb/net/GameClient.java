@@ -45,6 +45,7 @@ public class GameClient extends Thread {
 	private Game game;
 
 	private boolean connected;
+	private boolean clientRunning;
 
 	public GameClient(Game game, String IP) {
 		this.setGame(game);
@@ -60,7 +61,8 @@ public class GameClient extends Thread {
 	}
 
 	public void run() {
-		while (isAlive()) {
+		clientRunning = true;
+		while (isClientRunning()) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -72,7 +74,6 @@ public class GameClient extends Thread {
 		}
 	}
 
-	@SuppressWarnings("deprecation")
 	private void parsePacket(byte[] data, InetAddress address, int port) {
 		String message = new String(data).trim();
 		PacketTypes type = Packet.lookupPacket(message.substring(0, 2));
@@ -161,7 +162,7 @@ public class GameClient extends Thread {
 			game.setRunning(false);
 			if (game.getSocketServer() != null) {
 				game.getSocketServer().getSocket().close();
-				game.getSocketServer().stop();
+				game.getSocketServer().setServerRunning(false);
 				getSocket().close();
 				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getUserName()));
 			} else {
@@ -175,7 +176,7 @@ public class GameClient extends Thread {
 						game.getUserName()));
 			}
 			game.getFrame().repaint();
-			stop();
+			setClientRunning(false);
 			break;
 		case UPDATEUSERINFO:
 			packet = new Packet10UpdateUserInfo(data);
@@ -333,7 +334,22 @@ public class GameClient extends Thread {
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
 	}
+	
+	public boolean isConnected() {
+		return connected;
+	}
 
+	public void setConnected(boolean connected) {
+		this.connected = connected;
+	}
+	
+	public boolean isClientRunning() {
+		return clientRunning;
+	}
+
+	public void setClientRunning(boolean clientRunning) {
+		this.clientRunning = clientRunning;
+	}
 	private class Ping extends Thread {
 
 		@Override

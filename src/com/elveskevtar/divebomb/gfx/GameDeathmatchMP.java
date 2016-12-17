@@ -292,11 +292,14 @@ public class GameDeathmatchMP extends Game {
 						getFrame().remove(GameDeathmatchMP.this);
 						getTimer().cancel();
 						setRunning(false);
+						getSocketClient().getSocket().close();
+						getSocketClient().setClientRunning(false);
 						getFrame().add(new StartMenu(getFrame()));
 						getFrame().repaint();
 						JOptionPane.showMessageDialog(getFrame(),
 								"You have been unexpectedly disconnected from the server", "Server Disconnection",
 								JOptionPane.INFORMATION_MESSAGE);
+						getFrame().toFront();
 					}
 					try {
 						Thread.sleep(250);

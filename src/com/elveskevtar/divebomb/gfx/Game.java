@@ -83,9 +83,10 @@ public abstract class Game extends JPanel
 	private GameServer socketServer;
 	private GameClient socketClient;
 	private Font font;
-	private Player user;
 	private Timer timer;
 	private Map graphicsMap;
+	
+	private Player user;
 
 	private String userName;
 	private String userRace;

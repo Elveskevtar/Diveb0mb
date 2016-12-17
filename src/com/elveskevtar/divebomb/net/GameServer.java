@@ -38,7 +38,10 @@ public class GameServer extends Thread {
 
 	public ArrayList<Player> connectedPlayers = new ArrayList<Player>();
 	private DatagramSocket socket;
+
 	private Game game;
+
+	private boolean serverRunning;
 
 	public GameServer(Game game) {
 		this.game = game;
@@ -51,7 +54,8 @@ public class GameServer extends Thread {
 	}
 
 	public void run() {
-		while (isAlive()) {
+		this.serverRunning = true;
+		while (isServerRunning()) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -212,63 +216,7 @@ public class GameServer extends Thread {
 			}
 		}
 		if (connectedPlayers.size() == game.getPlayerSize() && !game.isRunning()) {
-			game.setRunning(true);
-			game.setLobbyTime(5);
-			for (int i = game.getLobbyTime(); i >= 0; i--) {
-				try {
-					Thread.sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				game.setLobbyTime(i);
-				Packet11GameLobbyTime gameLobbyPacket = new Packet11GameLobbyTime(game.getLobbyTime());
-				gameLobbyPacket.writeData(this);
-			}
-			int size = connectedPlayers.size();
-			for (int i = 0; i < size; i++) {
-				byte[] updateData = new byte[1024];
-				DatagramPacket updatePacket = new DatagramPacket(updateData, updateData.length);
-				try {
-					socket.receive(updatePacket);
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-				this.parsePacket(updatePacket.getData(), updatePacket.getAddress(), updatePacket.getPort());
-			}
-			Packet02Startgame startGamePacket = null;
-			ArrayList<SpawnPoints> spawnPoints = new ArrayList<SpawnPoints>();
-			for (SpawnPoints point : SpawnPoints.values())
-				if (point.getMapID() == game.getGraphicsMap().getId())
-					spawnPoints.add(point);
-			if (spawnPoints.size() >= connectedPlayers.size()) {
-				int index = 0;
-				for (SpawnPoints point : spawnPoints) {
-					startGamePacket = new Packet02Startgame(game.getGraphicsMap().getId(),
-							game.getGraphicsMap().getMapPath(), game.getGraphicsMap().getCollisionMapPath(),
-							point.getX(), point.getY());
-					startGamePacket.writeData(this, connectedPlayers.get(index).getIP(),
-							connectedPlayers.get(index).getPort());
-					index++;
-					if (index == connectedPlayers.size())
-						break;
-				}
-				if (game.getSocketClient() == null)
-					game.startPublicServerGame(game.getGraphicsMap());
-			} else {
-				int index = 0;
-				while (index < connectedPlayers.size()) {
-					for (SpawnPoints point : spawnPoints) {
-						startGamePacket = new Packet02Startgame(game.getGraphicsMap().getId(),
-								game.getGraphicsMap().getMapPath(), game.getGraphicsMap().getCollisionMapPath(),
-								point.getX(), point.getY());
-						startGamePacket.writeData(this, connectedPlayers.get(index).getIP(),
-								connectedPlayers.get(index).getPort());
-						index++;
-						if (index == connectedPlayers.size())
-							break;
-					}
-				}
-			}
+			new Thread(new initGame()).start();
 		}
 	}
 
@@ -378,12 +326,88 @@ public class GameServer extends Thread {
 		this.connectedPlayers = connectedPlayers;
 	}
 
+	public boolean isServerRunning() {
+		return serverRunning;
+	}
+
+	public void setServerRunning(boolean serverRunning) {
+		this.serverRunning = serverRunning;
+	}
+
+	private class initGame extends Thread {
+
+		@Override
+		public void run() {
+			game.setRunning(true);
+			game.setLobbyTime(10);
+			for (int i = game.getLobbyTime(); i >= 0; i--) {
+				try {
+					Thread.sleep(1000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				game.setLobbyTime(i);
+				Packet11GameLobbyTime gameLobbyPacket = new Packet11GameLobbyTime(game.getLobbyTime());
+				gameLobbyPacket.writeData(GameServer.this);
+				if (connectedPlayers.size() < game.getPlayerSize()) {
+
+				}
+			}
+			int size = connectedPlayers.size();
+			for (int i = 0; i < size; i++) {
+				byte[] updateData = new byte[1024];
+				DatagramPacket updatePacket = new DatagramPacket(updateData, updateData.length);
+				try {
+					socket.receive(updatePacket);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				parsePacket(updatePacket.getData(), updatePacket.getAddress(), updatePacket.getPort());
+			}
+			Packet02Startgame startGamePacket = null;
+			ArrayList<SpawnPoints> spawnPoints = new ArrayList<SpawnPoints>();
+			for (SpawnPoints point : SpawnPoints.values())
+				if (point.getMapID() == game.getGraphicsMap().getId())
+					spawnPoints.add(point);
+			if (spawnPoints.size() >= connectedPlayers.size()) {
+				int index = 0;
+				for (SpawnPoints point : spawnPoints) {
+					startGamePacket = new Packet02Startgame(game.getGraphicsMap().getId(),
+							game.getGraphicsMap().getMapPath(), game.getGraphicsMap().getCollisionMapPath(),
+							point.getX(), point.getY());
+					startGamePacket.writeData(GameServer.this, connectedPlayers.get(index).getIP(),
+							connectedPlayers.get(index).getPort());
+					index++;
+					if (index == connectedPlayers.size())
+						break;
+				}
+				if (game.getSocketClient() == null)
+					game.startPublicServerGame(game.getGraphicsMap());
+			} else {
+				int index = 0;
+				while (index < connectedPlayers.size()) {
+					for (SpawnPoints point : spawnPoints) {
+						startGamePacket = new Packet02Startgame(game.getGraphicsMap().getId(),
+								game.getGraphicsMap().getMapPath(), game.getGraphicsMap().getCollisionMapPath(),
+								point.getX(), point.getY());
+						startGamePacket.writeData(GameServer.this, connectedPlayers.get(index).getIP(),
+								connectedPlayers.get(index).getPort());
+						index++;
+						if (index == connectedPlayers.size())
+							break;
+					}
+				}
+			}
+		}
+	}
+
 	private class CheckForPingDrops extends Thread {
 
 		@Override
 		public void run() {
 			while (GameServer.this.isAlive()) {
 				for (Player p : connectedPlayers) {
+					p.setLatency(System.nanoTime() - p.getOldTimeStamp());
 					if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
 						Packet01Disconnect packet = new Packet01Disconnect(p.getName());
 						packet.writeData(GameServer.this);

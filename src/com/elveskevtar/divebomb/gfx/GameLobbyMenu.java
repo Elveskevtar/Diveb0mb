@@ -633,14 +633,17 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		@Override
 		public void run() {
 			while (isVisible()) {
-				if (((int) (game.getUser().getLatency() * Math.pow(10, -6)) >= 2000)
+				if (((int) (game.getUser().getLatency() * Math.pow(10, -6)) >= 5000)
 						&& game.getUser().getOldTimeStamp() != 0) {
 					frame.setVisible(false);
 					frame.remove(GameLobbyMenu.this);
+					game.getSocketClient().getSocket().close();
+					game.getSocketClient().setClientRunning(false);
 					frame.add(new StartMenu(frame));
 					frame.repaint();
 					JOptionPane.showMessageDialog(getFrame(), "You have been unexpectedly disconnected from the server",
 							"Server Disconnection", JOptionPane.INFORMATION_MESSAGE);
+					frame.toFront();
 				}
 				try {
 					Thread.sleep(250);

@@ -25,6 +25,7 @@ import com.elveskevtar.divebomb.net.packets.Packet13SendNewProjectile;
 import com.elveskevtar.divebomb.net.packets.Packet16Suicide;
 import com.elveskevtar.divebomb.net.packets.Packet17Respawn;
 import com.elveskevtar.divebomb.net.packets.Packet18RespawnPlayer;
+import com.elveskevtar.divebomb.net.packets.Packet19Ping;
 import com.elveskevtar.divebomb.race.Cyborg;
 import com.elveskevtar.divebomb.race.Human;
 import com.elveskevtar.divebomb.race.Player;
@@ -46,10 +47,11 @@ public class GameServer extends Thread {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+		new Thread(new CheckForPingDrops()).start();
 	}
 
 	public void run() {
-		while (true) {
+		while (isAlive()) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -189,6 +191,17 @@ public class GameServer extends Thread {
 					spawnPoints.get(r).getX(), spawnPoints.get(r).getY());
 			respawnPacket.writeData(this);
 			break;
+		case PING:
+			packet = new Packet19Ping(data);
+			if (getPlayerMP(((Packet19Ping) packet).getName()) != null) {
+				getPlayerMP(((Packet19Ping) packet).getName()).setLatency(((Packet19Ping) packet).getTimeStamp()
+						- getPlayerMP(((Packet19Ping) packet).getName()).getOldTimeStamp());
+				getPlayerMP(((Packet19Ping) packet).getName()).setOldTimeStamp(((Packet19Ping) packet).getTimeStamp());
+				Packet19Ping pingPacket = new Packet19Ping(((Packet19Ping) packet).getTimeStamp(),
+						getPlayerMP(((Packet19Ping) packet).getName()).getLatency(), ((Packet19Ping) packet).getName());
+				pingPacket.writeData(this);
+			}
+			break;
 		}
 		for (Player p : connectedPlayers) {
 			if (p.getHealth() <= 0) {
@@ -313,8 +326,6 @@ public class GameServer extends Thread {
 			else
 				player.setInHand(player.getMelee());
 		}
-		player.setLatency(packet.getTimeStamp() - player.getOldTimeStamp());
-		player.setOldTimeStamp(packet.getTimeStamp());
 		for (Player p : connectedPlayers)
 			if (!p.getName().equalsIgnoreCase(player.getName()))
 				sendData(packet.getData(), p.getIP(), p.getPort());
@@ -365,5 +376,29 @@ public class GameServer extends Thread {
 
 	public void setConnectedPlayers(ArrayList<Player> connectedPlayers) {
 		this.connectedPlayers = connectedPlayers;
+	}
+
+	private class CheckForPingDrops extends Thread {
+
+		@Override
+		public void run() {
+			while (GameServer.this.isAlive()) {
+				for (Player p : connectedPlayers) {
+					if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
+						Packet01Disconnect packet = new Packet01Disconnect(p.getName());
+						packet.writeData(GameServer.this);
+						System.out.println("[" + getSocket().getLocalAddress().getHostAddress() + ":"
+								+ getSocket().getLocalPort() + "] " + p.getName() + " has disconnected...");
+						connectedPlayers.remove(p);
+						game.getPlayers().remove(p);
+					}
+				}
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

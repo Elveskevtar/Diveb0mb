@@ -44,6 +44,8 @@ public class GameClient extends Thread {
 	private DatagramSocket socket;
 	private Game game;
 
+	private boolean connected;
+
 	public GameClient(Game game, String IP) {
 		this.setGame(game);
 		try {
@@ -54,10 +56,11 @@ public class GameClient extends Thread {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+		new Thread(new Ping()).start();
 	}
 
 	public void run() {
-		while (true) {
+		while (isAlive()) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
 			try {
@@ -81,6 +84,7 @@ public class GameClient extends Thread {
 		case LOGIN:
 			packet = new Packet00Login(data);
 			handleLogin((Packet00Login) packet, address, port);
+			connected = true;
 			break;
 		case DISCONNECT:
 			packet = new Packet01Disconnect(data);
@@ -118,8 +122,6 @@ public class GameClient extends Thread {
 			}
 			if (player.getInHand() instanceof ProjectileShooter)
 				((ProjectileShooter) player.getInHand()).setrAngle(movePacket.getrAngle());
-			player.setLatency(movePacket.getTimeStamp() - player.getOldTimeStamp());
-			player.setOldTimeStamp(movePacket.getTimeStamp());
 			break;
 		case ATTACK:
 			packet = new Packet04Attack(data);
@@ -235,8 +237,10 @@ public class GameClient extends Thread {
 			break;
 		case PING:
 			packet = new Packet19Ping(data);
-			getPlayer(((Packet19Ping) packet).getName()).setOldTimeStamp(((Packet19Ping) packet).getTimeStamp());
-			getPlayer(((Packet19Ping) packet).getName()).setLatency(((Packet19Ping) packet).getPingLatency());
+			if (getPlayer(((Packet19Ping) packet).getName()) != null) {
+				getPlayer(((Packet19Ping) packet).getName()).setOldTimeStamp(((Packet19Ping) packet).getTimeStamp());
+				getPlayer(((Packet19Ping) packet).getName()).setLatency(((Packet19Ping) packet).getPingLatency());
+			}
 			break;
 		}
 	}
@@ -328,5 +332,24 @@ public class GameClient extends Thread {
 
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
+	}
+
+	private class Ping extends Thread {
+
+		@Override
+		public void run() {
+			while (GameClient.this.isAlive()) {
+				if (connected) {
+					Packet19Ping pingPacket = new Packet19Ping(System.nanoTime(), game.getUser().getLatency(),
+							game.getUser().getName());
+					pingPacket.writeData(GameClient.this);
+				}
+				try {
+					Thread.sleep(16);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 }

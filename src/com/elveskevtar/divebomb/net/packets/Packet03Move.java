@@ -8,7 +8,6 @@ public class Packet03Move extends Packet {
 	private String name;
 	private String weaponInHand;
 
-	private long timeStamp;
 	private double x;
 	private double y;
 	private double veloX;
@@ -33,7 +32,6 @@ public class Packet03Move extends Packet {
 		this.setMovingRight(Boolean.parseBoolean(dataArray[8]));
 		this.setFacingRight(Boolean.parseBoolean(dataArray[9]));
 		this.setWeaponInHand(dataArray[10]);
-		this.setTimeStamp(Long.parseLong(dataArray[11]));
 	}
 
 	public Packet03Move(String name, double x, double y, double veloX, double veloY, double rAngle, boolean isWalking,
@@ -48,7 +46,6 @@ public class Packet03Move extends Packet {
 		this.isMovingRight = isMovingRight;
 		this.isFacingRight = isFacingRight;
 		this.weaponInHand = weaponInHand;
-		this.timeStamp = System.nanoTime();
 	}
 
 	@Override
@@ -64,7 +61,7 @@ public class Packet03Move extends Packet {
 	@Override
 	public byte[] getData() {
 		return ("03" + name + "," + x + "," + y + "," + veloX + "," + veloY + "," + rAngle + "," + isWalking + ","
-				+ isRunning + "," + isMovingRight + "," + isFacingRight + "," + weaponInHand + "," + timeStamp)
+				+ isRunning + "," + isMovingRight + "," + isFacingRight + "," + weaponInHand)
 						.getBytes();
 	}
 
@@ -154,13 +151,5 @@ public class Packet03Move extends Packet {
 
 	public void setWeaponInHand(String weaponInHand) {
 		this.weaponInHand = weaponInHand;
-	}
-
-	public long getTimeStamp() {
-		return timeStamp;
-	}
-
-	public void setTimeStamp(long timeStamp) {
-		this.timeStamp = timeStamp;
 	}
 }

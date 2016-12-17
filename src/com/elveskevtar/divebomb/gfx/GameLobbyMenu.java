@@ -17,16 +17,13 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.ConcurrentModificationException;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import com.elveskevtar.divebomb.net.packets.Packet01Disconnect;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
-import com.elveskevtar.divebomb.race.Player;
 import com.elveskevtar.divebomb.race.Player.PlayerTypes;
 import com.elveskevtar.divebomb.weapons.Melee.MeleeWeaponTypes;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter.ProjectileShooterTypes;
@@ -34,9 +31,9 @@ import com.elveskevtar.divebomb.weapons.ProjectileShooter.ProjectileShooterTypes
 public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener, MouseMotionListener {
 
 	private static final long serialVersionUID = -3823209600661844336L;
-	
+
 	private boolean switchRunning;
-	
+
 	private ArrayList<BufferedImage> races = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> meleeWeapons = new ArrayList<BufferedImage>();
 	private ArrayList<BufferedImage> rangedWeapons = new ArrayList<BufferedImage>();
@@ -92,6 +89,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 				e.printStackTrace();
 			}
 		}
+		if (game.getSocketServer() == null)
+			new Thread(new CheckForPingDrops()).start();
 	}
 
 	/* constructor for joining a private multiplayer game */
@@ -131,6 +130,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 				e.printStackTrace();
 			}
 		}
+		if (game.getSocketServer() == null)
+			new Thread(new CheckForPingDrops()).start();
 	}
 
 	/* paint the game lobby menu */
@@ -627,51 +628,24 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 	 * checks for giant lag spikes and disconnects; has different uses for both
 	 * server and client side
 	 */
-	@SuppressWarnings("unused")
 	private class CheckForPingDrops extends Thread {
 
 		@Override
 		public void run() {
-			while (!game.isRunning()) {
-				if (game.getSocketServer() == null) {
-					// Packet19Ping pingPacket = new Packet19Ping();
-					game.getUser().setLatency(System.nanoTime() - game.getUser().getOldTimeStamp());
-					if (((int) (game.getUser().getLatency() * Math.pow(10, -6)) >= 2000)
-							&& game.getUser().getOldTimeStamp() != 0) {
-						frame.setVisible(false);
-						frame.remove(GameLobbyMenu.this);
-						frame.add(new StartMenu(frame));
-						frame.repaint();
-						JOptionPane.showMessageDialog(getFrame(),
-								"You have been unexpectedly disconnected from the server", "Server Disconnection",
-								JOptionPane.INFORMATION_MESSAGE);
-					}
-					try {
-						Thread.sleep(16);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				} else {
-					try {
-						for (Player p : game.getSocketServer().connectedPlayers) {
-							p.setLatency(System.nanoTime() - p.getOldTimeStamp());
-							if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
-								Packet01Disconnect packet = new Packet01Disconnect(p.getName());
-								packet.writeData(game.getSocketServer());
-								System.out.println(
-										"[" + game.getSocketServer().getSocket().getLocalAddress().getHostAddress()
-												+ ":" + game.getSocketServer().getSocket().getLocalPort() + "] "
-												+ p.getName() + " has disconnected...");
-								game.getSocketServer().connectedPlayers.remove(p);
-								game.getPlayers().remove(p);
-							}
-						}
-						Thread.sleep(250);
-					} catch (ConcurrentModificationException e) {
-						e.printStackTrace();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+			while (isVisible()) {
+				if (((int) (game.getUser().getLatency() * Math.pow(10, -6)) >= 2000)
+						&& game.getUser().getOldTimeStamp() != 0) {
+					frame.setVisible(false);
+					frame.remove(GameLobbyMenu.this);
+					frame.add(new StartMenu(frame));
+					frame.repaint();
+					JOptionPane.showMessageDialog(getFrame(), "You have been unexpectedly disconnected from the server",
+							"Server Disconnection", JOptionPane.INFORMATION_MESSAGE);
+				}
+				try {
+					Thread.sleep(250);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		}

@@ -7,7 +7,7 @@ public class Packet19Ping extends Packet {
 
 	private long timeStamp;
 	private long pingLatency;
-	
+
 	private String name;
 
 	public Packet19Ping(byte[] data) {
@@ -27,7 +27,7 @@ public class Packet19Ping extends Packet {
 
 	@Override
 	public void writeData(GameClient client) {
-
+		client.sendData(getData());
 	}
 
 	@Override

@@ -633,9 +633,10 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		@Override
 		public void run() {
 			while (isVisible()) {
+				game.getUser().setLatency(System.nanoTime() - game.getUser().getOldTimeStamp());
 				if (((int) (game.getUser().getLatency() * Math.pow(10, -6)) >= 5000)
 						&& game.getUser().getOldTimeStamp() != 0) {
-					frame.setVisible(false);
+					setVisible(false);
 					frame.remove(GameLobbyMenu.this);
 					game.getSocketClient().getSocket().close();
 					game.getSocketClient().setClientRunning(false);

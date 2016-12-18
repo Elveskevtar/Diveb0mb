@@ -241,6 +241,9 @@ public class GameClient extends Thread {
 			if (getPlayer(((Packet19Ping) packet).getName()) != null) {
 				getPlayer(((Packet19Ping) packet).getName()).setOldTimeStamp(((Packet19Ping) packet).getTimeStamp());
 				getPlayer(((Packet19Ping) packet).getName()).setLatency(((Packet19Ping) packet).getPingLatency());
+			} else if (((Packet19Ping) packet).getName().equalsIgnoreCase(game.getUser().getName())) {
+				game.getUser().setOldTimeStamp(((Packet19Ping) packet).getTimeStamp());
+				game.getUser().setLatency(((Packet19Ping) packet).getPingLatency());
 			}
 			break;
 		}
@@ -334,7 +337,7 @@ public class GameClient extends Thread {
 	public void setSocket(DatagramSocket socket) {
 		this.socket = socket;
 	}
-	
+
 	public boolean isConnected() {
 		return connected;
 	}
@@ -342,7 +345,7 @@ public class GameClient extends Thread {
 	public void setConnected(boolean connected) {
 		this.connected = connected;
 	}
-	
+
 	public boolean isClientRunning() {
 		return clientRunning;
 	}
@@ -350,6 +353,7 @@ public class GameClient extends Thread {
 	public void setClientRunning(boolean clientRunning) {
 		this.clientRunning = clientRunning;
 	}
+
 	private class Ping extends Thread {
 
 		@Override

@@ -3,7 +3,7 @@ Diveb0mb<br>
 To-Do List:<br>
 <s>Add temporary background design for menus</s><br>
 <s>Allow for disconnects after game starts</s><br>
-Introduce ping packets at lobby<br>
+<s>Introduce ping packets at lobby</s><br>
 Allow players to pick the port in which the server will run and allow connecting players to specify a port<br>
 Allow players to resize screen via the options menu<br>
 Failed to connect stuff when ip is wrong or server is down<br>

@@ -244,7 +244,6 @@ public class GameDeathmatchMP extends Game {
 	/* server-side thread; checks to see if the game conditions have been met */
 	private class CheckForEndGame extends Thread {
 
-		@SuppressWarnings("deprecation")
 		@Override
 		public void run() {
 			while (isRunning()) {
@@ -255,7 +254,7 @@ public class GameDeathmatchMP extends Game {
 						getTimer().cancel();
 						setRunning(false);
 						getSocketServer().getSocket().close();
-						getSocketServer().stop();
+						getSocketServer().setServerRunning(false);
 						new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0);
 					}
 					break;

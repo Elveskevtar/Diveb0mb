@@ -48,14 +48,17 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 	private int rangedOffset;
 	private int mouseX;
 	private int mouseY;
+	private int port;
 
 	private JFrame frame;
 	private String ip;
+	
 	private Game game;
 
 	/* constructor for creating a private multiplayer game */
-	public GameLobbyMenu(JFrame frame, String username) {
+	public GameLobbyMenu(JFrame frame, String username, int port) {
 		this.frame = frame;
+		this.port = port;
 		this.setLayout(null);
 		this.setDoubleBuffered(true);
 		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
@@ -64,7 +67,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		this.addKeyListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		this.game = new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0, frame, username);
+		this.game = new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0, frame, username, port);
 		this.game.setLobbyTime(-1);
 		this.game.getUser().setName(username);
 		this.game.setUserName(username);
@@ -94,7 +97,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 	}
 
 	/* constructor for joining a private multiplayer game */
-	public GameLobbyMenu(JFrame frame, String ip, String username) {
+	public GameLobbyMenu(JFrame frame, String ip, String username, int port) {
 		this.frame = frame;
 		this.ip = ip;
 		this.setLayout(null);
@@ -105,7 +108,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		this.addKeyListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		this.game = new GameDeathmatchMP(ip, frame, username);
+		this.game = new GameDeathmatchMP(ip, frame, username, port);
 		this.game.setLobbyTime(-1);
 		this.game.getUser().setName(username);
 		this.game.setUserName(username);
@@ -496,6 +499,14 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 	public void mouseMoved(MouseEvent e) {
 		this.mouseX = e.getX();
 		this.mouseY = e.getY();
+	}
+
+	public int getPort() {
+		return port;
+	}
+
+	public void setPort(int port) {
+		this.port = port;
 	}
 
 	/*

@@ -29,22 +29,25 @@ import com.elveskevtar.divebomb.weapons.Sword;
 public class GameDeathmatchMP extends Game {
 
 	private static final long serialVersionUID = 1495382359826347033L;
+	
 	private int firstPlaceKills;
 	private int maxKills;
+	private int PORT;
 
 	private String firstPlaceName;
 
 	/* server + client bundle constructor */
-	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, JFrame frame, String username) {
+	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, JFrame frame, String username, int port) {
 		super(01, frame);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
+		this.setPORT(port);
 		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
-		this.setSocketServer(new GameServer(this));
+		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
 		this.setHosting(true);
 		this.setServerIP("localhost");
-		this.setSocketClient(new GameClient(this, getServerIP()));
+		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
 		this.setUserName(username);
 		String weapon = " ";
@@ -65,24 +68,26 @@ public class GameDeathmatchMP extends Game {
 	}
 
 	/* server-side only constructor */
-	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id) {
+	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, int port) {
 		super(01);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
+		this.setPORT(port);
 		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
-		this.setSocketServer(new GameServer(this));
+		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
 		this.setHosting(true);
 		this.setServerIP("localhost");
 	}
 
 	/* client-side only constructor */
-	public GameDeathmatchMP(String ip, JFrame frame, String username) {
+	public GameDeathmatchMP(String ip, JFrame frame, String username, int port) {
 		super(01, frame);
+		this.setPORT(port);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
 		this.setServerIP(ip);
-		this.setSocketClient(new GameClient(this, getServerIP()));
+		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
 		this.setUserName(username);
 		String weapon = " ";
@@ -158,6 +163,14 @@ public class GameDeathmatchMP extends Game {
 
 	public void setMaxKills(int maxKills) {
 		this.maxKills = maxKills;
+	}
+
+	public int getPORT() {
+		return PORT;
+	}
+
+	public void setPORT(int pORT) {
+		PORT = pORT;
 	}
 
 	/* server-side thread; sends projectile info packets to all clients */
@@ -255,7 +268,7 @@ public class GameDeathmatchMP extends Game {
 						setRunning(false);
 						getSocketServer().getSocket().close();
 						getSocketServer().setServerRunning(false);
-						new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0);
+						new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0, getPORT());
 					}
 					break;
 				}

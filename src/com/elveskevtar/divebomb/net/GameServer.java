@@ -42,11 +42,14 @@ public class GameServer extends Thread {
 	private Game game;
 
 	private boolean serverRunning;
+	
+	private int PORT;
 
-	public GameServer(Game game) {
+	public GameServer(Game game, int port) {
+		this.PORT = port;
 		this.game = game;
 		try {
-			this.socket = new DatagramSocket(4545);
+			this.socket = new DatagramSocket(PORT);
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
@@ -332,6 +335,14 @@ public class GameServer extends Thread {
 
 	public void setServerRunning(boolean serverRunning) {
 		this.serverRunning = serverRunning;
+	}
+
+	public int getPORT() {
+		return PORT;
+	}
+
+	public void setPORT(int pORT) {
+		PORT = pORT;
 	}
 
 	private class initGame extends Thread {

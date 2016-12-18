@@ -47,7 +47,10 @@ public class GameClient extends Thread {
 	private boolean connected;
 	private boolean clientRunning;
 
-	public GameClient(Game game, String IP) {
+	private int PORT;
+
+	public GameClient(Game game, String IP, int port) {
+		this.setPORT(port);
 		this.setGame(game);
 		try {
 			this.socket = new DatagramSocket();
@@ -161,10 +164,11 @@ public class GameClient extends Thread {
 			game.getTimer().cancel();
 			game.setRunning(false);
 			if (game.getSocketServer() != null) {
+				int portUsed = getSocket().getLocalPort();
 				game.getSocketServer().getSocket().close();
 				game.getSocketServer().setServerRunning(false);
 				getSocket().close();
-				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getUserName()));
+				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getUserName(), portUsed));
 			} else {
 				getSocket().close();
 				try {
@@ -173,7 +177,7 @@ public class GameClient extends Thread {
 					e.printStackTrace();
 				}
 				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getSocketClient().getIP().getHostAddress(),
-						game.getUserName()));
+						game.getUserName(), getPORT()));
 			}
 			game.getFrame().repaint();
 			setClientRunning(false);
@@ -250,7 +254,7 @@ public class GameClient extends Thread {
 	}
 
 	public void sendData(byte[] data) {
-		DatagramPacket packet = new DatagramPacket(data, data.length, IP, 4545);
+		DatagramPacket packet = new DatagramPacket(data, data.length, IP, getPORT());
 		try {
 			socket.send(packet);
 		} catch (IOException e) {
@@ -352,6 +356,14 @@ public class GameClient extends Thread {
 
 	public void setClientRunning(boolean clientRunning) {
 		this.clientRunning = clientRunning;
+	}
+
+	public int getPORT() {
+		return PORT;
+	}
+
+	public void setPORT(int pORT) {
+		PORT = pORT;
 	}
 
 	private class Ping extends Thread {

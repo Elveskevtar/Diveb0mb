@@ -26,6 +26,10 @@ public class MultiplayerMenu extends JLayeredPane {
 
 	private static final long serialVersionUID = 7789569217705480234L;
 
+	private static final Color TEXTFIELD_GREEN = new Color(7, 192, 44);
+	private static final Color BUTTON_HOVERED_RED = new Color(191, 10, 28);
+	private static final Color ALPHA_BLACK = new Color(0, 0, 0, 150);
+
 	private boolean backPulse;
 	private boolean privateGamePulse;
 	private boolean joinGamePulse;
@@ -59,24 +63,27 @@ public class MultiplayerMenu extends JLayeredPane {
 		this.privateGame = new JButton("Create Private Game");
 		this.joinGame = new JButton("Join Game");
 
-		this.ipFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
-		this.userNameFont = new Font("Livewired", Font.PLAIN, getHeight() / 24);
+		this.ipFont = new Font("Livewired", Font.PLAIN, getHeight() / 16);
+		this.userNameFont = new Font("Livewired", Font.PLAIN, getHeight() / 16);
 		this.backFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 		this.privateGameFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 		this.joinGameFont = new Font("Livewired", Font.PLAIN, (int) (getWidth() / 38.4));
 
-		this.ip = new HintTextField("IP Address");
+		this.ip = new HintTextField("Address:Port");
 		this.userName = new HintTextField("Username");
-		
+
 		this.ip.setOpaque(false);
 		this.userName.setOpaque(false);
-		
+
 		this.ip.setBorder(BorderFactory.createEmptyBorder());
 		this.userName.setBorder(BorderFactory.createEmptyBorder());
-		
-		this.back.setForeground(Color.BLACK);
-		this.privateGame.setForeground(Color.BLACK);
-		this.joinGame.setForeground(Color.BLACK);
+
+		this.ip.setForeground(TEXTFIELD_GREEN);
+		this.userName.setForeground(TEXTFIELD_GREEN);
+
+		this.back.setForeground(ALPHA_BLACK);
+		this.privateGame.setForeground(ALPHA_BLACK);
+		this.joinGame.setForeground(ALPHA_BLACK);
 
 		this.back.setMargin(new Insets(-100, -100, -100, -100));
 		this.privateGame.setMargin(new Insets(-100, -100, -100, -100));
@@ -133,42 +140,42 @@ public class MultiplayerMenu extends JLayeredPane {
 		this.back.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				back.setForeground(Color.RED);
+				back.setForeground(BUTTON_HOVERED_RED);
 				backPulse = true;
 				new Thread(new ButtonPulse(back)).start();
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				back.setForeground(Color.BLACK);
+				back.setForeground(ALPHA_BLACK);
 				backPulse = false;
 			}
 		});
 		this.privateGame.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				privateGame.setForeground(Color.RED);
+				privateGame.setForeground(BUTTON_HOVERED_RED);
 				privateGamePulse = true;
 				new Thread(new ButtonPulse(privateGame)).start();
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				privateGame.setForeground(Color.BLACK);
+				privateGame.setForeground(ALPHA_BLACK);
 				privateGamePulse = false;
 			}
 		});
 		this.joinGame.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				joinGame.setForeground(Color.RED);
+				joinGame.setForeground(BUTTON_HOVERED_RED);
 				joinGamePulse = true;
 				new Thread(new ButtonPulse(joinGame)).start();
 			}
 
 			@Override
 			public void mouseExited(MouseEvent e) {
-				joinGame.setForeground(Color.BLACK);
+				joinGame.setForeground(ALPHA_BLACK);
 				joinGamePulse = false;
 			}
 		});
@@ -178,9 +185,9 @@ public class MultiplayerMenu extends JLayeredPane {
 		 * JPanel bounds
 		 */
 		this.back.setBounds(0, 0, getWidth() / 8, getHeight() / 12);
-		this.ip.setBounds(getWidth() / 2 - getWidth() / 4, getHeight() / 2 - getHeight() / 12, getWidth() / 4,
-				getHeight() / 12);
-		this.userName.setBounds(getWidth() / 2, getHeight() / 2 - getHeight() / 12, getWidth() / 4, getHeight() / 12);
+		this.ip.setBounds(getWidth() / 8, getHeight() / 2 - getHeight() / 12, getWidth() / 4, getHeight() / 6);
+		this.userName.setBounds(getWidth() * 5 / 8, getHeight() / 2 - getHeight() / 12, getWidth() / 4,
+				getHeight() / 6);
 		this.privateGame.setBounds(0, getHeight() - getHeight() / 12, getWidth() / 2, getHeight() / 12);
 		this.joinGame.setBounds(getWidth() / 2, getHeight() - getHeight() / 12, getWidth() / 2, getHeight() / 12);
 
@@ -212,15 +219,17 @@ public class MultiplayerMenu extends JLayeredPane {
 		String userText = userName.getText();
 		setVisible(false);
 		getFrame().remove(this);
-		getFrame().add(new GameLobbyMenu(getFrame(), userText));
+		getFrame().add(new PrivateGameMenu(getFrame(), userText));
 	}
 
 	public void joinGameAction() {
 		String textIP = ip.getText();
 		String userText = userName.getText();
+		String IPtext = textIP.split(":")[0];
+		int port = Integer.parseInt(textIP.split(":")[1]);
 		setVisible(false);
 		getFrame().remove(this);
-		getFrame().add(new GameLobbyMenu(getFrame(), textIP, userText));
+		getFrame().add(new GameLobbyMenu(getFrame(), IPtext, userText, port));
 	}
 
 	/* standard get/set methods */
@@ -292,13 +301,27 @@ public class MultiplayerMenu extends JLayeredPane {
 			while (isVisible()) {
 				if (!userName.getText().isEmpty() && !userName.getText().equals(userName.getHint())) {
 					privateGame.setEnabled(true);
-					if (!ip.getText().isEmpty() && !ip.getText().equals(ip.getHint()))
-						joinGame.setEnabled(true);
-					else
+					if (!ip.getText().isEmpty() && !ip.getText().equals(ip.getHint())
+							&& ip.getText().split(":").length == 2) {
+						String port = ip.getText().split(":")[1];
+						boolean number = true;
+						try {
+							Integer.parseInt(port);
+						} catch (NumberFormatException e) {
+							number = false;
+						}
+						joinGame.setEnabled(number);
+					} else {
 						joinGame.setEnabled(false);
+					}
 				} else {
 					privateGame.setEnabled(false);
 					joinGame.setEnabled(false);
+				}
+				try {
+					Thread.sleep(16);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
 				}
 			}
 		}
@@ -312,6 +335,7 @@ public class MultiplayerMenu extends JLayeredPane {
 	private class HintTextField extends JTextField implements FocusListener {
 
 		private static final long serialVersionUID = 4032504541558322544L;
+
 		private final String hint;
 
 		/* hint parameter is the text that should be filled in the text box */

@@ -29,7 +29,7 @@ import com.elveskevtar.divebomb.weapons.Sword;
 public class GameDeathmatchMP extends Game {
 
 	private static final long serialVersionUID = 1495382359826347033L;
-	
+
 	private int firstPlaceKills;
 	private int maxKills;
 	private int PORT;
@@ -37,7 +37,8 @@ public class GameDeathmatchMP extends Game {
 	private String firstPlaceName;
 
 	/* server + client bundle constructor */
-	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, JFrame frame, String username, int port) {
+	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, JFrame frame, String username,
+			int port) {
 		super(01, frame);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
@@ -45,7 +46,6 @@ public class GameDeathmatchMP extends Game {
 		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
 		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
-		this.setHosting(true);
 		this.setServerIP("localhost");
 		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
@@ -76,7 +76,6 @@ public class GameDeathmatchMP extends Game {
 		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
 		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
-		this.setHosting(true);
 		this.setServerIP("localhost");
 	}
 
@@ -115,7 +114,7 @@ public class GameDeathmatchMP extends Game {
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		g2d.translate((-getWidth() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1,
 				(-getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1);
-		g2d.setFont(new Font("Livewired", Font.PLAIN, 20 / getZoom()));
+		g2d.setFont(new Font("Livewired", Font.PLAIN, (int) (20 / getZoom())));
 		g2d.drawString("Health: " + getUser().getHealth(), 0, g2d.getFont().getSize() * 3 / 4);
 		g2d.drawString("Stamina: " + getUser().getStamina(), 0, g2d.getFont().getSize() * 15 / 8);
 		g2d.drawString("Kills: " + getUser().getKills(), 0, g2d.getFont().getSize() * 3);
@@ -178,7 +177,7 @@ public class GameDeathmatchMP extends Game {
 
 		@Override
 		public void run() {
-			while (isRunning()) {
+			while (isRunning() && getSocketServer().isServerRunning()) {
 				try {
 					for (Projectile p : getProjectiles()) {
 						Packet14UpdateProjectile packet = new Packet14UpdateProjectile(p.getxPosition(),
@@ -205,7 +204,7 @@ public class GameDeathmatchMP extends Game {
 
 		@Override
 		public void run() {
-			while (isRunning()) {
+			while (isRunning() && getSocketClient().isClientRunning()) {
 				double rAngle = 0;
 				if (getUser().getInHand() instanceof ProjectileShooter)
 					rAngle = ((ProjectileShooter) getUser().getInHand()).getrAngle();
@@ -236,7 +235,7 @@ public class GameDeathmatchMP extends Game {
 
 		@Override
 		public void run() {
-			while (isRunning()) {
+			while (isRunning() && getSocketServer().isServerRunning()) {
 				try {
 					for (Player player : getSocketServer().connectedPlayers) {
 						Packet05Health packet = new Packet05Health(player.getName(), player.getHealth());
@@ -259,15 +258,15 @@ public class GameDeathmatchMP extends Game {
 
 		@Override
 		public void run() {
-			while (isRunning()) {
+			while (isRunning() && getSocketServer().isServerRunning()) {
 				if (firstPlaceKills >= maxKills) {
 					Packet07Endgame packet = new Packet07Endgame(firstPlaceName, firstPlaceKills);
 					packet.writeData(getSocketServer());
+					getSocketServer().setServerRunning(false);
+					getSocketServer().getSocket().close();
 					if (getSocketClient() == null) {
 						getTimer().cancel();
 						setRunning(false);
-						getSocketServer().getSocket().close();
-						getSocketServer().setServerRunning(false);
 						new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0, getPORT());
 					}
 					break;

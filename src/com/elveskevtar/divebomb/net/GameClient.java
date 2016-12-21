@@ -60,11 +60,11 @@ public class GameClient extends Thread {
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
+		this.setClientRunning(true);
 		new Thread(new Ping()).start();
 	}
 
 	public void run() {
-		clientRunning = true;
 		while (isClientRunning()) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -105,6 +105,7 @@ public class GameClient extends Thread {
 			game.startGame(game.getGraphicsMap());
 			game.getUser().setxPosition(((Packet02Startgame) packet).getStartX());
 			game.getUser().setyPosition(((Packet02Startgame) packet).getStartY());
+			game.setRunning(true);
 			break;
 		case MOVE:
 			packet = new Packet03Move(data);
@@ -164,23 +165,25 @@ public class GameClient extends Thread {
 			game.getTimer().cancel();
 			game.setRunning(false);
 			if (game.getSocketServer() != null) {
-				int portUsed = getSocket().getLocalPort();
-				game.getSocketServer().getSocket().close();
 				game.getSocketServer().setServerRunning(false);
+				game.getSocketServer().getSocket().close();
+				setClientRunning(false);
 				getSocket().close();
-				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getUserName(), portUsed));
+				game.getFrame()
+						.add(new GameLobbyMenu(game.getFrame(), game.getUserName(), game.getSocketServer().getPORT()));
 			} else {
+				setClientRunning(false);
 				getSocket().close();
 				try {
-					Thread.sleep(100);
+					Thread.sleep(200);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
-				game.getFrame().add(new GameLobbyMenu(game.getFrame(), game.getSocketClient().getIP().getHostAddress(),
-						game.getUserName(), getPORT()));
+				System.out.println(game.getServerIP() + ":" + getPORT());
+				game.getFrame()
+						.add(new GameLobbyMenu(game.getFrame(), game.getServerIP(), game.getUserName(), getPORT()));
 			}
 			game.getFrame().repaint();
-			setClientRunning(false);
 			break;
 		case UPDATEUSERINFO:
 			packet = new Packet10UpdateUserInfo(data);
@@ -370,7 +373,7 @@ public class GameClient extends Thread {
 
 		@Override
 		public void run() {
-			while (GameClient.this.isAlive()) {
+			while (GameClient.this.isClientRunning()) {
 				if (connected) {
 					Packet19Ping pingPacket = new Packet19Ping(System.nanoTime(), game.getUser().getLatency(),
 							game.getUser().getName());

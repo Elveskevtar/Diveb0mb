@@ -38,64 +38,171 @@ import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
+/**
+ * Abstract class that is a JPanel object and serves as the general game
+ * structure itself. A game type object can be inherited to serve as either a
+ * more specialized singleplayer or multiplayer gamemode. The abstract version
+ * of the game contains an enumeration of all of the game types as well as many
+ * generic threads that should be used for all games, such as Repaint. Repaint
+ * is a subclass that serves as a TimerTask object which runs as a separate
+ * thread every certain amount of milliseconds. This is how many of the
+ * subthreads are structured within the Game class and all of its
+ * subclasses.<br>
+ * <br>
+ * Contains constructors for both client-side Game objects (whether the client
+ * is also hosting a server or not) and server-side only Game objects.<br>
+ * <br>
+ * Implements KeyListener, MouseListener, MouseMotionListener, and
+ * MouseWheelListener to track all of the necessary inputs that makes the game
+ * interactive.<br>
+ * <br>
+ * Overall, this class contains most of the core code that makes everything run.
+ * Changes to this class are less frequent and usually more for cosmetic or
+ * efficiency purposes. If changes need to be made to a specific gamemode, those
+ * typically occur in that specific gamemode's class file.
+ * 
+ * @author Elveskevtar
+ * @since 0.0.1-pre-pre-alpha
+ */
 public abstract class Game extends JPanel
 		implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener {
 
-	/* enumeration of all different game types */
+	/**
+	 * An enumeration of the gamemodes that currently exist within the game. For
+	 * number between 0 and 7, a 0 is appended to the beggining of the integer
+	 * literal. The format of having 0 as a prefix to an integer makes that
+	 * integer be treated as though it were an octal number (a number with a
+	 * base of 8). This is why both 08 and 09 cannot be used, since neither of
+	 * them are octal numbers.<br>
+	 * <br>
+	 * This same convention is used when enumerating packet types and it is for
+	 * the same reason we use it here. When sending packets with a byte array of
+	 * information, the packet can be easier to process if the number that is
+	 * expected (whether it be packet type or gamemode type) always takes up the
+	 * same amount of space. By using 01, 02, 03, and so on, we can ensure that
+	 * this is the case even when the number of gamemodes reaches the double
+	 * digits.
+	 * 
+	 * @author Elveskevtar
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.net.packets.Packet
+	 */
 	public static enum GameTypes {
+		/*
+		 * list of gamemode types assigned to names and given gameID's in order
+		 * to call the private constructor
+		 */
 		DEATHMATCH(00), DEATHMATCHMP(01);
 
+		/** The game ID number which indicates the gamemode type. */
 		private int gameID;
 
+		/**
+		 * The private constructor for the GameTypes enumeration. Like a normal
+		 * enumeration is only called by the declarations of each gamemode type.
+		 * 
+		 * @param gameID
+		 *            A two digit integer literal that represents the game ID
+		 *            number. Is associated by a corresponding GameType object.
+		 */
 		private GameTypes(int gameID) {
-			this.gameID = gameID;
+			this.setID(gameID);
 		}
 
 		public int getID() {
 			return gameID;
 		}
+
+		public void setID(int ID) {
+			this.gameID = ID;
+		}
 	}
 
-	private static final long serialVersionUID = 8757407166624267693L;
+	private static final long serialVersionUID = -3147254673513651984L;
+
+	/** Corresponds to the RGB value of 7, 192, 44. Used primarily for GUI. */
 	private static final Color NAMETAG_GREEN = new Color(7, 192, 44);
+
+	/**
+	 * Corresponds to the RGBA value of 32, 32, 32, 100. Used primarily for game
+	 * states that would still like the game painted in the background.
+	 */
 	private static final Color PAUSE_OVERLAY = new Color(32, 32, 32, 100);
 
-	/* speed gives the number of milliseconds between repitions of timertasks */
+	/** The number of milliseconds between repitions of the TimerTasks. */
 	private int speed = 16;
-	/* integer value for how graphically zoomed things should be painted */
-	private int zoom = 2;
-	/* state = 0, game; state = 1, pause menu; state = 2, reconnect menu */
+
+	/**
+	 * The paint method calls various paint submethods based on this variable.
+	 * Here is the list of states based on its value:
+	 * <ul>
+	 * <li>If state = 0, then the game itself will be painted</li>
+	 * <li>If state = 1, then the puase menu will be painted over the game</li>
+	 * <li>If state = 2, then the reconnect screen will be painted over the
+	 * game</li>
+	 * </ul>
+	 */
 	private int state;
-	/* gameID = 0, deathmatch; gameID = 1, multiplayer deathmatch */
+
+	/**
+	 * The gamemode ID number based on the gamemode type is stored in this
+	 * variable on the call of the constructor. This is all based on the
+	 * GameTypes enumeration above. For convenience's sake, here is the list of
+	 * gamemodes based on ID value:
+	 * <ul>
+	 * <li>If gameID = 0, then the gamemode is deathmatch</li>
+	 * <li>If gameID = 1, then the gamemode is multiplayer deathmatch</li>
+	 * </ul>
+	 * 
+	 * @see com.elveskevtar.divebomb.gfx.Game.GameTypes
+	 */
 	private int gameID;
+
+	/**
+	 * The total number of players needed for a full game of a specific
+	 * gamemode. Each gamemode has a default value for playerSize that can be
+	 * changed for custom games.
+	 */
 	private int playerSize;
+
+	/**
+	 * The game lobby time. Default of 0 for singleplayer gamemodes and default
+	 * of -1 for multiplayer gamemodes. Used to count down the time remaining
+	 * until the game starts.
+	 * 
+	 * @see com.elveskevtar.divebomb.gfx.GameLobbyMenu
+	 */
 	private int lobbyTime;
 
-	private ArrayList<Rectangle> collisionRecs;
+	/** Integer value for how graphically zoomed things should be painted. */
+	private double zoom = 2.0;
+
 	private CopyOnWriteArrayList<Projectile> projectiles;
+	private ArrayList<Rectangle> collisionRecs;
+	private ArrayList<Integer> projectileIDs;
 	private ArrayList<Player> players;
 	private ArrayList<Integer> keys;
-	private ArrayList<Integer> projectileIDs;
 
-	private JFrame frame;
-	private BufferedImage map;
 	private BufferedImage collisionMap;
+	private BufferedImage map;
+
 	private GameServer socketServer;
 	private GameClient socketClient;
-	private Font font;
-	private Timer timer;
-	private Map graphicsMap;
-	
-	private Player user;
 
-	private String userName;
-	private String userRace;
+	private Map graphicsMap;
+	private JFrame frame;
+	private Timer timer;
+	private Font font;
+
+	private String userRanged;
 	private String userColor;
 	private String userMelee;
-	private String userRanged;
+	private String userName;
+	private String userRace;
 	private String serverIP;
 
-	private boolean hosting;
+	private Player user;
+
 	private boolean running;
 
 	/* main (regular) constructor */
@@ -296,8 +403,8 @@ public abstract class Game extends JPanel
 		g2d.setFont(font);
 
 		/* draws and moves the map in relation to the users position */
-		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2), (int) (user.getyPosition() + getHeight() / 2),
-				null);
+		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
+				(int) (user.getyPosition() + getHeight() / 2), null);
 
 		/*
 		 * draws every other player and their weapon in relation to user client
@@ -306,7 +413,8 @@ public abstract class Game extends JPanel
 		for (Player p : players) {
 			if (p != user && !p.isDead()) {
 				/* draws the player in relation to user */
-				g2d.drawImage(p.getPlayerSprite(), (int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())),
+				g2d.drawImage(p.getPlayerSprite(),
+						(int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())) - user.getSpriteWidth() / 2,
 						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())), null);
 
 				/* initializes weapon drawing variables */
@@ -322,14 +430,14 @@ public abstract class Game extends JPanel
 				if (p.getInHand() instanceof ProjectileShooter) {
 					rAngle = ((ProjectileShooter) p.getInHand()).getrAngle();
 					if (p.isFacingRight()) {
-						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
-								+ p.getInHand().getxAdjustment();
+						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - user.getSpriteWidth() / 2
+								+ p.getWeaponXTweak() + p.getInHand().getxAdjustment();
 						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) + p.getInHand().getyAdjustment()
 								+ p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
 					} else {
-						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
-								+ p.getInHand().getxAdjustment() + p.getInHand().getWidth();
+						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - user.getSpriteWidth() / 2
+								+ p.getWeaponXTweak() + p.getInHand().getxAdjustment() + p.getInHand().getWidth();
 						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) + p.getInHand().getyAdjustment()
 								+ p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
@@ -338,8 +446,8 @@ public abstract class Game extends JPanel
 
 				/* draws weapon for players in relation to user position */
 				g2d.drawImage(p.getInHand().getSprite(),
-						getWidth() / 2 + (int) (user.getxPosition() - p.getxPosition()) + p.getWeaponXTweak()
-								+ p.getInHand().getxAdjustment(),
+						getWidth() / 2 + (int) (user.getxPosition() - p.getxPosition()) - user.getSpriteWidth() / 2
+								+ p.getWeaponXTweak() + p.getInHand().getxAdjustment(),
 						getHeight() / 2 + (int) (user.getyPosition() - p.getyPosition()) + p.getWeaponYTweak()
 								+ p.getInHand().getyAdjustment(),
 						null);
@@ -358,7 +466,7 @@ public abstract class Game extends JPanel
 		/* draws user. weapon, and name assuming user is not dead */
 		if (!user.isDead()) {
 			/* draws user in the middle of the screen */
-			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2, getHeight() / 2, null);
+			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2 - user.getSpriteWidth() / 2, getHeight() / 2, null);
 
 			/* initializes weapon drawing variables for user */
 			double rAngle = 0;
@@ -373,13 +481,14 @@ public abstract class Game extends JPanel
 			if (user.getInHand() instanceof ProjectileShooter) {
 				rAngle = ((ProjectileShooter) user.getInHand()).getrAngle();
 				if (user.isFacingRight()) {
-					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment();
+					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
+							- user.getSpriteWidth() / 2;
 					y = getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
 							+ user.getInHand().getHeight() / 2;
 					g2d.rotate(rAngle, x, y);
 				} else {
 					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
-							+ user.getInHand().getWidth();
+							+ user.getInHand().getWidth() - user.getSpriteWidth() / 2;
 					y = getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
 							+ user.getInHand().getHeight() / 2;
 					g2d.rotate(rAngle, x, y);
@@ -388,7 +497,8 @@ public abstract class Game extends JPanel
 
 			/* draw user weapon */
 			g2d.drawImage(user.getInHand().getSprite(),
-					getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment(),
+					getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
+							- user.getSpriteWidth() / 2,
 					getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak(), null);
 
 			/* 'unrotates' graphics for projectile shooter weapons */
@@ -405,10 +515,12 @@ public abstract class Game extends JPanel
 		 */
 		for (Projectile p : projectiles) {
 			double rAngle = p.getrAngle() + Math.PI;
-			double x = user.getxPosition() - p.getxPosition() + getWidth() / 2 + p.getWidth() / 2;
+			double x = user.getxPosition() - user.getSpriteWidth() / 2 - p.getxPosition() + getWidth() / 2
+					+ p.getWidth() / 2;
 			double y = user.getyPosition() - p.getyPosition() + getHeight() / 2 + p.getHeight() / 2;
 			g2d.rotate(rAngle, x, y);
-			g2d.drawImage(p.getSprite(), (int) (user.getxPosition() - p.getxPosition() + getWidth() / 2),
+			g2d.drawImage(p.getSprite(),
+					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
 					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2), null);
 			g2d.rotate(-rAngle, x, y);
 		}
@@ -520,7 +632,7 @@ public abstract class Game extends JPanel
 		 * shooter
 		 */
 		if (state == 0) {
-			if (e.getX() > getWidth() / 2 + 16) {
+			if (e.getX() > getWidth() / 2 + 32) {
 				user.setFacingRight(true);
 			} else {
 				user.setFacingRight(false);
@@ -577,11 +689,11 @@ public abstract class Game extends JPanel
 	}
 
 	/* standard get/set methods */
-	public int getZoom() {
+	public double getZoom() {
 		return zoom;
 	}
 
-	public void setZoom(int zoom) {
+	public void setZoom(double zoom) {
 		this.zoom = zoom;
 	}
 
@@ -623,14 +735,6 @@ public abstract class Game extends JPanel
 
 	public void setSocketClient(GameClient socketClient) {
 		this.socketClient = socketClient;
-	}
-
-	public boolean isHosting() {
-		return hosting;
-	}
-
-	public void setHosting(boolean hosting) {
-		this.hosting = hosting;
 	}
 
 	public String getUserName() {

@@ -42,8 +42,9 @@ public class GameServer extends Thread {
 	private Game game;
 
 	private boolean serverRunning;
-	
+
 	private int PORT;
+	private int updatedPlayerCount;
 
 	public GameServer(Game game, int port) {
 		this.PORT = port;
@@ -53,11 +54,11 @@ public class GameServer extends Thread {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
+		this.serverRunning = true;
 		new Thread(new CheckForPingDrops()).start();
 	}
 
 	public void run() {
-		this.serverRunning = true;
 		while (isServerRunning()) {
 			byte[] data = new byte[1024];
 			DatagramPacket packet = new DatagramPacket(data, data.length);
@@ -82,7 +83,7 @@ public class GameServer extends Thread {
 			if (connectedPlayers.size() != game.getPlayerSize() && !game.isRunning()) {
 				packet = new Packet00Login(data);
 				System.out.println("[" + address.getHostAddress() + ":" + port + "] "
-						+ ((Packet00Login) packet).getName() + " has connected...");
+						+ ((Packet00Login) packet).getName() + " has connected... ");
 				Player player = null;
 				Weapon weapon = null;
 				if (((Packet00Login) packet).getRace().equalsIgnoreCase("human"))
@@ -161,6 +162,7 @@ public class GameServer extends Thread {
 					connectedPlayers.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet).getName())).getMelee());
 			handleUpdateUserInfo(connectedPlayers.get(getPlayerMPIndex(((Packet10UpdateUserInfo) packet).getName())),
 					(Packet10UpdateUserInfo) packet);
+			updatedPlayerCount++;
 			break;
 		case SENDNEWPROJECTILE:
 			packet = new Packet13SendNewProjectile(data);
@@ -364,8 +366,9 @@ public class GameServer extends Thread {
 
 				}
 			}
-			int size = connectedPlayers.size();
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < connectedPlayers.size(); i++) {
+				if (updatedPlayerCount == connectedPlayers.size())
+					break;
 				byte[] updateData = new byte[1024];
 				DatagramPacket updatePacket = new DatagramPacket(updateData, updateData.length);
 				try {
@@ -416,7 +419,7 @@ public class GameServer extends Thread {
 
 		@Override
 		public void run() {
-			while (GameServer.this.isAlive()) {
+			while (GameServer.this.isServerRunning()) {
 				for (Player p : connectedPlayers) {
 					p.setLatency(System.nanoTime() - p.getOldTimeStamp());
 					if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {

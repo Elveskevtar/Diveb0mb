@@ -63,14 +63,14 @@ public abstract class Player {
 	private BufferedImage playerSpriteSheet;
 	private BufferedImage playerSprite;
 	private InetAddress ip;
-	
+
 	private Weapon inHand;
 	private Weapon melee;
 	private Weapon ranged;
-	
+
 	private String name;
 	private String color;
-	
+
 	private Game game;
 
 	private boolean isStaminaRefilled = true;
@@ -81,7 +81,7 @@ public abstract class Player {
 	private boolean isFacingRight;
 	private boolean isMovingRight;
 	private boolean isDead;
-	
+
 	private double maxStamina;
 	private double minStamina;
 	private double stamina;
@@ -94,10 +94,10 @@ public abstract class Player {
 	private double yPosition;
 	private double veloX;
 	private double veloY;
-	
+
 	private long oldTimeStamp;
 	private long latency;
-	
+
 	private int walkingRightHandX;
 	private int walkingRightHandY;
 	private int standingRightHandX;

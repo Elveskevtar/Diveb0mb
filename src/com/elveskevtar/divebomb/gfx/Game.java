@@ -130,7 +130,7 @@ public abstract class Game extends JPanel
 	private static final Color PAUSE_OVERLAY = new Color(32, 32, 32, 100);
 
 	/** The number of milliseconds between repitions of the TimerTasks. */
-	private int speed = 16;
+	private static final int speed = 16;
 
 	/**
 	 * The paint method calls various paint submethods based on this variable.
@@ -254,12 +254,6 @@ public abstract class Game extends JPanel
 	/** This Timer object controls the TimerTasks that makes the game work. */
 	private Timer timer;
 
-	/**
-	 * Stores the font object which is initialized and used in the paint
-	 * methods.
-	 */
-	private Font font;
-
 	/** The String object that represents the user's ranged weapon. */
 	private String userRanged;
 
@@ -351,7 +345,7 @@ public abstract class Game extends JPanel
 	 * the console. When there is no client, and only a server, only certain
 	 * threads are needed which are specified in different methods with
 	 * statement like
-	 * <code>if (getSocketClient() == null && getSocketServer() != null)</code>.
+	 * <code>if (getSocketClient() == null &amp;&amp; getSocketServer() != null)</code>.
 	 * 
 	 * @param gameID
 	 *            The ID number associated with the game type based on the
@@ -382,15 +376,15 @@ public abstract class Game extends JPanel
 		 * user variables within the Game object
 		 */
 		if (userRace.equals("human"))
-			user = new Human(this, userName, null, -1);
+			setUser(new Human(this, userName, null, -1));
 		else if (userRace.equals("cyborg") && userColor.equals("purple"))
-			user = new Cyborg(this, "purple", userName, null, -1);
+			setUser(new Cyborg(this, "purple", userName, null, -1));
 		else if (userRace.equals("cyborg") && userColor.equals("blue"))
-			user = new Cyborg(this, "blue", userName, null, -1);
+			setUser(new Cyborg(this, "blue", userName, null, -1));
 		else if (userRace.equals("cyborg"))
-			user = new Cyborg(this, userName, -1, null, -1);
+			setUser(new Cyborg(this, userName, -1, null, -1));
 		else
-			user = new Human(this, userName, null, -1);
+			setUser(new Human(this, userName, null, -1));
 
 		/*
 		 * second block of if statements deals with weapons based on user
@@ -550,7 +544,6 @@ public abstract class Game extends JPanel
 		 * Livewired
 		 */
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		font = new Font("Livewired", Font.PLAIN, 10);
 
 		/* translates and scales graphics based on zoom value */
 		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight() * (0.5 * zoom - 0.5));
@@ -558,7 +551,7 @@ public abstract class Game extends JPanel
 
 		/* sets the color and font of the graphics */
 		g2d.setColor(NAMETAG_GREEN);
-		g2d.setFont(font);
+		g2d.setFont(new Font("Livewired", Font.PLAIN, 10));
 
 		/* draws the map in relation to the users position */
 		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
@@ -780,9 +773,9 @@ public abstract class Game extends JPanel
 		 */
 		if (keys.contains(KeyEvent.VK_ESCAPE)) {
 			if (state == 0) {
-				state = 1;
+				setState(1);
 			} else if (state == 1) {
-				state = 0;
+				setState(0);
 			}
 		}
 	}
@@ -862,14 +855,6 @@ public abstract class Game extends JPanel
 	}
 
 	/* standard get/set methods */
-	public double getZoom() {
-		return zoom;
-	}
-
-	public void setZoom(double zoom) {
-		this.zoom = zoom;
-	}
-
 	public int getState() {
 		return state;
 	}
@@ -878,12 +863,12 @@ public abstract class Game extends JPanel
 		this.state = state;
 	}
 
-	public Map getGraphicsMap() {
-		return graphicsMap;
+	public int getGameID() {
+		return gameID;
 	}
 
-	public void setGraphicsMap(Map graphicsMap) {
-		this.graphicsMap = graphicsMap;
+	public void setGameID(int gameID) {
+		this.gameID = gameID;
 	}
 
 	public int getPlayerSize() {
@@ -892,6 +877,54 @@ public abstract class Game extends JPanel
 
 	public void setPlayerSize(int playerSize) {
 		this.playerSize = playerSize;
+	}
+
+	public int getLobbyTime() {
+		return lobbyTime;
+	}
+
+	public void setLobbyTime(int lobbyTime) {
+		this.lobbyTime = lobbyTime;
+	}
+
+	public double getZoom() {
+		return zoom;
+	}
+
+	public void setZoom(double zoom) {
+		this.zoom = zoom;
+	}
+
+	public CopyOnWriteArrayList<Projectile> getProjectiles() {
+		return projectiles;
+	}
+
+	public void setProjectiles(CopyOnWriteArrayList<Projectile> projectiles) {
+		this.projectiles = projectiles;
+	}
+
+	public void setCollisionRecs(ArrayList<Rectangle> collisions) {
+		this.collisionRecs = collisions;
+	}
+
+	public ArrayList<Rectangle> getCollisionRecs() {
+		return collisionRecs;
+	}
+
+	public ArrayList<Integer> getProjectileIDs() {
+		return projectileIDs;
+	}
+
+	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
+		this.projectileIDs = projectileIDs;
+	}
+
+	public Map getGraphicsMap() {
+		return graphicsMap;
+	}
+
+	public void setGraphicsMap(Map graphicsMap) {
+		this.graphicsMap = graphicsMap;
 	}
 
 	public GameServer getSocketServer() {
@@ -950,44 +983,12 @@ public abstract class Game extends JPanel
 		this.serverIP = serverIP;
 	}
 
-	public int getGameID() {
-		return gameID;
-	}
-
-	public void setGameID(int gameID) {
-		this.gameID = gameID;
-	}
-
-	public int getLobbyTime() {
-		return lobbyTime;
-	}
-
-	public void setLobbyTime(int lobbyTime) {
-		this.lobbyTime = lobbyTime;
-	}
-
 	public JFrame getFrame() {
 		return frame;
 	}
 
 	public void setFrame(JFrame frame) {
 		this.frame = frame;
-	}
-
-	public CopyOnWriteArrayList<Projectile> getProjectiles() {
-		return projectiles;
-	}
-
-	public void setProjectiles(CopyOnWriteArrayList<Projectile> projectiles) {
-		this.projectiles = projectiles;
-	}
-
-	public ArrayList<Integer> getProjectileIDs() {
-		return projectileIDs;
-	}
-
-	public void setProjectileIDs(ArrayList<Integer> projectileIDs) {
-		this.projectileIDs = projectileIDs;
 	}
 
 	public String getUserMelee() {
@@ -1012,14 +1013,6 @@ public abstract class Game extends JPanel
 
 	public void setTimer(Timer timer) {
 		this.timer = timer;
-	}
-
-	public void setCollisionRecs(ArrayList<Rectangle> collisions) {
-		this.collisionRecs = collisions;
-	}
-
-	public ArrayList<Rectangle> getCollisionRecs() {
-		return collisionRecs;
 	}
 
 	public ArrayList<Player> getPlayers() {
@@ -1062,13 +1055,36 @@ public abstract class Game extends JPanel
 		this.collisionMap = collisionMap;
 	}
 
-	/* handles projectile motion and angles */
+	/**
+	 * TimerTask that handles the projectile motion and angles of all the
+	 * objects within the Projectile ArrayList. This TimerTask is run
+	 * differently based on SP and MP game types, as well as if the program is
+	 * hosting a server (for MP gamemodes). The TimerTask is run every
+	 * <code>speed</code> milliseconds. ConcurrentModificationExceptions are
+	 * possible when the Projectile ArrayList is being affected by other
+	 * threads.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.weapons.Projectile
+	 * @see java.util.ConcurrentModificationException
+	 */
 	private class Projectiles extends TimerTask {
 
 		@Override
 		public void run() {
 			try {
+				/*
+				 * this block of code runs for SP gamemodes and server hosting
+				 * programs for MP gamemodes
+				 */
 				if (socketClient == null || socketServer != null) {
+					/*
+					 * cycles through projectiles, applies gravity to each in
+					 * the form of the airTime variable affecting the y
+					 * velocity, updates the x and y positions with the x and y
+					 * velocities, and sets the angles based on the x and y
+					 * velocities
+					 */
 					for (Projectile p : projectiles) {
 						if (p.getVelox() != 0 || p.getVeloy() != 0) {
 							p.setVeloy(p.getVeloy() - p.getAirTime());
@@ -1076,14 +1092,36 @@ public abstract class Game extends JPanel
 							p.setyPosition(p.getyPosition() + p.getVeloy());
 							p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
 						}
+
+						/*
+						 * cycles through the collisionRecs ArrayList to see if
+						 * the specific Projectile being iterated intersects a
+						 * collision box; if so, the Projectile's x and y
+						 * velocities are set to 0
+						 */
 						for (Rectangle r : collisionRecs)
 							if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
 									p.getHeight()).intersects(r)) {
 								p.setVelox(0);
 								p.setVeloy(0);
 							}
-						if (socketServer != null)
+
+						if (socketServer != null) {
+							/*
+							 * this block of code only runs specifically for
+							 * server hosting programs and not SP gamemodes;
+							 * cycles through the server's connectedPlayers
+							 */
 							for (Player player : socketServer.connectedPlayers) {
+								/*
+								 * checks to see if each Player's hitbox
+								 * intersects with the specific Projectile being
+								 * iterated; if so, the Player that is hit is
+								 * damaged, the Projectile is removed from both
+								 * ArrayLists, and a packet is sent to all
+								 * clients as an update on the removal of the
+								 * projectile
+								 */
 								if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
 										p.getHeight()).intersects(
 												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
@@ -1098,8 +1136,19 @@ public abstract class Game extends JPanel
 									packet.writeData(socketServer);
 								}
 							}
-						else
+						} else {
+							/*
+							 * this block of code only runs specifically for SP
+							 * gamemodes and not servers
+							 */
 							for (Player player : players) {
+								/*
+								 * checks to see if each Player's hitbox
+								 * intersects with the specific Projectile being
+								 * iterated; if so, the Player that is hit is
+								 * damaged and the Projectile is removed from
+								 * both ArrayLists
+								 */
 								if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
 										p.getHeight()).intersects(
 												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
@@ -1112,10 +1161,22 @@ public abstract class Game extends JPanel
 									projectileIDs.remove((Integer) p.getId());
 								}
 							}
+						}
+
+						/*
+						 * first checks to see if the Projectile has stopped
+						 * without its 'time of death' being recorded; if it
+						 * has, the first if statement records it; the second if
+						 * statement checks to see if the Projectile is dead and
+						 * its 'time of death' was more than two seconds before
+						 * the current time; if it has, the Projectile is
+						 * removed from both ArrayLists and if the program is a
+						 * server, a packet is sent to all connected players
+						 */
 						if (p.getVelox() == 0 && p.getVeloy() == 0 && p.getDeadTime() == 0)
 							p.setDeadTime(System.nanoTime());
 						else if (p.getVelox() == 0 && p.getVeloy() == 0
-								&& System.nanoTime() >= p.getDeadTime() + 2000000000) {
+								&& System.nanoTime() >= p.getDeadTime() + 2 * Math.pow(10, 9)) {
 							projectiles.remove(p);
 							projectileIDs.remove((Integer) p.getId());
 							if (socketServer != null) {
@@ -1131,23 +1192,44 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* handles the animation of player weapons (only matters for clients) */
+	/**
+	 * TimerTask that handles the animation of player weapons (clients only for
+	 * both SP and MP gamemodes). This is only necessary for painting animation
+	 * to the screen so serverside Game objects do not need to run this
+	 * TimerTask. Runs every <code>speed</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 */
 	private class PlayerWeapons extends TimerTask {
 
 		@Override
 		public void run() {
+			/* cycles through all of the Players in the ArrayList */
 			for (Player p : players) {
-				if (!p.isFacingRight()) {
+				/*
+				 * sets the Player's spritesheet's y index based on which way
+				 * the player is facing at any moment in time
+				 */
+				if (!p.isFacingRight())
 					p.getInHand().setSpriteY(0);
-				} else {
-					if (p.getInHand().getSpriteY() != 1)
-						p.getInHand().setSpriteY(1);
-				}
+				else
+					p.getInHand().setSpriteY(1);
+
+				/*
+				 * sets the sprite of the Player's weapon in hand by using the
+				 * getSubimage() method, the sprite sheet x and y positions, and
+				 * the width and height of the subimages
+				 */
 				p.getInHand()
 						.setSprite(p.getInHand().getImage().getSubimage(
 								p.getInHand().getSpriteX() * p.getInHand().getWidth(),
 								p.getInHand().getSpriteY() * p.getInHand().getHeight(), p.getInHand().getWidth(),
 								p.getInHand().getHeight()));
+
+				/*
+				 * based on which way the Player is facing, set the x and y
+				 * adjustments of the Player's weapon in hand
+				 */
 				if (p.isFacingRight()) {
 					p.getInHand().setxAdjustment(p.getInHand().getHoldingRightX());
 					p.getInHand().setyAdjustment(p.getInHand().getHoldingRightY());
@@ -1155,6 +1237,17 @@ public abstract class Game extends JPanel
 					p.getInHand().setxAdjustment(p.getInHand().getHoldingLeftX());
 					p.getInHand().setyAdjustment(p.getInHand().getHoldingLeftY());
 				}
+
+				/*
+				 * sets the Player's 'weapon tweak' (x and y variables that
+				 * slightly adjust the position of the weapon on the screen)
+				 * based on factors such as walking, running, and the direction
+				 * the Player is facing; the first two if statements deal with
+				 * the Player standing still while the last two deal with the
+				 * Player walking or running; the first and third if statements
+				 * deal with the Player facing right while the second and fourth
+				 * deal with the Player facing left
+				 */
 				if (!p.isWalking() && !p.isRunning() && p.isFacingRight()) {
 					p.setWeaponXTweak(p.getStandingRightHandX());
 					p.setWeaponYTweak(p.getStandingRightHandY());
@@ -1172,37 +1265,70 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* handles the input from the keyboard (only matters for clients) */
+	/**
+	 * TimerTask that handles the user input from the keyboard (clients only for
+	 * both SP and MP gamemodes). This is only necessary for clients since user
+	 * interaction with the game requires keyboard input. However, this
+	 * TimerTask does not process which keys are being pressed, typed, or
+	 * released at every moment in time since that is handled by the Game object
+	 * itself which implements the listeners. This TimerTask only processes the
+	 * elements of the keys ArrayList that stores the keys being pressed at any
+	 * moment in time. This TimerTask runs every <code>speed</code>
+	 * milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 */
 	private class Input extends TimerTask {
 
 		@Override
 		public void run() {
+			/* the TimerTask only processes keys when the game is unpaused */
 			if (state == 0) {
+				/* increases zoom by 0.1 up to 4 if '=' is pressed */
 				if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
-					zoom++;
-					keys.remove((Integer) KeyEvent.VK_EQUALS);
+					zoom += 0.1;
 				}
-				if (keys.contains(KeyEvent.VK_MINUS) && zoom > 1) {
-					zoom--;
-					keys.remove((Integer) KeyEvent.VK_MINUS);
+
+				/* decreases zoom by 0.1 down to 1.5 if '-' is pressed */
+				if (keys.contains(KeyEvent.VK_MINUS) && zoom > 1.5) {
+					zoom -= 0.1;
 				}
+
+				/*
+				 * if 'd' is pressed and the user is not running or cannot run
+				 */
 				if (keys.contains(KeyEvent.VK_D) && !keys.contains(KeyEvent.VK_SHIFT) || keys.contains(KeyEvent.VK_D)
 						&& keys.contains(KeyEvent.VK_SHIFT) && !user.isStaminaRefilled()) {
+					/* set the user moving right, walking, and not running */
 					user.setMovingRight(true);
 					user.setWalking(true);
 					user.setRunning(false);
 					user.setVeloX(-user.getWalkSpeed());
 				}
+
+				/*
+				 * if 'a' is pressed and the user is not running or cannot run
+				 */
 				if (keys.contains(KeyEvent.VK_A) && !keys.contains(KeyEvent.VK_SHIFT) || keys.contains(KeyEvent.VK_A)
 						&& keys.contains(KeyEvent.VK_SHIFT) && !user.isStaminaRefilled()) {
+					/* set the user moving left, walking, and not running */
 					user.setMovingRight(false);
 					user.setWalking(true);
 					user.setRunning(false);
 					user.setVeloX(user.getWalkSpeed());
 				}
+
+				/*
+				 * if both 'a' and 'd' are being pressed at the same time and
+				 * the user is not running or cannot run
+				 */
 				if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_D) && !keys.contains(KeyEvent.VK_SHIFT)
 						|| keys.contains(KeyEvent.VK_D) && keys.contains(KeyEvent.VK_A)
 								&& keys.contains(KeyEvent.VK_SHIFT) && !user.isStaminaRefilled()) {
+					/*
+					 * check to see which key index is greater and sets the
+					 * direction of the user to it
+					 */
 					if (keys.indexOf(KeyEvent.VK_A) > keys.indexOf(KeyEvent.VK_D)) {
 						user.setMovingRight(false);
 						user.setWalking(true);
@@ -1215,20 +1341,35 @@ public abstract class Game extends JPanel
 						user.setVeloX(-user.getWalkSpeed());
 					}
 				}
+
+				/* if 'd' is pressed, the user is running, and can run */
 				if (keys.contains(KeyEvent.VK_D) && keys.contains(KeyEvent.VK_SHIFT) && user.isStaminaRefilled()) {
+					/* set the user moving right, not walking, and running */
 					user.setMovingRight(true);
 					user.setWalking(false);
 					user.setRunning(true);
 					user.setVeloX(-user.getRunSpeed());
 				}
+
+				/* if 'a' is pressed, the user is running, and can run */
 				if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_SHIFT) && user.isStaminaRefilled()) {
+					/* set the user moving left, not walking, and running */
 					user.setMovingRight(false);
 					user.setWalking(false);
 					user.setRunning(true);
 					user.setVeloX(user.getRunSpeed());
 				}
+
+				/*
+				 * if 'a' and 'd' are being pressed, the user is running, and
+				 * can run
+				 */
 				if (keys.contains(KeyEvent.VK_A) && keys.contains(KeyEvent.VK_D) && keys.contains(KeyEvent.VK_SHIFT)
 						&& user.isStaminaRefilled()) {
+					/*
+					 * check to see which key index is greater and sets the
+					 * direction of the user to it
+					 */
 					if (keys.indexOf(KeyEvent.VK_A) > keys.indexOf(KeyEvent.VK_D)) {
 						user.setMovingRight(false);
 						user.setWalking(false);
@@ -1241,29 +1382,53 @@ public abstract class Game extends JPanel
 						user.setVeloX(-user.getRunSpeed());
 					}
 				}
+
+				/*
+				 * if the user is pressing 'w' or the space key and is not
+				 * already in the air, make the user jump
+				 */
 				if ((keys.contains(KeyEvent.VK_W) || keys.contains(KeyEvent.VK_SPACE)) && !user.isJumping()
 						&& !user.isFalling())
 					user.setVeloY(user.getInitJumpSpeed());
+
+				/* if the user is pressing 't' and is not dead */
 				if (keys.contains(KeyEvent.VK_T) && !user.isDead()) {
+					/* kill the user */
 					user.setHealth(0);
 					user.setDead(true);
+
+					/* if the Game is a MP gamemode */
 					if (socketClient != null) {
+						/*
+						 * send both Health and Suicide packets informing
+						 * players of the user's death
+						 */
 						Packet05Health packet = new Packet05Health(user.getName(), user.getHealth());
 						packet.writeData(socketClient);
 						Packet16Suicide suicidePacket = new Packet16Suicide(user.getName());
 						suicidePacket.writeData(socketClient);
 					}
 				}
+
+				/*
+				 * if the user is dead, is pressing 'r', and is not pressing 't'
+				 */
 				if (keys.contains(KeyEvent.VK_R) && !keys.contains(KeyEvent.VK_T) && user.isDead()) {
+					/* check to see if the Game is MP or not */
 					if (socketClient == null) {
+						/* if the Game is SP, just revive the player */
 						user.setHealth(user.getMaxHealth());
 						user.setDead(false);
 					} else {
+						/* if the Game is MP, send a respawn packet */
 						Packet17Respawn packet = new Packet17Respawn(user.getName());
 						packet.writeData(socketClient);
 					}
 				}
+
+				/* if the user is not pressing 'a' and not pressing 'd' */
 				if (!keys.contains(KeyEvent.VK_A) && !keys.contains(KeyEvent.VK_D)) {
+					/* set the user to stop moving */
 					user.setWalking(false);
 					user.setRunning(false);
 					user.setVeloX(0);
@@ -1272,93 +1437,180 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* handles the animation of the players (only matters for clients) */
+	/**
+	 * TimerTask that handles the animation of the players (clients only for
+	 * both SP and MP gamemodes). This is only necessary for painting animation
+	 * to the screen so serverside Game objects do not need to run this
+	 * TimerTask. Runs every <code>speed</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 */
 	private class AnimatePlayers extends TimerTask {
 
-		int t = 0;
-		int w = 1;
-		int r = 1;
+		/**
+		 * An iterator that increments everytime the Timertask is run. Used to
+		 * determine w and r.
+		 */
+		private int t = 0;
+
+		/** The walking index variable for animation. Determined by t. */
+		private int w = 1;
+
+		/** The running index variable for animation. Determined by t. */
+		private int r = 1;
 
 		@Override
 		public void run() {
+			/* increments t at every iteration of AnimatePlayers */
 			t++;
+
+			/*
+			 * every 24 iterations of AnimatePlayers, w is incremented once
+			 * until it reaches 4 where it will be reset to 1.
+			 */
 			if (t % 24 == 0 && w != 4) {
 				w++;
 			} else if (t % 24 == 0) {
 				w = 1;
 			}
+
+			/*
+			 * every 8 iterations of AnimatePlayers, r is incremented once until
+			 * it reaches 4 where it will reset to 1.
+			 */
 			if (t % 8 == 0 && r != 4) {
 				r++;
 			} else if (t % 8 == 0) {
 				r = 1;
 			}
+
+			/* cycles through the Players in the Game */
 			for (Player p : players) {
+				/*
+				 * if statements dealing with moving and facing right with
+				 * either walking, running, or standing still
+				 */
 				if (p.isWalking() && p.isMovingRight() && p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(w);
 					p.setSpriteY(0);
 				} else if (p.isRunning() && p.isMovingRight() && p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(r);
 					p.setSpriteY(0);
 				} else if (p.isMovingRight() && p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(0);
 					p.setSpriteY(0);
 				}
+
+				/*
+				 * if statements dealing with moving right and facing left with
+				 * either walking, running, or standing still
+				 */
 				if (p.isWalking() && p.isMovingRight() && !p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(w);
 					p.setSpriteY(2);
 				} else if (p.isRunning() && p.isMovingRight() && !p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(r);
 					p.setSpriteY(2);
 				} else if (p.isMovingRight() && !p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(0);
 					p.setSpriteY(2);
 				}
+
+				/*
+				 * if statements dealing with moving left and facing right with
+				 * either walking, running, or standing still
+				 */
 				if (p.isWalking() && !p.isMovingRight() && p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(w);
 					p.setSpriteY(1);
 				} else if (p.isRunning() && !p.isMovingRight() && p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(r);
 					p.setSpriteY(1);
 				} else if (!p.isMovingRight() && p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(0);
 					p.setSpriteY(1);
 				}
+
+				/*
+				 * if statements dealing with moving and facing left with either
+				 * walking, running or standing still
+				 */
 				if (p.isWalking() && !p.isMovingRight() && !p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(w);
 					p.setSpriteY(3);
 				} else if (p.isRunning() && !p.isMovingRight() && !p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(r);
 					p.setSpriteY(3);
 				} else if (!p.isMovingRight() && !p.isFacingRight()) {
+					/* sets sprite x and y */
 					p.setSpriteX(0);
 					p.setSpriteY(3);
 				}
+
+				/*
+				 * sets the sprite of the Player by using the getSubimage()
+				 * method, the sprite sheet x and y positions, and the width and
+				 * height of the subimages
+				 */
 				p.setPlayerSprite(p.getPlayerSpriteSheet().getSubimage(p.getSpriteX() * p.getSpriteWidth(),
 						p.getSpriteY() * p.getSpriteHeight(), p.getSpriteWidth(), p.getSpriteHeight()));
 			}
 		}
 	}
 
-	/*
-	 * this is the subclass for handling the stamina value for each player (only
-	 * matters if server or offline gameplay)
+	/**
+	 * TimerTask that handles the stamina of Players within the Game. The Task
+	 * reduces stamina when the Player is running. When the stamina depletes,
+	 * this Task calls <code>waitForStamina()</code> in the abstract Player
+	 * class which starts a new Thread that checks to see if a certain amount of
+	 * stamina has regenerated to start running again. Task runs every
+	 * <code>speed</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.race.Player
+	 * @see com.elveskevtar.divebomb.race.Player.StaminaRegen
 	 */
 	private class Stamina extends TimerTask {
 
 		@Override
 		public void run() {
+			/* cycles through Players in the ArrayList */
 			for (Player p : players) {
-				if (p.isRunning() && p.getStamina() >= 0.1)
+				/*
+				 * if the Player is running and their stamin is greater than
+				 * 0.1, deplete their stamina by 0.1; if the Player is running
+				 * but does not have sufficient stamina, make them start walking
+				 * instead of running and trigger waitForStamina()
+				 */
+				if (p.isRunning() && p.getStamina() >= 0.1) {
 					p.setStamina(p.getStamina() - 0.1);
-				else if (p.isRunning()) {
+				} else if (p.isRunning()) {
 					p.setRunning(false);
 					p.setWalking(true);
+
+					/* starts StaminaRegen thread */
 					if (p.isStaminaRefilled())
 						p.waitForStamina();
 				}
-				if (p.getStamina() + 0.075 > p.getMaxStamina())
+
+				/*
+				 * regenerates stamina while making sure that the Player's
+				 * stamina does not exceed the Player's maximum Stamina
+				 */
+				if (p.getStamina() + 0.05 > p.getMaxStamina())
 					p.setStamina(p.getMaxStamina());
-				else if (p.getStamina() + 0.075 <= p.getMaxStamina())
+				else if (p.getStamina() + 0.05 <= p.getMaxStamina())
 					p.setStamina(p.getStamina() + 0.05);
 			}
 		}
@@ -1524,7 +1776,12 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/* timertask that repaints the screen */
+	/**
+	 * TimerTask object that calls the <code>repaint()</code> method to repaint
+	 * the screen every <code>speed</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 */
 	private class Repaint extends TimerTask {
 
 		@Override

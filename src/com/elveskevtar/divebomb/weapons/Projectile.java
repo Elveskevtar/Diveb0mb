@@ -6,7 +6,7 @@ import com.elveskevtar.divebomb.gfx.GameDeathmatchMP;
 import com.elveskevtar.divebomb.net.packets.Packet06Kill;
 import com.elveskevtar.divebomb.race.Player;
 
-public class Projectile extends Weapon {
+public abstract class Projectile extends Weapon {
 
 	private int id;
 	private long deadTime;

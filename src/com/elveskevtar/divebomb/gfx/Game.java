@@ -160,8 +160,9 @@ public abstract class Game extends JPanel
 
 	/**
 	 * The total number of players needed for a full game of a specific
-	 * gamemode. Each gamemode has a default value for playerSize that can be
-	 * changed for custom games.
+	 * gamemode. Mostly used for multiplayer games to determine how many players
+	 * are needed to start the game. Each multiplayer gamemode has a default
+	 * value for playerSize that can be changed for custom games.
 	 */
 	private int playerSize;
 
@@ -177,173 +178,318 @@ public abstract class Game extends JPanel
 	/** Integer value for how graphically zoomed things should be painted. */
 	private double zoom = 2.0;
 
+	/**
+	 * An ArrayList that contains all of the active Projectile objects within
+	 * the game. Uses a CopyOnWriteArrayList which is a thread safe alternative
+	 * to regular ArrayLists. This means that while you're modifying an element
+	 * of the list in one thread, you could be iterating through the elements in
+	 * another thread and no ConcurrentModificationException would be thrown.
+	 * 
+	 * @see java.util.ConcurrentModificationException
+	 */
 	private CopyOnWriteArrayList<Projectile> projectiles;
+
+	/**
+	 * An ArrayList that contains all of the collision rectangles loaded through
+	 * the collision map file.
+	 */
 	private ArrayList<Rectangle> collisionRecs;
+
+	/**
+	 * An ArrayList that contains the ID numbers corresponding with each of the
+	 * Projectile objects in the CopyOnWriteArrayList.
+	 */
 	private ArrayList<Integer> projectileIDs;
+
+	/**
+	 * An ArrayList that contains the active players withing the Game object.
+	 */
 	private ArrayList<Player> players;
+
+	/**
+	 * An ArrayList of Integers that contains the integer equivalents of the
+	 * keys that are being pressed pressed at any one moment in time while the
+	 * game is running.
+	 */
 	private ArrayList<Integer> keys;
 
-	private BufferedImage collisionMap;
+	/**
+	 * The BufferedImage object corresponding to the graphical map that should
+	 * be painted for the game.
+	 */
 	private BufferedImage map;
 
+	/**
+	 * The BufferedImage object corresponding to the collision map which is
+	 * never painted but used to determine what elements should be placed within
+	 * the collisionRecs ArrayList.
+	 */
+	private BufferedImage collisionMap;
+
+	/**
+	 * A GameServer object which handles all of the serverside multiplayer
+	 * aspects of an MP gamemode. Is never initialized in SP gamemodes.
+	 */
 	private GameServer socketServer;
+
+	/**
+	 * A GameClient object which handles all of the clientside multiplayer
+	 * aspects of an MP gamemode. Is never initialized in SP gamemodes.
+	 */
 	private GameClient socketClient;
 
+	/**
+	 * This variable stores the map of the game in a Map object. The Map object
+	 * is an easier way to store the BufferedImages of the collision map and
+	 * graphical map, their respective file paths, and the ID number of the map.
+	 */
 	private Map graphicsMap;
+
+	/**
+	 * The JFrame object for the window in which this Game object, as a JPanel,
+	 * is painted within.
+	 */
 	private JFrame frame;
+
+	/** This Timer object controls the TimerTasks that makes the game work. */
 	private Timer timer;
+
+	/**
+	 * Stores the font object which is initialized and used in the paint
+	 * methods.
+	 */
 	private Font font;
 
+	/** The String object that represents the user's ranged weapon. */
 	private String userRanged;
+
+	/** The String object that represents the user's color if applicable. */
 	private String userColor;
+
+	/** The String object that represents the user's melee weapon. */
 	private String userMelee;
+
+	/** The String object that represents the user's username. */
 	private String userName;
+
+	/** The String object that represents the user's race. */
 	private String userRace;
+
+	/**
+	 * The String object that represents the IP that the user is connected to in
+	 * multiplayer games. If the user is also hosting a server (or there is no
+	 * user at all), this IP is set to 'localhost'.
+	 */
 	private String serverIP;
 
+	/**
+	 * Represents the Player object for the user. Remains unused for server only
+	 * games since their is no game user.
+	 */
 	private Player user;
 
+	/**
+	 * Keeps track of when the game is running. This should be true any point
+	 * the game is being painted.
+	 */
 	private boolean running;
 
-	/* main (regular) constructor */
+	/**
+	 * The general constructor for any Game type object that involves a client.
+	 * This can be for SP gamemodes, hosting a MP gamemode with an attached
+	 * client, or joining a MP gamemode from a client. Mainly just sets values
+	 * for the JPanel component and some default values for the user.
+	 * 
+	 * @param gameID
+	 *            The ID number associated with the game type based on the
+	 *            GameType enumeration.
+	 * @param frame
+	 *            The JFrame object in which the Game component will be added.
+	 * @see com.elveskevtar.divebomb.gfx.Game.GameTypes
+	 */
 	public Game(int gameID, JFrame frame) {
+		/* calls the JPanel superconstructor */
 		super();
 
-		/* takes into account the insets of the jframe */
+		/* takes into account the insets of the JFrame when setting the size */
 		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
 				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
+
+		/* sets this component to be double buffered when painted */
 		this.setDoubleBuffered(true);
+
+		/*
+		 * sets this component to be focusable and the background set to black
+		 */
 		this.setFocusable(true);
 		this.setBackground(Color.BLACK);
 
 		/* initializes arraylists, sets the gameID, and frame */
-		this.players = new ArrayList<Player>();
-		this.collisionRecs = new ArrayList<Rectangle>();
-		this.keys = new ArrayList<Integer>();
-		this.projectiles = new CopyOnWriteArrayList<Projectile>();
-		this.projectileIDs = new ArrayList<Integer>();
+		this.setPlayers(new ArrayList<Player>());
+		this.setCollisionRecs(new ArrayList<Rectangle>());
+		this.setKeys(new ArrayList<Integer>());
+		this.setProjectiles(new CopyOnWriteArrayList<Projectile>());
+		this.setProjectileIDs(new ArrayList<Integer>());
 		this.setGameID(gameID);
 		this.setFrame(frame);
 
 		/* default values for user info */
-		this.userName = "Bob";
-		this.userRace = "human";
-		this.userMelee = "sword";
-		this.userRanged = "bow";
-		this.userColor = " ";
+		this.setUserName("Bob");
+		this.setUserRace("human");
+		this.setUserMelee("sword");
+		this.setUserRanged("bow");
+		this.setUserColor(" ");
 
+		/* calls the method that updates the user */
 		this.updatePlayer();
 	}
 
-	/* server-side only constructor */
+	/**
+	 * The constructor specifically used for servers with no clients involved.
+	 * User variables and parameters are not applicable since no client means no
+	 * user. The JFrame parameter is not applicable either since servers run on
+	 * the console. When there is no client, and only a server, only certain
+	 * threads are needed which are specified in different methods with
+	 * statement like
+	 * <code>if (getSocketClient() == null && getSocketServer() != null)</code>.
+	 * 
+	 * @param gameID
+	 *            The ID number associated with the game type based on the
+	 *            GameType enumeration.
+	 * @see com.elveskevtar.divebomb.gfx.Game.GameTypes
+	 */
 	public Game(int gameID) {
+		/* calls the JPanel superconstructor */
 		super();
 
 		/* initializes arraylists and sets the gameID */
-		this.players = new ArrayList<Player>();
-		this.collisionRecs = new ArrayList<Rectangle>();
-		this.projectiles = new CopyOnWriteArrayList<Projectile>();
-		this.projectileIDs = new ArrayList<Integer>();
+		this.setPlayers(new ArrayList<Player>());
+		this.setCollisionRecs(new ArrayList<Rectangle>());
+		this.setProjectiles(new CopyOnWriteArrayList<Projectile>());
+		this.setProjectileIDs(new ArrayList<Integer>());
 		this.setGameID(gameID);
 	}
 
-	/*
-	 * basically updates the users parameters such as race, color, name, melee
-	 * weapon, ranged weapon, and weapon in hand
+	/**
+	 * Updates the user's variables such as race, color, name, melee weapon,
+	 * ranged weapon, and the weapon in hand.
+	 * 
+	 * @see com.elveskevtar.divebomb.race.Player
 	 */
 	public void updatePlayer() {
-		/* first block of if statements deals with user race and color */
-		if (userRace.equalsIgnoreCase("human"))
+		/*
+		 * first block of if statements deals with user race and color based on
+		 * user variables within the Game object
+		 */
+		if (userRace.equals("human"))
 			user = new Human(this, userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg") && userColor.equalsIgnoreCase("purple"))
+		else if (userRace.equals("cyborg") && userColor.equals("purple"))
 			user = new Cyborg(this, "purple", userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg") && userColor.equalsIgnoreCase("blue"))
+		else if (userRace.equals("cyborg") && userColor.equals("blue"))
 			user = new Cyborg(this, "blue", userName, null, -1);
-		else if (userRace.equalsIgnoreCase("cyborg"))
+		else if (userRace.equals("cyborg"))
 			user = new Cyborg(this, userName, -1, null, -1);
 		else
 			user = new Human(this, userName, null, -1);
 
-		/* second block of if statements deals all with weapons */
-		if (userMelee.equalsIgnoreCase("sword"))
+		/*
+		 * second block of if statements deals with weapons based on user
+		 * variables within the Game object
+		 */
+		if (userMelee.equals("sword"))
 			user.setMelee(new Sword(user));
-		if (userRanged.equalsIgnoreCase("bow"))
+		if (userRanged.equals("bow"))
 			user.setRanged(new Bow(user));
 		user.setInHand(user.getMelee());
 	}
 
-	/* sets the general timers used for all gamemodes */
+	/**
+	 * Sets the general timers used for all gamemodes. Takes into account the
+	 * presence of socketClients and socketServers.
+	 */
 	public void setTimers() {
-		this.timer = new Timer();
-
-		/* timers set for client side only or offline gameplay */
-		if (socketClient != null || (socketClient == null && socketServer == null)) {
-			this.timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
-			this.timer.scheduleAtFixedRate(new Repaint(), 0, speed);
-			this.timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
-			this.timer.scheduleAtFixedRate(new Input(), 0, speed);
-		}
-
-		/* timers set for all gamemodes */
-		this.timer.scheduleAtFixedRate(new Stamina(), 0, speed);
-		this.timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
-		this.timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
-
 		/*
 		 * sets the game to 'run' mode which affects loop threads in subclasses
 		 * of Game as well as online gameplay
 		 */
-		this.running = true;
+		setRunning(true);
+
+		/* initializes the Timer object */
+		setTimer(new Timer());
+
+		/* timers set for any Game object with a client */
+		if (socketClient != null || (socketClient == null && socketServer == null)) {
+			timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
+			timer.scheduleAtFixedRate(new Repaint(), 0, speed);
+			timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
+			timer.scheduleAtFixedRate(new Input(), 0, speed);
+		}
+
+		/* timers set for all gamemodes */
+		timer.scheduleAtFixedRate(new Stamina(), 0, speed);
+		timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
+		timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
 	}
 
-	/*
-	 * typically called by either socketclient or constructor of subclasses;
-	 * officially starts the game by setting maps, updating collisionRecs,
-	 * updating the player, adding keylisteners, and setting timers
+	/**
+	 * Typically called by either the GameClient object or the constructors of
+	 * Game type subclasses. Officially starts the game by setting maps,
+	 * updating the collisionRecs ArrayList, updating the user, adding
+	 * listeners, and setting the timers.
+	 * 
+	 * @param map
+	 *            The map object used that must be passed to map collision boxes
+	 *            and start the game.
 	 */
 	public void startGame(Map map) {
 		/* sets the map and collision maps */
 		if (map.getMap() != null)
-			this.map = map.getMap();
+			setMap(map.getMap());
 		if (map.getCollisionMap() != null)
-			this.collisionMap = map.getCollisionMap();
+			setCollisionMap(map.getCollisionMap());
 
 		/* updates collisionRecs based on RGB values of collisionMap */
-		for (int x = 0; x <= collisionMap.getWidth() - 1; x++) {
-			for (int y = 0; y <= collisionMap.getHeight() - 1; y++) {
+		for (int x = 0; x <= collisionMap.getWidth() - 1; x++)
+			for (int y = 0; y <= collisionMap.getHeight() - 1; y++)
 				if (collisionMap.getRGB(x, y) != -16777216)
 					collisionRecs.add(new Rectangle(x * 8, y * 8, 8, 8));
-			}
-		}
 
 		/* updates the user and puts them in the players arraylist */
-		this.updatePlayer();
-		this.players.add(user);
+		updatePlayer();
+		players.add(user);
 
 		/* add/start listeners for user input */
-		this.addKeyListener(this);
-		this.addMouseListener(this);
-		this.addMouseMotionListener(this);
-		this.addMouseWheelListener(this);
+		addKeyListener(this);
+		addMouseListener(this);
+		addMouseMotionListener(this);
+		addMouseWheelListener(this);
 
 		/*
-		 * requests focus in the window and brings jframe to the front of the
-		 * users screen
+		 * requests focus in the window and brings the JFrame object to the
+		 * front of the user's screen
 		 */
-		this.requestFocusInWindow();
-		this.frame.toFront();
+		requestFocusInWindow();
+		frame.toFront();
 
 		/* calls setTimers() which sets the game timertasks */
-		this.setTimers();
+		setTimers();
 	}
 
-	/* starts online games that involve server-side only servers */
+	/**
+	 * Starts online game that does not involve a side along client. Does not
+	 * necessarily have to a 'public' server, it only has to a MP gamemode type
+	 * that is serverside only.
+	 * 
+	 * @param map
+	 *            The map object used that must be passed to map collision boxes
+	 *            and start the game.
+	 */
 	public void startPublicServerGame(Map map) {
 		/* sets the map and collision maps */
 		if (map.getMap() != null)
-			this.map = map.getMap();
+			setMap(map.getMap());
 		if (map.getCollisionMap() != null)
-			this.collisionMap = map.getCollisionMap();
+			setCollisionMap(map.getCollisionMap());
 
 		/* updates collisionRecs based on RGB values of collisionMap */
 		for (int x = 0; x <= collisionMap.getWidth() - 1; x++) {
@@ -354,15 +500,19 @@ public abstract class Game extends JPanel
 		}
 
 		/* calls setTimers() which sets the game timertasks */
-		this.setTimers();
+		setTimers();
 	}
 
-	/*
-	 * the overriden paint method; this branches off into other paint methods
-	 * based on the state variable
+	/**
+	 * The overriden paint method; this branches off into other paint methods
+	 * based on the state variable.
+	 * 
+	 * @param g
+	 *            The Graphics object that is passed to the other paint methods
 	 */
 	@Override
 	public void paint(Graphics g) {
+		/* calls the super method for the paint method */
 		super.paint(g);
 
 		/* if the game is running, calls various paint functions */
@@ -379,12 +529,20 @@ public abstract class Game extends JPanel
 		}
 	}
 
-	/*
-	 * paints general aspects of the actual game itself that are needed for
-	 * every gamemode
+	/**
+	 * Paints the general aspects of the actual game itself such as the players,
+	 * names, projectiles, maps, and other images that are needed for every
+	 * gamemode. More specialized things such as GUI and gamemode specific
+	 * objects should be painted in the overriden
+	 * <code>paintGame(Graphics g)</code> methods of Game's subclasses. The
+	 * <code>Graphics g</code> parameter that is passed to this method is turned
+	 * into a Graphics2D object for more specialized painting.
+	 * 
+	 * @param g
+	 *            The Graphics object used to paint the game.
 	 */
 	public void paintGame(Graphics g) {
-		/* creates a graphics2d object from the graphics object */
+		/* creates a Grahpics2D object from the Graphics object */
 		Graphics2D g2d = (Graphics2D) g;
 
 		/*
@@ -402,15 +560,16 @@ public abstract class Game extends JPanel
 		g2d.setColor(NAMETAG_GREEN);
 		g2d.setFont(font);
 
-		/* draws and moves the map in relation to the users position */
+		/* draws the map in relation to the users position */
 		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
 				(int) (user.getyPosition() + getHeight() / 2), null);
 
 		/*
-		 * draws every other player and their weapon in relation to user client
-		 * assuming that player is different from the user and is not dead
+		 * draws every player that is not the user and is not dead as well as
+		 * their weapons in relation to the position of the user
 		 */
 		for (Player p : players) {
+			/* if the player is not the user and not dead */
 			if (p != user && !p.isDead()) {
 				/* draws the player in relation to user */
 				g2d.drawImage(p.getPlayerSprite(),
@@ -463,7 +622,7 @@ public abstract class Game extends JPanel
 			}
 		}
 
-		/* draws user. weapon, and name assuming user is not dead */
+		/* draws user, weapon, and name assuming user is not dead */
 		if (!user.isDead()) {
 			/* draws user in the middle of the screen */
 			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2 - user.getSpriteWidth() / 2, getHeight() / 2, null);
@@ -529,11 +688,20 @@ public abstract class Game extends JPanel
 		requestFocusInWindow();
 	}
 
-	/* paints the pause menu */
+	/**
+	 * This method is usually called immediately after calling
+	 * <code>public void paintGame(Graphics g)</code> so that the pause menu
+	 * serves as an overlay and gamemodes that do not pause, such as MP
+	 * gamemodes, can continue in the background. There are typically changes to
+	 * the contents of the pause menu based on the gamemode type.
+	 * 
+	 * @param g
+	 *            The Graphics object used to paint the pause menu.
+	 */
 	public void paintPauseMenu(Graphics g) {
 		/*
-		 * creates graphics2d object from graphics object and sets antialiasing
-		 * rendering hints for font
+		 * creates Graphics2D object from Graphics object and sets antialiasing
+		 * rendering hints for the font
 		 */
 		Graphics2D g2d = (Graphics2D) g;
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
@@ -543,7 +711,15 @@ public abstract class Game extends JPanel
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 	}
 
-	/* paints the reconnect menu when the user is having connection issues */
+	/**
+	 * This method is usually called immediately after calling
+	 * <code>public void paintGame(Graphics g)</code> so that the game is still
+	 * painted underneath the reconnect screen which only serves as an overlay
+	 * to notify the user of connection issues.
+	 * 
+	 * @param g
+	 *            The graphics object used to paint the reconnect screen.
+	 */
 	public void paintReconnect(Graphics g) {
 		/*
 		 * creates graphics2d object from graphics object and sets antialiasing
@@ -557,10 +733,10 @@ public abstract class Game extends JPanel
 		g2d.fillRect(0, 0, getWidth(), getHeight());
 
 		/*
-		 * creates a string with the word reconnecting and either 1, 2, or 3
-		 * periods after it based on system time (each second, another period is
-		 * added until 3 periods are reached where it will cycle back to 1
-		 * period)
+		 * creates a string literal of the word reconnecting, and either 1, 2,
+		 * or 3 periods after it based on system time (each second, another
+		 * period is added until 3 periods are reached where it will cycle back
+		 * to 1 period)
 		 */
 		String reconnecting;
 		if ((System.currentTimeMillis() / 1000) % 3 == 0)
@@ -570,10 +746,7 @@ public abstract class Game extends JPanel
 		else
 			reconnecting = "Reconnecting...";
 
-		/*
-		 * draws the string with green livewired font in the middle of the
-		 * screen
-		 */
+		/* draws the string in the middle of the screen with a font and color */
 		g2d.setColor(NAMETAG_GREEN);
 		g2d.setFont(new Font("Livewired", Font.PLAIN, 30));
 		g2d.drawString(reconnecting, (int) (getWidth() / 2 - reconnecting.length() * 8), getHeight() / 2);
@@ -583,7 +756,7 @@ public abstract class Game extends JPanel
 	@Override
 	public void keyPressed(KeyEvent e) {
 		/*
-		 * when a key is pressed, add it to the list of keys that are being
+		 * when a key is pressed, add it to the ArrayList of keys that are being
 		 * pressed assuming that it is not already in there
 		 */
 		if (!keys.contains(e.getKeyCode()))
@@ -593,7 +766,8 @@ public abstract class Game extends JPanel
 	@Override
 	public void keyReleased(KeyEvent e) {
 		/*
-		 * when a key is released, remove it from the list of keys being pressed
+		 * when a key is released, remove it from the ArrayList of keys being
+		 * pressed
 		 */
 		keys.remove((Integer) e.getKeyCode());
 	}
@@ -628,15 +802,14 @@ public abstract class Game extends JPanel
 	public void mouseMoved(MouseEvent e) {
 		/*
 		 * when the mouse is moved, calculate if the user is facing right or
-		 * left and calculate the angle of their weapon if it is a projectile
-		 * shooter
+		 * left and calculate the angle of their weapon (both based on mouse
+		 * location; the second only matters for projectile shooters)
 		 */
 		if (state == 0) {
-			if (e.getX() > getWidth() / 2 + 32) {
+			if (e.getX() > getWidth() / 2)
 				user.setFacingRight(true);
-			} else {
+			else
 				user.setFacingRight(false);
-			}
 			if (user.getInHand() instanceof ProjectileShooter)
 				if (user.isFacingRight())
 					((ProjectileShooter) user.getInHand()).setrAngle(
@@ -855,6 +1028,14 @@ public abstract class Game extends JPanel
 
 	public void setPlayers(ArrayList<Player> players) {
 		this.players = players;
+	}
+
+	public ArrayList<Integer> getKeys() {
+		return keys;
+	}
+
+	public void setKeys(ArrayList<Integer> keys) {
+		this.keys = keys;
 	}
 
 	public Player getUser() {

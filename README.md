@@ -5,8 +5,8 @@ To-Do List:<br>
 <s>Allow for disconnects after game starts</s><br>
 <s>Introduce ping packets at lobby so that players can disconnect at lobby too</s><br>
 <s>Allow players to pick the port in which the server will run and allow connecting players to specify a port</s><br>
-Allow players to resize screen via the options menu<br>
 Failed to connect stuff when ip is wrong or server is down<br>
+Allow players to resize screen via the options menu<br>
 Create end-game stats screen w/ voting for new gamemode/map<br>
 COMMENTS/Constructing a javadoc<br>
 Add config file for both server only and client<br>

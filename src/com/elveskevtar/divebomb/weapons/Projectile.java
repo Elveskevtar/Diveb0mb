@@ -1,6 +1,6 @@
 package com.elveskevtar.divebomb.weapons;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.elveskevtar.divebomb.gfx.GameDeathmatchMP;
 import com.elveskevtar.divebomb.net.packets.Packet06Kill;
@@ -30,8 +30,8 @@ public abstract class Projectile extends Weapon {
 	}
 
 	@Override
-	public void attack(ArrayList<Player> players, boolean server) {
-		ArrayList<Player> attackedPlayers = players;
+	public void attack(CopyOnWriteArrayList<Player> players, boolean server) {
+		CopyOnWriteArrayList<Player> attackedPlayers = players;
 		for (Player p : attackedPlayers) {
 			p.setHealth(p.getHealth() + (Math.random() * -10) + p.getInHand().getDefense() - getDamage());
 			if (p.getHealth() <= 0) {

@@ -2,7 +2,7 @@ package com.elveskevtar.divebomb.weapons;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.imageio.ImageIO;
 
@@ -68,7 +68,7 @@ public class Bow extends ProjectileShooter {
 	}
 
 	@Override
-	public void attack(ArrayList<Player> players, boolean server) {
+	public void attack(CopyOnWriteArrayList<Player> players, boolean server) {
 		super.attack(players, server);
 		new Thread(new Animation()).start();
 	}

@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.elveskevtar.divebomb.gfx.Game;
 import com.elveskevtar.divebomb.maps.SpawnPoints;
@@ -36,7 +37,7 @@ import com.elveskevtar.divebomb.weapons.Weapon;
 
 public class GameServer extends Thread {
 
-	public ArrayList<Player> connectedPlayers = new ArrayList<Player>();
+	public CopyOnWriteArrayList<Player> connectedPlayers = new CopyOnWriteArrayList<Player>();
 	private DatagramSocket socket;
 
 	private Game game;
@@ -323,11 +324,11 @@ public class GameServer extends Thread {
 		this.socket = socket;
 	}
 
-	public ArrayList<Player> getConnectedPlayers() {
+	public CopyOnWriteArrayList<Player> getConnectedPlayers() {
 		return connectedPlayers;
 	}
 
-	public void setConnectedPlayers(ArrayList<Player> connectedPlayers) {
+	public void setConnectedPlayers(CopyOnWriteArrayList<Player> connectedPlayers) {
 		this.connectedPlayers = connectedPlayers;
 	}
 

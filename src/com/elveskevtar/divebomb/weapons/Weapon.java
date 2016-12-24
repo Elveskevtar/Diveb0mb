@@ -1,7 +1,7 @@
 package com.elveskevtar.divebomb.weapons;
 
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.elveskevtar.divebomb.race.Player;
 
@@ -10,7 +10,7 @@ public abstract class Weapon {
 	private BufferedImage image;
 	private BufferedImage sprite;
 	private String name;
-	
+
 	private Player player;
 
 	private int damage;
@@ -27,7 +27,7 @@ public abstract class Weapon {
 	private int spriteX;
 	private int spriteY;
 
-	public abstract void attack(ArrayList<Player> players, boolean server);
+	public abstract void attack(CopyOnWriteArrayList<Player> players, boolean server);
 
 	public Weapon(Player p, String name) {
 		this.player = p;

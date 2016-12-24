@@ -1,4 +1,4 @@
-Diveb0mb<br>
+The Interventionists<br>
 ========
 To-Do List:<br>
 <s>Add temporary background design for menus</s><br>
@@ -8,6 +8,9 @@ To-Do List:<br>
 Notify user when they have failed to connect to a server (e.g. ip is wrong, server is down, connection issues)<br>
 Stop count-down if player disconnects from lobby<br>
 Make stamina regulated by the server in MP gamemodes<br>
+Test and improve collision<br>
+Improve movement of projectiles<br>
+Improve all animations and add more, especially to characters<br>
 Make a fully functioning pause menu<br>
 Allow players to resize their screens via the options menu<br>
 Create end-game stats screen for MP games with voting for a new gamemode and map<br>

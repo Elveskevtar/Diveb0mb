@@ -1,6 +1,6 @@
 package com.elveskevtar.divebomb.weapons;
 
-import java.util.ArrayList;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.elveskevtar.divebomb.race.Player;
 
@@ -51,7 +51,7 @@ public abstract class ProjectileShooter extends Weapon {
 	}
 
 	@Override
-	public void attack(ArrayList<Player> players, boolean server) {
+	public void attack(CopyOnWriteArrayList<Player> players, boolean server) {
 		if (getPlayer().getGame().getSocketClient() == null || server == true) {
 			addProjectile();
 		} else if (getPlayer().getName().equalsIgnoreCase(getPlayer().getGame().getUserName()) && !server) {

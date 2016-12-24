@@ -10,6 +10,7 @@ public class Map {
 
 	private BufferedImage map;
 	private BufferedImage collisionMap;
+
 	private String mapPath;
 	private String collisionMapPath;
 
@@ -22,7 +23,8 @@ public class Map {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		this.id = id;
+
+		this.setId(id);
 		this.setMapPath(map);
 		this.setCollisionMapPath(collisionMap);
 	}

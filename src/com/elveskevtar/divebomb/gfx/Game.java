@@ -49,8 +49,8 @@ import com.elveskevtar.divebomb.weapons.Sword;
  * subthreads are structured within the Game class and all of its
  * subclasses.<br>
  * <br>
- * Contains constructors for both client-side Game objects (whether the client
- * is also hosting a server or not) and server-side only Game objects.<br>
+ * Contains constructors for both clientside Game objects (whether the client is
+ * also hosting a server or not) and serverside only Game objects.<br>
  * <br>
  * Implements KeyListener, MouseListener, MouseMotionListener, and
  * MouseWheelListener to track all of the necessary inputs that makes the game
@@ -129,8 +129,14 @@ public abstract class Game extends JPanel
 	 */
 	private static final Color PAUSE_OVERLAY = new Color(32, 32, 32, 100);
 
+	/** The maximum downwards velocity for a Player. */
+	private static final double TERMINAL_VELOCITY = -14;
+
+	/** The gravity variable of the Game. Affects every Player's y velocity. */
+	private static final double GRAVITY = 1.1;
+
 	/** The number of milliseconds between repitions of the TimerTasks. */
-	private static final int speed = 16;
+	private static final int SPEED = 16;
 
 	/**
 	 * The paint method calls various paint submethods based on this variable.
@@ -190,6 +196,17 @@ public abstract class Game extends JPanel
 	private CopyOnWriteArrayList<Projectile> projectiles;
 
 	/**
+	 * An ArrayList that contains the active players withing the Game object.
+	 * Uses a CopyOnWriteArrayList which is a thread safe alternative to regular
+	 * ArrayLists. This means that while you're modifying an element of the list
+	 * in one thread, you could be iterating through the elements in another
+	 * thread and no ConcurrentModificationException would be thrown.
+	 * 
+	 * @see java.util.ConcurrentModificationException
+	 */
+	private CopyOnWriteArrayList<Player> players;
+
+	/**
 	 * An ArrayList that contains all of the collision rectangles loaded through
 	 * the collision map file.
 	 */
@@ -200,11 +217,6 @@ public abstract class Game extends JPanel
 	 * Projectile objects in the CopyOnWriteArrayList.
 	 */
 	private ArrayList<Integer> projectileIDs;
-
-	/**
-	 * An ArrayList that contains the active players withing the Game object.
-	 */
-	private ArrayList<Player> players;
 
 	/**
 	 * An ArrayList of Integers that contains the integer equivalents of the
@@ -319,11 +331,11 @@ public abstract class Game extends JPanel
 		this.setBackground(Color.BLACK);
 
 		/* initializes arraylists, sets the gameID, and frame */
-		this.setPlayers(new ArrayList<Player>());
-		this.setCollisionRecs(new ArrayList<Rectangle>());
-		this.setKeys(new ArrayList<Integer>());
 		this.setProjectiles(new CopyOnWriteArrayList<Projectile>());
+		this.setPlayers(new CopyOnWriteArrayList<Player>());
+		this.setCollisionRecs(new ArrayList<Rectangle>());
 		this.setProjectileIDs(new ArrayList<Integer>());
+		this.setKeys(new ArrayList<Integer>());
 		this.setGameID(gameID);
 		this.setFrame(frame);
 
@@ -357,9 +369,9 @@ public abstract class Game extends JPanel
 		super();
 
 		/* initializes arraylists and sets the gameID */
-		this.setPlayers(new ArrayList<Player>());
-		this.setCollisionRecs(new ArrayList<Rectangle>());
 		this.setProjectiles(new CopyOnWriteArrayList<Projectile>());
+		this.setPlayers(new CopyOnWriteArrayList<Player>());
+		this.setCollisionRecs(new ArrayList<Rectangle>());
 		this.setProjectileIDs(new ArrayList<Integer>());
 		this.setGameID(gameID);
 	}
@@ -395,34 +407,6 @@ public abstract class Game extends JPanel
 		if (userRanged.equals("bow"))
 			user.setRanged(new Bow(user));
 		user.setInHand(user.getMelee());
-	}
-
-	/**
-	 * Sets the general timers used for all gamemodes. Takes into account the
-	 * presence of socketClients and socketServers.
-	 */
-	public void setTimers() {
-		/*
-		 * sets the game to 'run' mode which affects loop threads in subclasses
-		 * of Game as well as online gameplay
-		 */
-		setRunning(true);
-
-		/* initializes the Timer object */
-		setTimer(new Timer());
-
-		/* timers set for any Game object with a client */
-		if (socketClient != null || (socketClient == null && socketServer == null)) {
-			timer.scheduleAtFixedRate(new MovePlayers(), 0, speed);
-			timer.scheduleAtFixedRate(new Repaint(), 0, speed);
-			timer.scheduleAtFixedRate(new AnimatePlayers(), 0, speed);
-			timer.scheduleAtFixedRate(new Input(), 0, speed);
-		}
-
-		/* timers set for all gamemodes */
-		timer.scheduleAtFixedRate(new Stamina(), 0, speed);
-		timer.scheduleAtFixedRate(new PlayerWeapons(), 0, speed);
-		timer.scheduleAtFixedRate(new Projectiles(), 0, speed);
 	}
 
 	/**
@@ -498,6 +482,34 @@ public abstract class Game extends JPanel
 	}
 
 	/**
+	 * Sets the general timers used for all gamemodes. Takes into account the
+	 * presence of socketClients and socketServers.
+	 */
+	public void setTimers() {
+		/*
+		 * sets the game to 'run' mode which affects loop threads in subclasses
+		 * of Game as well as online gameplay
+		 */
+		setRunning(true);
+
+		/* initializes the Timer object */
+		setTimer(new Timer());
+
+		/* timers set for any Game object with a client */
+		if (socketClient != null || (socketClient == null && socketServer == null)) {
+			timer.scheduleAtFixedRate(new MovePlayers(), 0, SPEED);
+			timer.scheduleAtFixedRate(new Repaint(), 0, SPEED);
+			timer.scheduleAtFixedRate(new AnimatePlayers(), 0, SPEED);
+			timer.scheduleAtFixedRate(new Input(), 0, SPEED);
+			timer.scheduleAtFixedRate(new Stamina(), 0, SPEED);
+			timer.scheduleAtFixedRate(new PlayerWeapons(), 0, SPEED);
+		}
+
+		/* timers set for all gamemodes */
+		timer.scheduleAtFixedRate(new Projectiles(), 0, SPEED);
+	}
+
+	/**
 	 * The overriden paint method; this branches off into other paint methods
 	 * based on the state variable.
 	 * 
@@ -509,16 +521,22 @@ public abstract class Game extends JPanel
 		/* calls the super method for the paint method */
 		super.paint(g);
 
-		/* if the game is running, calls various paint functions */
+		/*
+		 * if the game is running, calls various paint functions based on state
+		 */
 		if (running) {
-			if (state == 0) {
+			switch (state) {
+			case 0:
 				paintGame(g);
-			} else if (state == 1) {
+				break;
+			case 1:
 				paintGame(g);
 				paintPauseMenu(g);
-			} else if (state == 2) {
+				break;
+			case 2:
 				paintGame(g);
 				paintReconnect(g);
+				break;
 			}
 		}
 	}
@@ -1015,11 +1033,11 @@ public abstract class Game extends JPanel
 		this.timer = timer;
 	}
 
-	public ArrayList<Player> getPlayers() {
+	public CopyOnWriteArrayList<Player> getPlayers() {
 		return players;
 	}
 
-	public void setPlayers(ArrayList<Player> players) {
+	public void setPlayers(CopyOnWriteArrayList<Player> players) {
 		this.players = players;
 	}
 
@@ -1127,7 +1145,7 @@ public abstract class Game extends JPanel
 												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
 														player.getBounds().width - 20, player.getBounds().height - 14))
 										&& !player.isDead() && (p.getVelox() != 0 || p.getVeloy() != 0)) {
-									ArrayList<Player> attacked = new ArrayList<Player>();
+									CopyOnWriteArrayList<Player> attacked = new CopyOnWriteArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, true);
 									projectiles.remove(p);
@@ -1154,7 +1172,7 @@ public abstract class Game extends JPanel
 												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
 														player.getBounds().width - 20, player.getBounds().height - 14))
 										&& !player.isDead() && (p.getVelox() != 0 || p.getVeloy() != 0)) {
-									ArrayList<Player> attacked = new ArrayList<Player>();
+									CopyOnWriteArrayList<Player> attacked = new CopyOnWriteArrayList<Player>();
 									attacked.add(player);
 									p.attack(attacked, false);
 									projectiles.remove(p);
@@ -1610,27 +1628,55 @@ public abstract class Game extends JPanel
 				 */
 				if (p.getStamina() + 0.05 > p.getMaxStamina())
 					p.setStamina(p.getMaxStamina());
-				else if (p.getStamina() + 0.05 <= p.getMaxStamina())
+				else
 					p.setStamina(p.getStamina() + 0.05);
 			}
 		}
 	}
 
-	/*
-	 * when editing this subclass, make sure to edit both the code for single
-	 * player (socketClient == null) and multiplayer (socketClient != null);
-	 * also, in player.checkCollisions(), 1 = left or right; 3 = up, and 4 =
-	 * down
+	/**
+	 * TimerTask that handles the movement of the Players in the Game object
+	 * (clients only for both SP and MP gamemodes). The code is split up into
+	 * two very similar chunks: one for SP gamemodes and another for MP
+	 * gamemodes. This Task is client based only since running inputs through to
+	 * a server and receiving the movement back would take significantly more
+	 * packet traffic. The returned integers for <code>checkCollisions()</code>
+	 * in the abstract Player class can be interpreted as follows:
+	 * <ul>
+	 * <li>1 = left or right</li>
+	 * <li>3 = up</li>
+	 * <li>4 = down</li>
+	 * </ul>
+	 * The Task runs every <code>speed</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
 	 */
 	private class MovePlayers extends TimerTask {
 
 		@Override
 		public void run() {
+			/* if SP gamemode */
 			if (socketClient == null) {
+				/* cycles through the Players in the ArrayList */
 				for (Player p : players) {
-					if (p.getVeloX() != 0 && !p.checkCollisions().contains(1) && !p.isDead())
+					/*
+					 * if the Player is moving horizontally and will not collide
+					 * with an element of the collisionRecs ArrayList with the
+					 * Player's current horizontal velocity
+					 */
+					if (p.getVeloX() != 0 && !p.checkCollisions().contains(1) && !p.isDead()) {
+						/*
+						 * moves the Player horizontally if the player won't
+						 * collide with a collisionRec
+						 */
 						p.setxPosition(p.getxPosition() + p.getVeloX());
-					else if (p.getVeloX() != 0 && p.checkCollisions().contains(1)) {
+					} else if (p.getVeloX() != 0 && !p.isDead()) {
+						/*
+						 * only moves the Player horizontally if the
+						 * collisionRecs that the Player is colliding with are
+						 * low to the ground; also translates the Player
+						 * slightly upward
+						 */
 						boolean flag = false;
 						for (Rectangle r : getCollisionRecs())
 							if (new Rectangle((int) (p.getBounds().x + 10 - p.getVeloX()), p.getBounds().y + 6,
@@ -1641,14 +1687,29 @@ public abstract class Game extends JPanel
 							p.setxPosition(p.getxPosition() + p.getVeloX());
 						}
 					}
-					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3) && !p.isDead())
+
+					/*
+					 * if the Player is moving upwards and will not collide with
+					 * an element of the collisionRecs ArrayList with the
+					 * Player's current vertical velocity
+					 */
+					if (p.getVeloY() > 0 && !p.checkCollisions().contains(3) && !p.isDead()) {
+						/*
+						 * moves the Player upwards if the Player won't collide
+						 * with a collisionRec
+						 */
 						p.setyPosition(p.getyPosition() + p.getVeloY());
-					else if (p.getVeloY() > 0 && !p.isDead()) {
+					} else if (p.getVeloY() > 0 && !p.isDead()) {
+						/*
+						 * only moves the Player upwards until their head
+						 * reaches the bottom of the collisionRec that the
+						 * Player will collide with
+						 */
 						int h = 0;
 						outerloop: for (Rectangle r : getCollisionRecs()) {
 							h = 0;
-							while (!new Rectangle(p.getBounds().x, p.getBounds().y - h + (64 - p.getHeight()),
-									p.getBounds().width, p.getBounds().height).intersects(r)) {
+							while (!new Rectangle(p.getBounds().x + 10, p.getBounds().y + 14 - h, p.getBounds().width,
+									p.getBounds().height).intersects(r)) {
 								if (h > p.getVeloY())
 									continue outerloop;
 								h++;
@@ -1658,9 +1719,24 @@ public abstract class Game extends JPanel
 						p.setyPosition(p.getyPosition() + h - 1);
 						p.setVeloY(-0.5);
 					}
-					if (p.getVeloY() < 0 && !p.checkCollisions().contains(4) && !p.isDead())
+
+					/*
+					 * if the Player is moving downwards and will not collide
+					 * with an element of the collisionRecs ArrayList with the
+					 * Player's current vertical velocity
+					 */
+					if (p.getVeloY() < 0 && !p.checkCollisions().contains(4) && !p.isDead()) {
+						/*
+						 * moves the Player downwards if the Player won't
+						 * collide with a collisionRec
+						 */
 						p.setyPosition(p.getyPosition() + p.getVeloY());
-					else if (p.getVeloY() < 0 && !p.isDead()) {
+					} else if (p.getVeloY() < 0 && !p.isDead()) {
+						/*
+						 * only moves the Player downwards until their feet
+						 * reach the top of the collisionRec that the Player
+						 * will collide with
+						 */
 						int h = 0;
 						outerloop: for (Rectangle r : getCollisionRecs()) {
 							h = 0;
@@ -1675,31 +1751,75 @@ public abstract class Game extends JPanel
 						p.setyPosition(p.getyPosition() + h + 1);
 						p.setVeloY(0);
 					}
+
+					/* if statement for various y velocities */
 					if (p.getVeloY() == 0) {
+						/* if y velocity is 0 set jumping and falling off */
 						p.setJumping(false);
 						p.setFalling(false);
-					} else if (p.getVeloY() > 0 && !p.checkCollisions().contains(3)) {
+					} else if (p.getVeloY() > 0) {
+						/*
+						 * if the Player is moving upwards, set jumping to true
+						 * and gradually reduce the Player's y velocity
+						 */
 						p.setJumping(true);
 						p.setFalling(false);
-						p.setVeloY(p.getVeloY() / 1.1);
-					} else if (p.getVeloY() < 0 && p.getVeloY() >= -14) {
+						p.setVeloY(p.getVeloY() / GRAVITY);
+					} else if (p.getVeloY() < 0 && p.getVeloY() >= TERMINAL_VELOCITY) {
+						/*
+						 * if the y velocity is below terminal velocity going
+						 * downwards, increase it and set falling to true
+						 */
 						p.setJumping(false);
 						p.setFalling(true);
-						p.setVeloY(p.getVeloY() * 1.09);
+						p.setVeloY(p.getVeloY() * GRAVITY);
 					} else {
+						/*
+						 * if the y velocity is at terminal velocity or greater
+						 * going downwards, set it to terminal and set falling
+						 * to true
+						 */
 						p.setJumping(false);
 						p.setFalling(true);
+						p.setVeloY(TERMINAL_VELOCITY);
 					}
+
+					/*
+					 * if the y velocity is going upwards and is very small, set
+					 * it to start going downwards
+					 */
 					if (p.getVeloY() > 0 && p.getVeloY() < 1)
 						p.setVeloY(-0.5);
+
+					/*
+					 * if the Player can fall, is not currently falling or
+					 * jumping, and is not collliding, set the y velocity to go
+					 * downwards
+					 */
 					if (p.canFall() && !p.isFalling() && !p.isJumping() && !p.checkCollisions().contains(4)
 							&& !p.isDead())
 						p.setVeloY(-0.5);
 				}
 			} else {
-				if (user.getVeloX() != 0 && !user.checkCollisions().contains(1) && !user.isDead())
+				/* for MP gamemodes */
+
+				/*
+				 * if the user is moving horizontally and will not collide with
+				 * an element of the collisionRecs ArrayList with the user's
+				 * current horizontal velocity
+				 */
+				if (user.getVeloX() != 0 && !user.checkCollisions().contains(1) && !user.isDead()) {
+					/*
+					 * moves the user horizontally if the user won't collide
+					 * with a collisionRec
+					 */
 					user.setxPosition(user.getxPosition() + user.getVeloX());
-				else if (user.getVeloX() != 0 && user.checkCollisions().contains(1)) {
+				} else if (user.getVeloX() != 0 && !user.isDead()) {
+					/*
+					 * only moves the user horizontally if the collisionRecs
+					 * that the user is colliding with are low to the ground;
+					 * also translates the user slightly upward
+					 */
 					boolean flag = false;
 					for (Rectangle r : getCollisionRecs())
 						if (new Rectangle((int) (user.getBounds().x + 10 - user.getVeloX()), user.getBounds().y + 6,
@@ -1710,9 +1830,24 @@ public abstract class Game extends JPanel
 						user.setxPosition(user.getxPosition() + user.getVeloX());
 					}
 				}
-				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3) && !user.isDead())
+
+				/*
+				 * if the user is moving upwards and will not collide with an
+				 * element of the collisionRecs ArrayList with the user's
+				 * current vertical velocity
+				 */
+				if (user.getVeloY() > 0 && !user.checkCollisions().contains(3) && !user.isDead()) {
+					/*
+					 * moves the user upwards if the user won't collide with a
+					 * collisionRec
+					 */
 					user.setyPosition(user.getyPosition() + user.getVeloY());
-				else if (user.getVeloY() > 0 && !user.isDead()) {
+				} else if (user.getVeloY() > 0 && !user.isDead()) {
+					/*
+					 * only moves the user upwards until their head reaches the
+					 * bottom of the collisionRec that the user will collide
+					 * with
+					 */
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
@@ -1727,9 +1862,23 @@ public abstract class Game extends JPanel
 					user.setyPosition(user.getyPosition() + h - 1);
 					user.setVeloY(-0.5);
 				}
-				if (user.getVeloY() < 0 && !user.checkCollisions().contains(4) && !user.isDead())
+
+				/*
+				 * if the user is moving downwards and will not collide with an
+				 * element of the collisionRecs ArrayList with the user's
+				 * current vertical velocity
+				 */
+				if (user.getVeloY() < 0 && !user.checkCollisions().contains(4) && !user.isDead()) {
+					/*
+					 * moves the user downwards if the user won't collide with a
+					 * collisionRec
+					 */
 					user.setyPosition(user.getyPosition() + user.getVeloY());
-				else if (user.getVeloY() < 0 && !user.isDead()) {
+				} else if (user.getVeloY() < 0 && !user.isDead()) {
+					/*
+					 * only moves the user downwards until their feet reach the
+					 * top of the collisionRec that the user will collide with
+					 */
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
@@ -1744,32 +1893,65 @@ public abstract class Game extends JPanel
 					user.setyPosition(user.getyPosition() + h + 1);
 					user.setVeloY(0);
 				}
+
+				/* if statement for various y velocities */
 				if (user.getVeloY() == 0) {
+					/* if y velocity is 0 set jumping and falling off */
 					user.setJumping(false);
 					user.setFalling(false);
 				} else if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)) {
+					/*
+					 * if the user is moving upwards, set jumping to true and
+					 * gradually reduce the user's y velocity
+					 */
 					user.setJumping(true);
 					user.setFalling(false);
-					user.setVeloY(user.getVeloY() / 1.1);
-				} else if (user.getVeloY() < 0 && user.getVeloY() >= -14) {
+					user.setVeloY(user.getVeloY() / GRAVITY);
+				} else if (user.getVeloY() < 0 && user.getVeloY() >= TERMINAL_VELOCITY) {
+					/*
+					 * if the y velocity is below terminal velocity going
+					 * downwards, increase it and set falling to true
+					 */
 					user.setJumping(false);
 					user.setFalling(true);
-					user.setVeloY(user.getVeloY() * 1.09);
+					user.setVeloY(user.getVeloY() * GRAVITY);
 				} else {
+					/*
+					 * if the y velocity is at terminal velocity or greater
+					 * going downwards, set it to terminal and set falling to
+					 * true
+					 */
 					user.setJumping(false);
 					user.setFalling(true);
+					user.setVeloY(TERMINAL_VELOCITY);
 				}
+
+				/*
+				 * if the y velocity is going upwards and is very small, set it
+				 * to start going downwards
+				 */
 				if (user.getVeloY() > 0 && user.getVeloY() < 1)
 					user.setVeloY(-0.5);
+
+				/*
+				 * if the user can fall, is not currently falling or jumping,
+				 * and is not collliding, set the y velocity to go downwards
+				 */
 				if (user.canFall() && !user.isFalling() && !user.isJumping() && !user.checkCollisions().contains(4)
 						&& !user.isDead())
 					user.setVeloY(-0.5);
 			}
+			/* for either SP gamemodes */
+
+			/* cycle through the Players in the ArrayList */
 			for (Player p : players) {
+				/* if the Player is not dead but has zero or less health */
 				if (!p.isDead() && p.getHealth() <= 0) {
+					/* set the Player to dead with zero health */
 					p.setHealth(0);
 					p.setDead(true);
 				} else if (p.isDead() && p.getHealth() > 0) {
+					/* if the Player is dead and has health, set to not dead */
 					p.setDead(false);
 				}
 			}

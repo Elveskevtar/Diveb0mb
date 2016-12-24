@@ -43,6 +43,7 @@ public class GameServer extends Thread {
 	private Game game;
 
 	private boolean serverRunning;
+	private boolean starting;
 
 	private int PORT;
 	private int updatedPlayerCount;
@@ -221,7 +222,8 @@ public class GameServer extends Thread {
 				p.setDead(false);
 			}
 		}
-		if (connectedPlayers.size() == game.getPlayerSize() && !game.isRunning()) {
+		if (connectedPlayers.size() == game.getPlayerSize() && !game.isRunning() && !isStarting()) {
+			setStarting(true);
 			new Thread(new initGame()).start();
 		}
 	}
@@ -340,6 +342,14 @@ public class GameServer extends Thread {
 		this.serverRunning = serverRunning;
 	}
 
+	public boolean isStarting() {
+		return starting;
+	}
+
+	public void setStarting(boolean starting) {
+		this.starting = starting;
+	}
+
 	public int getPORT() {
 		return PORT;
 	}
@@ -352,7 +362,6 @@ public class GameServer extends Thread {
 
 		@Override
 		public void run() {
-			game.setRunning(true);
 			game.setLobbyTime(10);
 			for (int i = game.getLobbyTime(); i >= 0; i--) {
 				try {
@@ -364,12 +373,14 @@ public class GameServer extends Thread {
 				Packet11GameLobbyTime gameLobbyPacket = new Packet11GameLobbyTime(game.getLobbyTime());
 				gameLobbyPacket.writeData(GameServer.this);
 				if (connectedPlayers.size() < game.getPlayerSize()) {
-
+					game.setLobbyTime(-1);
+					Packet11GameLobbyTime stopLobbyPacket = new Packet11GameLobbyTime(game.getLobbyTime());
+					stopLobbyPacket.writeData(GameServer.this);
+					setStarting(false);
+					return;
 				}
 			}
-			for (int i = 0; i < connectedPlayers.size(); i++) {
-				if (updatedPlayerCount == connectedPlayers.size())
-					break;
+			while (updatedPlayerCount != connectedPlayers.size()) {
 				byte[] updateData = new byte[1024];
 				DatagramPacket updatePacket = new DatagramPacket(updateData, updateData.length);
 				try {
@@ -379,6 +390,7 @@ public class GameServer extends Thread {
 				}
 				parsePacket(updatePacket.getData(), updatePacket.getAddress(), updatePacket.getPort());
 			}
+			game.setRunning(true);
 			Packet02Startgame startGamePacket = null;
 			ArrayList<SpawnPoints> spawnPoints = new ArrayList<SpawnPoints>();
 			for (SpawnPoints point : SpawnPoints.values())
@@ -396,8 +408,6 @@ public class GameServer extends Thread {
 					if (index == connectedPlayers.size())
 						break;
 				}
-				if (game.getSocketClient() == null)
-					game.startPublicServerGame(game.getGraphicsMap());
 			} else {
 				int index = 0;
 				while (index < connectedPlayers.size()) {
@@ -413,6 +423,8 @@ public class GameServer extends Thread {
 					}
 				}
 			}
+			if (game.getSocketClient() == null)
+				game.startPublicServerGame(game.getGraphicsMap());
 		}
 	}
 

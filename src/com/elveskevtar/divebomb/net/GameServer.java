@@ -55,7 +55,7 @@ public class GameServer extends Thread {
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-		this.serverRunning = true;
+		this.setServerRunning(true);
 		new Thread(new CheckForPingDrops()).start();
 	}
 
@@ -420,8 +420,11 @@ public class GameServer extends Thread {
 
 		@Override
 		public void run() {
-			while (GameServer.this.isServerRunning()) {
+			while (isServerRunning()) {
+				//System.out.println("SERVER RUNNING");
 				for (Player p : connectedPlayers) {
+					/* System.out
+							.println(p.getName().toUpperCase() + " : " + p.getOldTimeStamp() + " : " + p.getLatency()); */
 					p.setLatency(System.nanoTime() - p.getOldTimeStamp());
 					if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
 						Packet01Disconnect packet = new Packet01Disconnect(p.getName());

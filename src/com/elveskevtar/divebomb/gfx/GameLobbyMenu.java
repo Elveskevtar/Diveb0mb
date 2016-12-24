@@ -52,7 +52,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 
 	private JFrame frame;
 	private String ip;
-	
+
 	private Game game;
 
 	/* constructor for creating a private multiplayer game */
@@ -92,8 +92,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 				e.printStackTrace();
 			}
 		}
-		if (game.getSocketServer() == null)
-			new Thread(new CheckForPingDrops()).start();
+		new Thread(new CheckForPingDrops()).start();
 	}
 
 	/* constructor for joining a private multiplayer game */
@@ -133,8 +132,7 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 				e.printStackTrace();
 			}
 		}
-		if (game.getSocketServer() == null)
-			new Thread(new CheckForPingDrops()).start();
+		new Thread(new CheckForPingDrops()).start();
 	}
 
 	/* paint the game lobby menu */

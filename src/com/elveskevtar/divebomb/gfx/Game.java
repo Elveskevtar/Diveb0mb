@@ -13,6 +13,8 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
@@ -563,6 +565,9 @@ public abstract class Game extends JPanel
 		 */
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
+		/* sets antialiasing rendering hints */
+		g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
 		/* translates and scales graphics based on zoom value */
 		g2d.translate(-getWidth() * (0.5 * zoom - 0.5), -getHeight() * (0.5 * zoom - 0.5));
 		g2d.scale(zoom, zoom);
@@ -823,12 +828,11 @@ public abstract class Game extends JPanel
 				user.setFacingRight(false);
 			if (user.getInHand() instanceof ProjectileShooter)
 				if (user.isFacingRight())
-					((ProjectileShooter) user.getInHand()).setrAngle(
-							Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2 - 16 * zoom));
+					((ProjectileShooter) user.getInHand())
+							.setrAngle(Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2));
 				else
 					((ProjectileShooter) user.getInHand()).setrAngle(
-							Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2 - 16 * zoom)
-									- Math.PI);
+							Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2) - Math.PI);
 		}
 	}
 
@@ -1078,7 +1082,7 @@ public abstract class Game extends JPanel
 	 * objects within the Projectile ArrayList. This TimerTask is run
 	 * differently based on SP and MP game types, as well as if the program is
 	 * hosting a server (for MP gamemodes). The TimerTask is run every
-	 * <code>speed</code> milliseconds. ConcurrentModificationExceptions are
+	 * <code>SPEED</code> milliseconds. ConcurrentModificationExceptions are
 	 * possible when the Projectile ArrayList is being affected by other
 	 * threads.
 	 * 
@@ -1112,17 +1116,33 @@ public abstract class Game extends JPanel
 						}
 
 						/*
+						 * creates an AffineTransform that will rotate the
+						 * Projectile around its center
+						 */
+						AffineTransform pTransform = new AffineTransform();
+						pTransform.rotate(p.getrAngle(), p.getWidth() / 2 - p.getxPosition(),
+								p.getHeight() / 2 - p.getyPosition());
+
+						/*
+						 * creates an Area object rectangle and then rotates it
+						 * using the AffineTransform created earlier
+						 */
+						Area projectileRec = new Area(new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(),
+								p.getWidth(), p.getHeight()));
+						Area projectileRecRotated = projectileRec.createTransformedArea(pTransform);
+
+						/*
 						 * cycles through the collisionRecs ArrayList to see if
 						 * the specific Projectile being iterated intersects a
 						 * collision box; if so, the Projectile's x and y
 						 * velocities are set to 0
 						 */
-						for (Rectangle r : collisionRecs)
-							if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
-									p.getHeight()).intersects(r)) {
+						for (Rectangle r : collisionRecs) {
+							if (projectileRecRotated.intersects(r)) {
 								p.setVelox(0);
 								p.setVeloy(0);
 							}
+						}
 
 						if (socketServer != null) {
 							/*
@@ -1140,10 +1160,9 @@ public abstract class Game extends JPanel
 								 * clients as an update on the removal of the
 								 * projectile
 								 */
-								if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
-										p.getHeight()).intersects(
-												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
-														player.getBounds().width - 20, player.getBounds().height - 14))
+								if (projectileRecRotated
+										.intersects(new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
+												player.getBounds().width - 20, player.getBounds().height - 14))
 										&& !player.isDead() && (p.getVelox() != 0 || p.getVeloy() != 0)) {
 									CopyOnWriteArrayList<Player> attacked = new CopyOnWriteArrayList<Player>();
 									attacked.add(player);
@@ -1167,10 +1186,9 @@ public abstract class Game extends JPanel
 								 * damaged and the Projectile is removed from
 								 * both ArrayLists
 								 */
-								if (new Rectangle((int) -p.getxPosition(), (int) -p.getyPosition(), p.getWidth(),
-										p.getHeight()).intersects(
-												new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
-														player.getBounds().width - 20, player.getBounds().height - 14))
+								if (projectileRecRotated
+										.intersects(new Rectangle(player.getBounds().x + 10, player.getBounds().y + 14,
+												player.getBounds().width - 20, player.getBounds().height - 14))
 										&& !player.isDead() && (p.getVelox() != 0 || p.getVeloy() != 0)) {
 									CopyOnWriteArrayList<Player> attacked = new CopyOnWriteArrayList<Player>();
 									attacked.add(player);
@@ -1191,9 +1209,9 @@ public abstract class Game extends JPanel
 						 * removed from both ArrayLists and if the program is a
 						 * server, a packet is sent to all connected players
 						 */
-						if (p.getVelox() == 0 && p.getVeloy() == 0 && p.getDeadTime() == 0)
+						if (p.getVelox() == 0 && p.getVeloy() == 0 && p.getDeadTime() == 0) {
 							p.setDeadTime(System.nanoTime());
-						else if (p.getVelox() == 0 && p.getVeloy() == 0
+						} else if (p.getVelox() == 0 && p.getVeloy() == 0
 								&& System.nanoTime() >= p.getDeadTime() + 2 * Math.pow(10, 9)) {
 							projectiles.remove(p);
 							projectileIDs.remove((Integer) p.getId());
@@ -1214,7 +1232,7 @@ public abstract class Game extends JPanel
 	 * TimerTask that handles the animation of player weapons (clients only for
 	 * both SP and MP gamemodes). This is only necessary for painting animation
 	 * to the screen so serverside Game objects do not need to run this
-	 * TimerTask. Runs every <code>speed</code> milliseconds.
+	 * TimerTask. Runs every <code>SPEED</code> milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
 	 */
@@ -1291,7 +1309,7 @@ public abstract class Game extends JPanel
 	 * released at every moment in time since that is handled by the Game object
 	 * itself which implements the listeners. This TimerTask only processes the
 	 * elements of the keys ArrayList that stores the keys being pressed at any
-	 * moment in time. This TimerTask runs every <code>speed</code>
+	 * moment in time. This TimerTask runs every <code>SPEED</code>
 	 * milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
@@ -1459,7 +1477,7 @@ public abstract class Game extends JPanel
 	 * TimerTask that handles the animation of the players (clients only for
 	 * both SP and MP gamemodes). This is only necessary for painting animation
 	 * to the screen so serverside Game objects do not need to run this
-	 * TimerTask. Runs every <code>speed</code> milliseconds.
+	 * TimerTask. Runs every <code>SPEED</code> milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
 	 */
@@ -1593,7 +1611,7 @@ public abstract class Game extends JPanel
 	 * this Task calls <code>waitForStamina()</code> in the abstract Player
 	 * class which starts a new Thread that checks to see if a certain amount of
 	 * stamina has regenerated to start running again. Task runs every
-	 * <code>speed</code> milliseconds.
+	 * <code>SPEED</code> milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
 	 * @see com.elveskevtar.divebomb.race.Player
@@ -1647,7 +1665,7 @@ public abstract class Game extends JPanel
 	 * <li>3 = up</li>
 	 * <li>4 = down</li>
 	 * </ul>
-	 * The Task runs every <code>speed</code> milliseconds.
+	 * The Task runs every <code>SPEED</code> milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
 	 */
@@ -1960,7 +1978,7 @@ public abstract class Game extends JPanel
 
 	/**
 	 * TimerTask object that calls the <code>repaint()</code> method to repaint
-	 * the screen every <code>speed</code> milliseconds.
+	 * the screen every <code>SPEED</code> milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
 	 */

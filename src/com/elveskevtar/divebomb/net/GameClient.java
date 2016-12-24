@@ -44,7 +44,6 @@ public class GameClient extends Thread {
 	private DatagramSocket socket;
 	private Game game;
 
-	private boolean connected;
 	private boolean clientRunning;
 
 	private int PORT;
@@ -88,7 +87,6 @@ public class GameClient extends Thread {
 		case LOGIN:
 			packet = new Packet00Login(data);
 			handleLogin((Packet00Login) packet, address, port);
-			connected = true;
 			break;
 		case DISCONNECT:
 			packet = new Packet01Disconnect(data);
@@ -345,14 +343,6 @@ public class GameClient extends Thread {
 		this.socket = socket;
 	}
 
-	public boolean isConnected() {
-		return connected;
-	}
-
-	public void setConnected(boolean connected) {
-		this.connected = connected;
-	}
-
 	public boolean isClientRunning() {
 		return clientRunning;
 	}
@@ -373,12 +363,10 @@ public class GameClient extends Thread {
 
 		@Override
 		public void run() {
-			while (GameClient.this.isClientRunning()) {
-				if (connected) {
-					Packet19Ping pingPacket = new Packet19Ping(System.nanoTime(), game.getUser().getLatency(),
-							game.getUser().getName());
-					pingPacket.writeData(GameClient.this);
-				}
+			while (isClientRunning()) {
+				Packet19Ping pingPacket = new Packet19Ping(System.nanoTime(), game.getUser().getLatency(),
+						game.getUser().getName());
+				pingPacket.writeData(GameClient.this);
 				try {
 					Thread.sleep(16);
 				} catch (InterruptedException e) {

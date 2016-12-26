@@ -46,10 +46,10 @@ import com.elveskevtar.divebomb.weapons.Sword;
  * more specialized singleplayer or multiplayer gamemode. The abstract version
  * of the game contains an enumeration of all of the game types as well as many
  * generic threads that should be used for all games, such as Repaint. Repaint
- * is a subclass that serves as a TimerTask object which runs as a separate
+ * is a nested class that serves as a TimerTask object which runs as a separate
  * thread every certain amount of milliseconds. This is how many of the
- * subthreads are structured within the Game class and all of its
- * subclasses.<br>
+ * subthreads are structured within the Game class and all of its nested
+ * classes.<br>
  * <br>
  * Contains constructors for both clientside Game objects (whether the client is
  * also hosting a server or not) and serverside only Game objects.<br>
@@ -418,7 +418,7 @@ public abstract class Game extends JPanel
 	 * listeners, and setting the timers.
 	 * 
 	 * @param map
-	 *            The map object used that must be passed to map collision boxes
+	 *            The Map object used that must be passed to map collision boxes
 	 *            and start the game.
 	 */
 	public void startGame(Map map) {
@@ -461,7 +461,7 @@ public abstract class Game extends JPanel
 	 * that is serverside only.
 	 * 
 	 * @param map
-	 *            The map object used that must be passed to map collision boxes
+	 *            The Map object used that must be passed to map collision boxes
 	 *            and start the game.
 	 */
 	public void startPublicServerGame(Map map) {
@@ -489,8 +489,8 @@ public abstract class Game extends JPanel
 	 */
 	public void setTimers() {
 		/*
-		 * sets the game to 'run' mode which affects loop threads in subclasses
-		 * of Game as well as online gameplay
+		 * sets the game to 'run' mode which affects loop threads in nested
+		 * classes of Game as well as online gameplay
 		 */
 		setRunning(true);
 
@@ -734,7 +734,7 @@ public abstract class Game extends JPanel
 	 * to notify the user of connection issues.
 	 * 
 	 * @param g
-	 *            The graphics object used to paint the reconnect screen.
+	 *            The Graphics object used to paint the reconnect screen.
 	 */
 	public void paintReconnect(Graphics g) {
 		/*

@@ -26,19 +26,78 @@ import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
 import com.elveskevtar.divebomb.weapons.Sword;
 
+/**
+ * A subclass of Game that creates a deathmatch style multiplayer game.
+ * Initializes three superconstructors for the various possible game
+ * combinations: client + server, client only, and server only. This is mainly
+ * only necessary for creating the proper datagram sockets; however, server side
+ * programs must also have a specified map to create the game and eventually
+ * send to all clients when the game starts. The
+ * <code>public void paint(Graphics g)</code> and the
+ * <code>public void setTimers()</code> methods are overriden, the former for
+ * GUI purposes and the latter for more specific TimerTasks that deal with the
+ * sending of packets. However, the 'TimerTasks' initialized in the overriden
+ * method are actually just looped threads that sleep a certain amount of
+ * milliseconds and are terminated based on the state of the game or the
+ * datagram sockets. All of these threads are found as nested classes within the
+ * GameDeathmatchMP class.
+ * 
+ * @author Elveskevtar
+ * @since 0.0.1-pre-pre-alpha
+ */
 public class GameDeathmatchMP extends Game {
 
-	private static final long serialVersionUID = 1495382359826347033L;
+	private static final long serialVersionUID = -6543167121461636523L;
 
-	private int firstPlaceKills;
-	private int maxKills;
+	/**
+	 * The port number to which the client is connected to or the server is
+	 * running on.
+	 */
 	private int PORT;
 
+	/** The number of kills needed to end the game. */
+	private int maxKills;
+
+	/**
+	 * Keeps track of the number of kills that the player with the most kills
+	 * has.
+	 */
+	private int firstPlaceKills;
+
+	/** Keeps track of the name of the player with the most kills. */
 	private String firstPlaceName;
 
-	/* server + client bundle constructor */
+	/**
+	 * The constructor that deals with the client and server bundle. Requires
+	 * parameters for Map object information, the JFrame in which the Game
+	 * JComponenet will be held, the user's name, and the port to which the
+	 * server will be running on. Sets the game parameters, creates the datagram
+	 * socket objects for both the server and the client, then sends a login
+	 * packet from the client to the localhost server to initiate a connection.
+	 * 
+	 * @param graphicsMapName
+	 *            The name of the graphics map that will be used as a parameter
+	 *            when creating the Game's Map object.
+	 * @param collisionMapName
+	 *            The name of the collision map that will be used as a parameter
+	 *            when creating the Game's Map object.
+	 * @param id
+	 *            The identification number that will be used as a parameter
+	 *            when creating the Game's Map object.
+	 * @param frame
+	 *            The JFrame object in which the Game component will be added.
+	 * @param username
+	 *            The user's name which will be passed to
+	 *            <code>setUserName(String username)</code> for use as
+	 *            identification.
+	 * @param port
+	 *            The port number to which the datagram socket for the server
+	 *            will bind to.
+	 * @see com.elveskevtar.divebomb.gfx.Game
+	 */
 	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, JFrame frame, String username,
 			int port) {
+		/* calls the superconstructor for a generic client based Game */
 		super(01, frame);
 		this.setPlayerSize(2);
 		this.setMaxKills(3);

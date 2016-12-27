@@ -342,7 +342,7 @@ public abstract class Game extends JPanel
 		this.setFrame(frame);
 
 		/* default values for user info */
-		this.setUserName("Bob");
+		this.setUserName("bob");
 		this.setUserRace("human");
 		this.setUserMelee("sword");
 		this.setUserRanged("bow");

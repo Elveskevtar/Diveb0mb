@@ -99,21 +99,44 @@ public class GameDeathmatchMP extends Game {
 			int port) {
 		/* calls the superconstructor for a generic client based Game */
 		super(01, frame);
+
+		/* sets the user's name */
+		this.setUserName(username);
+
+		/* sets the maximum player size for the game (default: 2) */
 		this.setPlayerSize(2);
+
+		/* sets the number of kills needed to end the game */
 		this.setMaxKills(3);
+
+		/* sets the ip and port the server will be hosted on */
+		this.setServerIP("localhost");
 		this.setPORT(port);
+
+		/* creates a new Map object with the parameters given */
 		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
+
+		/*
+		 * creates a new GameServer object which will be stored in Game's
+		 * socketServer variable; then, starts the thread
+		 */
 		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
-		this.setServerIP("localhost");
+
+		/*
+		 * creates a new GameClient object which will be stored in Game's
+		 * socketClient variable; then, starts the thread
+		 */
 		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
-		this.setUserName(username);
+
 		String weapon = " ";
 		if (getUser().getInHand() instanceof Sword)
 			weapon = "sword";
 		if (getUser().getInHand() instanceof Bow)
 			weapon = "bow";
+
+		System.out.println(weapon);
 		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(), getUserColor(), weapon);
 		try {
 			getSocketClient().setIP(InetAddress.getByName(getServerIP()));

@@ -113,8 +113,8 @@ public class GameDeathmatchMP extends Game {
 		this.setServerIP("localhost");
 		this.setPORT(port);
 
-		/* creates a new Map object with the parameters given */
-		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
+		/* gets the Map object in the enumeration with the parameters given */
+		this.setGraphicsMap(Map.getValue(graphicsMapName, collisionMapName, id));
 
 		/*
 		 * creates a new GameServer object which will be stored in Game's
@@ -155,7 +155,7 @@ public class GameDeathmatchMP extends Game {
 		this.setPlayerSize(2);
 		this.setMaxKills(3);
 		this.setPORT(port);
-		this.setGraphicsMap(new Map(graphicsMapName, collisionMapName, id));
+		this.setGraphicsMap(Map.getValue(graphicsMapName, collisionMapName, id));
 		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
 		this.setServerIP("localhost");
@@ -197,8 +197,10 @@ public class GameDeathmatchMP extends Game {
 		g2d.translate((-getWidth() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1,
 				(-getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1);
 		g2d.setFont(new Font("Livewired", Font.PLAIN, (int) (20 / getZoom())));
-		g2d.drawString("Health: " + getUser().getHealth(), 0, g2d.getFont().getSize() * 3 / 4);
-		g2d.drawString("Stamina: " + getUser().getStamina(), 0, g2d.getFont().getSize() * 15 / 8);
+		g2d.drawString("Health: " + Math.round(getUser().getHealth() * 10.0) / 10.0, 0,
+				g2d.getFont().getSize() * 3 / 4);
+		g2d.drawString("Stamina: " + Math.round(getUser().getStamina() * 10.0) / 10.0, 0,
+				g2d.getFont().getSize() * 15 / 8);
 		g2d.drawString("Kills: " + getUser().getKills(), 0, g2d.getFont().getSize() * 3);
 		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont().getSize() * 33 / 8);
 		g2d.drawString("Ping Latency: " + Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999), 0,

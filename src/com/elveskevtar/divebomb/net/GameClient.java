@@ -98,7 +98,7 @@ public class GameClient extends Thread {
 			break;
 		case STARTGAME:
 			packet = new Packet02Startgame(data);
-			game.setGraphicsMap(new Map(((Packet02Startgame) packet).getGraphicsMap(),
+			game.setGraphicsMap(Map.getValue(((Packet02Startgame) packet).getGraphicsMap(),
 					((Packet02Startgame) packet).getCollisionMap(), ((Packet02Startgame) packet).getMapID()));
 			game.startGame(game.getGraphicsMap());
 			game.getUser().setxPosition(((Packet02Startgame) packet).getStartX());

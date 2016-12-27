@@ -7,7 +7,9 @@ To-Do List:<br>
 <s>Allow players to pick the port in which the server will run and allow connecting players to specify a port to connect to</s><br>
 <s>Notify user when they have failed to connect to a server (e.g. ip is wrong, server is down, connection issues)</s><br>
 <s>Stop count-down if player disconnects from lobby</s><br>
-Create an enumeration for the maps found in the game<br>
+<s>Create an enumeration for the maps found in the game</s><br>
+Make an ability delay between player's jumps<br>
+Add a stamina component to jumping<br>
 Make stamina regulated by the server in MP gamemodes<br>
 Test and improve collision<br>
 Improve movement of projectiles<br>

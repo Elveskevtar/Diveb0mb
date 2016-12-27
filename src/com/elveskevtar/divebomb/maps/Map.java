@@ -6,7 +6,9 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-public class Map {
+public enum Map {
+
+	TESTMAP("res/img/Map.png", "res/img/CollisionMap.png", 0);
 
 	private BufferedImage map;
 	private BufferedImage collisionMap;
@@ -16,7 +18,7 @@ public class Map {
 
 	private int id;
 
-	public Map(String map, String collisionMap, int id) {
+	Map(String map, String collisionMap, int id) {
 		try {
 			this.map = ImageIO.read(new File(map));
 			this.collisionMap = ImageIO.read(new File(collisionMap));
@@ -27,6 +29,13 @@ public class Map {
 		this.setId(id);
 		this.setMapPath(map);
 		this.setCollisionMapPath(collisionMap);
+	}
+
+	public static Map getValue(String map, String collisionMap, int id) {
+		for (Map m : values())
+			if (m.getMapPath().equals(map) && m.getCollisionMapPath().equals(collisionMap) && m.getId() == id)
+				return m;
+		return null;
 	}
 
 	public BufferedImage getMap() {

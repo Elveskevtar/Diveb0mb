@@ -253,7 +253,7 @@ public class StartMenu extends JLayeredPane {
 	public void campaignAction() {
 		setVisible(false);
 		getFrame().remove(this);
-		getFrame().add(new GameDeathmatch(getFrame(), new Map("res/img/Map.png", "res/img/CollisionMap.png", 0)));
+		getFrame().add(new GameDeathmatch(getFrame(), Map.TESTMAP));
 	}
 
 	public void multiplayerAction() {

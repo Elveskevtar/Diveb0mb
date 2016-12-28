@@ -266,22 +266,7 @@ public class GameClient extends Thread {
 	public void handleLogin(Packet00Login packet, InetAddress address, int port) {
 		System.out.println(
 				"[" + address.getHostAddress() + ":" + port + "] " + packet.getName() + " has joined the game...");
-		Player player = null;
-		if (packet.getRace().equalsIgnoreCase("human"))
-			player = new Human(game, packet.getName(), address, port);
-		else if (packet.getRace().equalsIgnoreCase("cyborg") && packet.getColor().equalsIgnoreCase(" "))
-			player = new Cyborg(game, packet.getName(), -1, address, port);
-		else if (packet.getRace().equalsIgnoreCase("cyborg") && !packet.getColor().equalsIgnoreCase(" "))
-			player = new Cyborg(game, packet.getColor(), packet.getName(), address, port);
-		else
-			player = new Human(game, packet.getName(), address, port);
-		if (packet.getWeapon().equalsIgnoreCase("sword"))
-			player.setInHand(new Sword(player));
-		else if (packet.getWeapon().equalsIgnoreCase("bow"))
-			player.setInHand(new Bow(player));
-		else
-			player.setInHand(new Sword(player));
-		game.getPlayers().add(player);
+		game.getPlayers().add(new Human(game, packet.getName(), address, port));
 	}
 
 	public void handleUpdateUserInfo(Packet10UpdateUserInfo packet, InetAddress address, int port) {

@@ -1848,7 +1848,7 @@ public abstract class Game extends JPanel
 						user.setxPosition(user.getxPosition() + user.getVeloX());
 					}
 				}
-
+				
 				/*
 				 * if the user is moving upwards and will not collide with an
 				 * element of the collisionRecs ArrayList with the user's
@@ -1869,7 +1869,7 @@ public abstract class Game extends JPanel
 					int h = 0;
 					outerloop: for (Rectangle r : getCollisionRecs()) {
 						h = 0;
-						while (!new Rectangle(user.getBounds().x, user.getBounds().y - h + (64 - user.getHeight()),
+						while (!new Rectangle(user.getBounds().x + 10, user.getBounds().y + 14 - h,
 								user.getBounds().width, user.getBounds().height).intersects(r)) {
 							if (h > user.getVeloY())
 								continue outerloop;
@@ -1917,7 +1917,7 @@ public abstract class Game extends JPanel
 					/* if y velocity is 0 set jumping and falling off */
 					user.setJumping(false);
 					user.setFalling(false);
-				} else if (user.getVeloY() > 0 && !user.checkCollisions().contains(3)) {
+				} else if (user.getVeloY() > 0) {
 					/*
 					 * if the user is moving upwards, set jumping to true and
 					 * gradually reduce the user's y velocity

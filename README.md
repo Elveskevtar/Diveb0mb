@@ -8,7 +8,8 @@ To-Do List:<br>
 <s>Notify user when they have failed to connect to a server (e.g. ip is wrong, server is down, connection issues)</s><br>
 <s>Stop count-down if player disconnects from lobby</s><br>
 <s>Create an enumeration for the maps found in the game</s><br>
-Make an ability delay between player's jumps<br>
+<s>Fixed MP bug where player's could jump extremely fast if they collide with a ceiling</s><br>
+<s>Make login packets more efficient</s><br>
 Add a stamina component to jumping<br>
 Make stamina regulated by the server in MP gamemodes<br>
 Test and improve collision<br>

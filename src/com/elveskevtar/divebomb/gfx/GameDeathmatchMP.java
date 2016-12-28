@@ -21,10 +21,8 @@ import com.elveskevtar.divebomb.net.packets.Packet05Health;
 import com.elveskevtar.divebomb.net.packets.Packet07Endgame;
 import com.elveskevtar.divebomb.net.packets.Packet14UpdateProjectile;
 import com.elveskevtar.divebomb.race.Player;
-import com.elveskevtar.divebomb.weapons.Bow;
 import com.elveskevtar.divebomb.weapons.Projectile;
 import com.elveskevtar.divebomb.weapons.ProjectileShooter;
-import com.elveskevtar.divebomb.weapons.Sword;
 
 /**
  * A subclass of Game that creates a deathmatch style multiplayer game.
@@ -130,20 +128,10 @@ public class GameDeathmatchMP extends Game {
 		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
 
-		String weapon = " ";
-		if (getUser().getInHand() instanceof Sword)
-			weapon = "sword";
-		if (getUser().getInHand() instanceof Bow)
-			weapon = "bow";
-
-		System.out.println(weapon);
-		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(), getUserColor(), weapon);
+		Packet00Login packet = new Packet00Login(getUserName());
 		try {
 			getSocketClient().setIP(InetAddress.getByName(getServerIP()));
-			Thread.sleep(200);
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		packet.writeData(getSocketClient());
@@ -171,18 +159,10 @@ public class GameDeathmatchMP extends Game {
 		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
 		this.setUserName(username);
-		String weapon = " ";
-		if (getUser().getInHand() instanceof Sword)
-			weapon = "sword";
-		if (getUser().getInHand() instanceof Bow)
-			weapon = "bow";
-		Packet00Login packet = new Packet00Login(getUserName(), getUserRace(), getUserColor(), weapon);
+		Packet00Login packet = new Packet00Login(getUserName());
 		try {
 			getSocketClient().setIP(InetAddress.getByName(ip));
-			Thread.sleep(200);
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 		packet.writeData(getSocketClient());

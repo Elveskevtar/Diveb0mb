@@ -3,14 +3,10 @@ package com.elveskevtar.divebomb.race;
 import java.awt.Color;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
-
-import javax.imageio.ImageIO;
 
 import com.elveskevtar.divebomb.gfx.Game;
 import com.elveskevtar.divebomb.weapons.Weapon;
@@ -125,14 +121,8 @@ public abstract class Player {
 		this.ip = ip;
 		this.port = port;
 		this.timer = new Timer();
-		try {
-			this.playerSpriteSheet = ImageIO.read(new File("res/img/player.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		this.setSpriteWidth(32);
 		this.setSpriteHeight(64);
-		this.setPlayerSprite(playerSpriteSheet.getSubimage(spriteX * 32, spriteY * 32, spriteWidth, spriteHeight));
 		this.setMaxStamina(20);
 		this.setMinStamina(5);
 		this.setStamina(getMaxStamina());
@@ -151,14 +141,8 @@ public abstract class Player {
 		this.ip = ip;
 		this.port = port;
 		this.timer = new Timer();
-		try {
-			this.playerSpriteSheet = ImageIO.read(new File("res/img/player.png"));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 		this.setSpriteWidth(32);
 		this.setSpriteHeight(64);
-		this.setPlayerSprite(playerSpriteSheet.getSubimage(0, 0, spriteWidth, spriteHeight));
 		this.setMaxStamina(20);
 		this.setMinStamina(5);
 		this.setStamina(getMaxStamina());

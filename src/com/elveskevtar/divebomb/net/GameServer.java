@@ -86,25 +86,8 @@ public class GameServer extends Thread {
 				packet = new Packet00Login(data);
 				System.out.println("[" + address.getHostAddress() + ":" + port + "] "
 						+ ((Packet00Login) packet).getName() + " has connected... ");
-				Player player = null;
-				Weapon weapon = null;
-				if (((Packet00Login) packet).getRace().equalsIgnoreCase("human"))
-					player = new Human(game, ((Packet00Login) packet).getName(), address, port);
-				else if (((Packet00Login) packet).getRace().equalsIgnoreCase("cyborg")
-						&& ((Packet00Login) packet).getColor().equalsIgnoreCase(" "))
-					player = new Cyborg(game, ((Packet00Login) packet).getName(), -1, address, port);
-				else if (((Packet00Login) packet).getRace().equalsIgnoreCase("cyborg")
-						&& !((Packet00Login) packet).getColor().equalsIgnoreCase(" "))
-					player = new Cyborg(game, ((Packet00Login) packet).getColor(), ((Packet00Login) packet).getName(),
-							address, port);
-				else
-					player = new Human(game, ((Packet00Login) packet).getName(), address, port);
-				if (((Packet00Login) packet).getWeapon().equalsIgnoreCase("sword"))
-					weapon = new Sword(player);
-				else if (((Packet00Login) packet).getWeapon().equalsIgnoreCase("bow"))
-					weapon = new Bow(player);
-				player.setInHand(weapon);
-				addConnection(player, (Packet00Login) packet);
+				addConnection(new Human(game, ((Packet00Login) packet).getName(), address, port),
+						(Packet00Login) packet);
 			}
 			break;
 		case DISCONNECT:
@@ -241,21 +224,7 @@ public class GameServer extends Thread {
 				alreadyConnected = true;
 			} else {
 				sendData(packet.getData(), p.getIP(), p.getPort());
-				String color = " ";
-				String race = " ";
-				String weapon = " ";
-				if (p instanceof Human)
-					race = "human";
-				else if (p instanceof Cyborg)
-					race = "cyborg";
-				if (p.getColor() != null)
-					color = p.getColor();
-				if (p.getInHand() instanceof Sword)
-					weapon = "sword";
-				else if (p.getInHand() instanceof Bow)
-					weapon = "bow";
-				Packet00Login oldPlayerPacket = new Packet00Login(p.getName(), race, color, weapon);
-				sendData(oldPlayerPacket.getData(), player.getIP(), player.getPort());
+				sendData(new Packet00Login(p.getName()).getData(), player.getIP(), player.getPort());
 			}
 		}
 		if (!alreadyConnected) {

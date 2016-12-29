@@ -916,6 +916,10 @@ public abstract class Game extends JPanel
 	public void setZoom(double zoom) {
 		this.zoom = zoom;
 	}
+	
+	public int getSPEED() {
+		return SPEED;
+	}
 
 	public CopyOnWriteArrayList<Projectile> getProjectiles() {
 		return projectiles;
@@ -1848,7 +1852,7 @@ public abstract class Game extends JPanel
 						user.setxPosition(user.getxPosition() + user.getVeloX());
 					}
 				}
-				
+
 				/*
 				 * if the user is moving upwards and will not collide with an
 				 * element of the collisionRecs ArrayList with the user's

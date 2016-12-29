@@ -128,55 +128,149 @@ public class GameDeathmatchMP extends Game {
 		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
 
-		Packet00Login packet = new Packet00Login(getUserName());
+		/* trys to set the socketClient's IP to the serverIP */
 		try {
-			getSocketClient().setIP(InetAddress.getByName(getServerIP()));
+			this.getSocketClient().setIP(InetAddress.getByName(getServerIP()));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		packet.writeData(getSocketClient());
+
+		/* creates and sends a login packet from the client to the server */
+		new Packet00Login(getUserName()).writeData(getSocketClient());
 	}
 
-	/* server-side only constructor */
+	/**
+	 * The constructor that deals with the server only program. Requires
+	 * parameters for Map object information and the port to which the server
+	 * will bind. Sets the game parameters, creates the datagram socket server
+	 * object only (not the client).
+	 * 
+	 * @param graphicsMapName
+	 *            The name of the graphics map that will be used as a parameter
+	 *            when creating the Game's Map object.
+	 * @param collisionMapName
+	 *            The name of the collision map that will be used as a parameter
+	 *            when creating the Game's Map object.
+	 * @param id
+	 *            The identification number that will be used as a parameter
+	 *            when creating the Game's Map object.
+	 * @param port
+	 *            The port number to which the datagram socket for the server
+	 *            will bind to.
+	 * @see com.elveskevtar.divebomb.gfx.Game
+	 */
 	public GameDeathmatchMP(String graphicsMapName, String collisionMapName, int id, int port) {
+		/* calls the superconstructor of Game that deals with server only */
 		super(01);
+
+		/* sets the maximum player size for the game (default: 2) */
 		this.setPlayerSize(2);
+
+		/* sets the number of kills needed to end the game */
 		this.setMaxKills(3);
+
+		/* sets the ip and port the server will be hosted on */
+		this.setServerIP("localhost");
 		this.setPORT(port);
+
+		/* gets the Map object in the enumeration with the parameters given */
 		this.setGraphicsMap(Map.getValue(graphicsMapName, collisionMapName, id));
+
+		/*
+		 * creates a new GameServer object which will be stored in Game's
+		 * socketServer variable; then, starts the thread
+		 */
 		this.setSocketServer(new GameServer(this, port));
 		this.getSocketServer().start();
-		this.setServerIP("localhost");
 	}
 
-	/* client-side only constructor */
+	/**
+	 * The constructor that deals with the client only program. Requires
+	 * parameters for the ip that the server is hosted on, the JFrame in which
+	 * the Game JComponenet will be held, the user's name, and the port to which
+	 * the server will be running on. Sets the game parameters, creates the
+	 * datagram socket client object only (not the server).
+	 * 
+	 * @param ip
+	 *            The IP on which the server is hosted.
+	 * @param frame
+	 *            The JFrame object in which the Game component will be added.
+	 * @param username
+	 *            The user's name which will be passed to
+	 *            <code>setUserName(String username)</code> for use as
+	 *            identification.
+	 * @param port
+	 *            The port number to which the datagram socket for the server
+	 *            will bind to.
+	 * @see com.elveskevtar.divebomb.gfx.Game
+	 */
 	public GameDeathmatchMP(String ip, JFrame frame, String username, int port) {
+		/* calls the superconstructor for a generic client based Game */
 		super(01, frame);
-		this.setPORT(port);
+
+		/* sets the user's name */
+		this.setUserName(username);
+
+		/* sets the maximum player size for the game (default: 2) */
 		this.setPlayerSize(2);
+
+		/* sets the number of kills needed to end the game */
 		this.setMaxKills(3);
+
+		/* sets the ip and port the server will be hosted on */
 		this.setServerIP(ip);
+		this.setPORT(port);
+
+		/*
+		 * creates a new GameClient object which will be stored in Game's
+		 * socketClient variable; then, starts the thread
+		 */
 		this.setSocketClient(new GameClient(this, getServerIP(), PORT));
 		this.getSocketClient().start();
-		this.setUserName(username);
-		Packet00Login packet = new Packet00Login(getUserName());
+
+		/* trys to set the socketClient's IP to the serverIP */
 		try {
 			getSocketClient().setIP(InetAddress.getByName(ip));
 		} catch (UnknownHostException e) {
 			e.printStackTrace();
 		}
-		packet.writeData(getSocketClient());
+
+		/* creates and sends a login packet from the client to the server */
+		new Packet00Login(getUserName()).writeData(getSocketClient());
 	}
 
-	/* calls super method and paints gamemode specific GUI over it */
+	/**
+	 * Calls the super method which paints the general game features then paints
+	 * the gamemode specific GUI.
+	 * 
+	 * @param g
+	 *            The Graphics object which paints the game elements.
+	 */
 	@Override
 	public void paint(Graphics g) {
+		/* calls the super method that paints the general game features */
 		super.paint(g);
+
+		/* turns the Graphics object into a Graphics2D object */
 		Graphics2D g2d = (Graphics2D) g;
+
+		/* sets the text antialiasing hints to the Graphics2D object */
 		g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		g2d.translate((-getWidth() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1,
-				(-getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())) * -1);
+
+		/* sets the font for the Graphics2D object based on zoom */
 		g2d.setFont(new Font("Livewired", Font.PLAIN, (int) (20 / getZoom())));
+
+		/*
+		 * 'untranslates' the Graphics2D object that was translated in the super
+		 * method based on zoom
+		 */
+		g2d.translate((getWidth() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())),
+				(getHeight() * (0.5 * getZoom() - 0.5) * (1.0 / getZoom())));
+
+		/*
+		 * draw the health, stamina, kills, deaths, and ping in the top right
+		 * corner
+		 */
 		g2d.drawString("Health: " + Math.round(getUser().getHealth() * 10.0) / 10.0, 0,
 				g2d.getFont().getSize() * 3 / 4);
 		g2d.drawString("Stamina: " + Math.round(getUser().getStamina() * 10.0) / 10.0, 0,
@@ -185,17 +279,29 @@ public class GameDeathmatchMP extends Game {
 		g2d.drawString("Deaths: " + getUser().getDeaths(), 0, g2d.getFont().getSize() * 33 / 8);
 		g2d.drawString("Ping Latency: " + Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999), 0,
 				g2d.getFont().getSize() * 21 / 4);
-		;
 	}
 
-	/* calls super method and starts gamemode specific timers as well */
+	/**
+	 * Calls the super method to set generic Game TimerTasks, then starts new
+	 * gamemode specific threads based on client side, server side, or both.
+	 */
 	@Override
 	public void setTimers() {
+		/* calls the super method that starts the generic Game TimerTasks */
 		super.setTimers();
+
+		/* new thread for either three combinations of client and server */
 		new Thread(new CheckForPingDrops()).start();
+
+		/* move packet thread for clients */
 		if (getSocketClient() != null) {
 			new Thread(new SendMovePacket()).start();
 		}
+
+		/*
+		 * health packet, check for end game, and projectile packet threads for
+		 * servers
+		 */
 		if (getSocketServer() != null) {
 			new Thread(new SendHealthPacket()).start();
 			new Thread(new CheckForEndGame()).start();
@@ -236,23 +342,31 @@ public class GameDeathmatchMP extends Game {
 		PORT = pORT;
 	}
 
-	/* server-side thread; sends projectile info packets to all clients */
+	/**
+	 * A server side thread that sends projectile update packets for each 'live'
+	 * projectile. Only runs while the Game object is in the run state and the
+	 * socketServer is also in the run state. Iterates every <code>SPEED</code>
+	 * milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.net.packets.Packet14UpdateProjectile
+	 */
 	private class UpdateProjectiles extends Thread {
 
 		@Override
 		public void run() {
+			/* while the game and the socketServer are in the run state */
 			while (isRunning() && getSocketServer().isServerRunning()) {
-				try {
-					for (Projectile p : getProjectiles()) {
-						Packet14UpdateProjectile packet = new Packet14UpdateProjectile(p.getxPosition(),
-								p.getyPosition(), p.getrAngle(), p.getId());
-						packet.writeData(getSocketServer());
-					}
-				} catch (ConcurrentModificationException e) {
-					e.printStackTrace();
+				/* cycles through the Projectiles in the ArrayList */
+				for (Projectile p : getProjectiles()) {
+					/* creates and sends update projectile packets */
+					new Packet14UpdateProjectile(p.getxPosition(), p.getyPosition(), p.getrAngle(), p.getId())
+							.writeData(getSocketServer());
 				}
+
+				/* sleeps for SPEED milliseconds */
 				try {
-					Thread.sleep(16);
+					Thread.sleep(getSPEED());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -260,30 +374,50 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
-	/*
-	 * client-side thread; sends move packets to the server to be redistributed
-	 * to every other client; sends this info to all clients
+	/**
+	 * A client side thread that sends move packets to the server which then
+	 * redistributes the information to the rest of the clients. This allows all
+	 * clients and the server to know the positions, velocities, directions, and
+	 * weapon in hand of every Player. Iterates every <code>SPEED</code>
+	 * milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.net.packets.Packet03Move
 	 */
 	private class SendMovePacket extends Thread {
 
 		@Override
 		public void run() {
+			/* while the game and the socketClient are in the run state */
 			while (isRunning() && getSocketClient().isClientRunning()) {
+				/*
+				 * initializes the rAngle and only sets it if the Player's in
+				 * hand weapon is a ProjectileShooter type
+				 */
 				double rAngle = 0;
 				if (getUser().getInHand() instanceof ProjectileShooter)
 					rAngle = ((ProjectileShooter) getUser().getInHand()).getrAngle();
+
+				/*
+				 * initializes the weapon and sets it to either the name of the
+				 * user's melee or the user's ranged based on which one is in
+				 * the user's hand
+				 */
 				String weapon = "";
-				if (getUser().getInHand().getName().equalsIgnoreCase(getUser().getMelee().getName()))
+				if (getUser().getInHand().getName().equals(getUser().getMelee().getName()))
 					weapon = getUserMelee();
 				else
 					weapon = getUserRanged();
-				Packet03Move packet = new Packet03Move(getUser().getName(), getUser().getxPosition(),
-						getUser().getyPosition(), getUser().getVeloX(), getUser().getVeloY(), rAngle,
-						getUser().isWalking(), getUser().isRunning(), getUser().isMovingRight(),
-						getUser().isFacingRight(), weapon);
-				packet.writeData(getSocketClient());
+
+				/* creates and sends a move packet */
+				new Packet03Move(getUser().getName(), getUser().getxPosition(), getUser().getyPosition(),
+						getUser().getVeloX(), getUser().getVeloY(), rAngle, getUser().isWalking(),
+						getUser().isRunning(), getUser().isMovingRight(), getUser().isFacingRight(), weapon)
+								.writeData(getSocketClient());
+
+				/* sleep for SPEED milliseconds */
 				try {
-					Thread.sleep(16);
+					Thread.sleep(getSPEED());
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -291,27 +425,31 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
-	/*
-	 * server-side thread; only server handles health values (since only server
-	 * handles attacks after attack requests are sent to the server)
+	/**
+	 * A server side thread that sends health packets for each player. Only runs
+	 * while the Game object is in the run state and the socketServer is also in
+	 * the run state. Iterates every <code>100</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.net.packets.Packet05Health
 	 */
 	private class SendHealthPacket extends Thread {
 
 		@Override
 		public void run() {
+			/* while the game and the socketClient are in the run state */
 			while (isRunning() && getSocketServer().isServerRunning()) {
-				try {
-					for (Player player : getSocketServer().connectedPlayers) {
-						Packet05Health packet = new Packet05Health(player.getName(), player.getHealth());
-						packet.writeData(getSocketServer());
-						try {
-							Thread.sleep(100);
-						} catch (InterruptedException e) {
-							e.printStackTrace();
-						}
+				/* cycles through the Players in the ArrayList */
+				for (Player player : getSocketServer().connectedPlayers) {
+					/* creates and sends a health packet */
+					new Packet05Health(player.getName(), player.getHealth()).writeData(getSocketServer());
+					
+					
+					try {
+						Thread.sleep(100);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
 					}
-				} catch (ConcurrentModificationException e) {
-					e.printStackTrace();
 				}
 			}
 		}

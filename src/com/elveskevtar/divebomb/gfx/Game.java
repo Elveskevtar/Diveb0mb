@@ -1555,22 +1555,22 @@ public abstract class Game extends JPanel
 
 			/*
 			 * every 24 iterations of AnimatePlayers, w is incremented once
-			 * until it reaches 4 where it will be reset to 1.
+			 * until it reaches 5 where it will be reset to 2.
 			 */
-			if (t % 24 == 0 && w != 4) {
+			if (t % 24 == 0 && w != 5) {
 				w++;
 			} else if (t % 24 == 0) {
-				w = 1;
+				w = 2;
 			}
 
 			/*
 			 * every 8 iterations of AnimatePlayers, r is incremented once until
-			 * it reaches 4 where it will reset to 1.
+			 * it reaches 5 where it will reset to 2.
 			 */
-			if (t % 8 == 0 && r != 4) {
+			if (t % 8 == 0 && r != 5) {
 				r++;
 			} else if (t % 8 == 0) {
-				r = 1;
+				r = 2;
 			}
 
 			/* cycles through the Players in the Game */
@@ -1589,7 +1589,7 @@ public abstract class Game extends JPanel
 					p.setSpriteY(0);
 				} else if (p.isMovingRight() && p.isFacingRight()) {
 					/* sets sprite x and y */
-					p.setSpriteX(0);
+					p.setSpriteX((int) (System.currentTimeMillis() / 500.0 % 2));
 					p.setSpriteY(0);
 				}
 
@@ -1607,7 +1607,7 @@ public abstract class Game extends JPanel
 					p.setSpriteY(2);
 				} else if (p.isMovingRight() && !p.isFacingRight()) {
 					/* sets sprite x and y */
-					p.setSpriteX(0);
+					p.setSpriteX((int) (System.currentTimeMillis() / 500.0 % 2));
 					p.setSpriteY(2);
 				}
 
@@ -1625,7 +1625,7 @@ public abstract class Game extends JPanel
 					p.setSpriteY(1);
 				} else if (!p.isMovingRight() && p.isFacingRight()) {
 					/* sets sprite x and y */
-					p.setSpriteX(0);
+					p.setSpriteX((int) (System.currentTimeMillis() / 500.0 % 2));
 					p.setSpriteY(1);
 				}
 
@@ -1643,7 +1643,7 @@ public abstract class Game extends JPanel
 					p.setSpriteY(3);
 				} else if (!p.isMovingRight() && !p.isFacingRight()) {
 					/* sets sprite x and y */
-					p.setSpriteX(0);
+					p.setSpriteX((int) (System.currentTimeMillis() / 500.0 % 2));
 					p.setSpriteY(3);
 				}
 

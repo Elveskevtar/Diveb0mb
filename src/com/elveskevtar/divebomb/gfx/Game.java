@@ -16,12 +16,15 @@ import java.awt.event.MouseWheelListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.ConcurrentModificationException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -228,8 +231,8 @@ public abstract class Game extends JPanel
 	private ArrayList<Integer> keys;
 
 	/**
-	 * The BufferedImage object corresponding to the graphical map that should
-	 * be painted for the game.
+	 * The BufferedImage object corresponding to the tileset map that should be
+	 * used to construct the graphical map.
 	 */
 	private BufferedImage map;
 
@@ -239,6 +242,13 @@ public abstract class Game extends JPanel
 	 * the collisionRecs ArrayList.
 	 */
 	private BufferedImage collisionMap;
+
+	/**
+	 * The BufferedImage object corresponding to the actual graphical map that
+	 * will be painted within the game. Constructed from the <code>map</code>
+	 * object.
+	 */
+	private BufferedImage paintMap;
 
 	/**
 	 * A GameServer object which handles all of the serverside multiplayer
@@ -350,6 +360,7 @@ public abstract class Game extends JPanel
 
 		/* calls the method that updates the user */
 		this.updatePlayer();
+
 	}
 
 	/**
@@ -423,16 +434,46 @@ public abstract class Game extends JPanel
 	 */
 	public void startGame(Map map) {
 		/* sets the map and collision maps */
-		if (map.getMap() != null)
-			setMap(map.getMap());
-		if (map.getCollisionMap() != null)
-			setCollisionMap(map.getCollisionMap());
+		setGraphicsMap(map);
+		setMap(map.getMap());
+		setCollisionMap(map.getCollisionMap());
 
 		/* updates collisionRecs based on RGB values of collisionMap */
 		for (int x = 0; x <= collisionMap.getWidth() - 1; x++)
 			for (int y = 0; y <= collisionMap.getHeight() - 1; y++)
 				if (collisionMap.getRGB(x, y) != -16777216)
 					collisionRecs.add(new Rectangle(x * 8, y * 8, 8, 8));
+
+		/* sets the paint map to be 8 times the size of the tileset map */
+		setPaintMap(new BufferedImage(getMap().getWidth() * 8, getMap().getHeight() * 8, BufferedImage.TYPE_INT_ARGB));
+
+		/*
+		 * reads the rgb values for the tileset maps and creates the paint map
+		 */
+		int[] sub = null;
+		/* cycles through x and y coordinates */
+		for (int x = 0; x < getMap().getWidth(); x++) {
+			for (int y = 0; y < getMap().getHeight(); y++) {
+				/* calculates rgb values at the coordinate */
+				int rgb = getMap().getRGB(x, y);
+				int red = (rgb >> 16) & 0xFF;
+				int green = (rgb >> 8) & 0xFF;
+				int blue = rgb & 0xFF;
+
+				/* if not completely white */
+				if (!(red == 255 && green == 255 && blue == 255)) {
+					/* get the specific tile subimage */
+					try {
+						sub = ImageIO.read(new File("res/img/r/" + red + ".png")).getRGB(blue * 8, 0, 8, 8, null, 0, 8);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+
+					/* assign that subimage to the point on the paint map */
+					paintMap.setRGB(x * 8, y * 8, 8, 8, sub, 0, 8);
+				}
+			}
+		}
 
 		/* updates the user and puts them in the players arraylist */
 		updatePlayer();
@@ -577,7 +618,7 @@ public abstract class Game extends JPanel
 		g2d.setFont(new Font("Livewired", Font.PLAIN, 10));
 
 		/* draws the map in relation to the users position */
-		g2d.drawImage(map, (int) (user.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
+		g2d.drawImage(paintMap, (int) (user.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
 				(int) (user.getyPosition() + getHeight() / 2), null);
 
 		/*
@@ -916,7 +957,7 @@ public abstract class Game extends JPanel
 	public void setZoom(double zoom) {
 		this.zoom = zoom;
 	}
-	
+
 	public int getSPEED() {
 		return SPEED;
 	}
@@ -1079,6 +1120,14 @@ public abstract class Game extends JPanel
 
 	public void setCollisionMap(BufferedImage collisionMap) {
 		this.collisionMap = collisionMap;
+	}
+
+	public BufferedImage getPaintMap() {
+		return paintMap;
+	}
+
+	public void setPaintMap(BufferedImage paintMap) {
+		this.paintMap = paintMap;
 	}
 
 	/**

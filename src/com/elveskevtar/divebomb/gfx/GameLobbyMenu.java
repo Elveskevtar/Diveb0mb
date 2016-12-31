@@ -23,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import com.elveskevtar.divebomb.maps.Map;
 import com.elveskevtar.divebomb.net.packets.Packet10UpdateUserInfo;
 import com.elveskevtar.divebomb.race.Player.PlayerTypes;
 import com.elveskevtar.divebomb.weapons.Melee.MeleeWeaponTypes;
@@ -67,7 +68,8 @@ public class GameLobbyMenu extends JPanel implements KeyListener, MouseListener,
 		this.addKeyListener(this);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
-		this.game = new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0, frame, username, port);
+		this.game = new GameDeathmatchMP(Map.TESTMAP.getMapPath(), Map.TESTMAP.getCollisionMapPath(),
+				Map.TESTMAP.getId(), frame, username, port);
 		this.game.setLobbyTime(-1);
 		this.game.getUser().setName(username);
 		this.game.setUserName(username);

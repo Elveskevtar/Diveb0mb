@@ -443,8 +443,8 @@ public class GameDeathmatchMP extends Game {
 				for (Player player : getSocketServer().connectedPlayers) {
 					/* creates and sends a health packet */
 					new Packet05Health(player.getName(), player.getHealth()).writeData(getSocketServer());
-					
-					
+
+					/* sleeps for 100 milliseconds */
 					try {
 						Thread.sleep(100);
 					} catch (InterruptedException e) {
@@ -469,7 +469,8 @@ public class GameDeathmatchMP extends Game {
 					if (getSocketClient() == null) {
 						getTimer().cancel();
 						setRunning(false);
-						new GameDeathmatchMP("res/img/Map.png", "res/img/CollisionMap.png", 0, getPORT());
+						new GameDeathmatchMP(Map.TESTMAP.getMapPath(), Map.TESTMAP.getCollisionMapPath(),
+								Map.TESTMAP.getId(), getPORT());
 					}
 					break;
 				}

@@ -8,7 +8,7 @@ import javax.imageio.ImageIO;
 
 public enum Map {
 
-	TESTMAP("res/img/Map.png", "res/img/CollisionMap.png", 0);
+	TESTMAP("res/img/Testing.png", "res/img/CollisionMap.png", 0);
 
 	private BufferedImage map;
 	private BufferedImage collisionMap;

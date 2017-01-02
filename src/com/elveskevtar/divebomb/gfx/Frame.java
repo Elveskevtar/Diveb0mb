@@ -46,16 +46,19 @@ public class Frame extends JFrame {
 	 */
 	public Frame(int width, int height) {
 		/* calls super constructor and sets title of frame to DiveBomb */
-		super("DiveBomb");
+		super("The Interventionists");
 
+		/* user can only resize screen via the options menu */
+		this.setResizable(false);
+		
+		/* packs the window */
+		this.pack();
+		
 		/*
 		 * setSize(int width, int height) does not automatically take into
 		 * account insets of jframe so this statement does it manually
 		 */
 		this.setSize(getInsets().left + getInsets().right + width, getInsets().top + getInsets().bottom + height);
-
-		/* user can only resize screen via the options menu */
-		this.setResizable(false);
 
 		/*
 		 * after the screen size has been initially set, this statement centers

@@ -10,6 +10,7 @@ To-Do List:<br>
 <s>Create an enumeration for the maps found in the game</s><br>
 <s>Fixed MP bug where player's could jump extremely fast if they collide with a ceiling</s><br>
 <s>Make login packets more efficient</s><br>
+<s>Fix the frame/component sizes/insets</s><br>
 Add a stamina component to jumping<br>
 Make stamina regulated by the server in MP gamemodes<br>
 Test and improve collision<br>

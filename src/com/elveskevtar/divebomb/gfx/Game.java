@@ -332,7 +332,7 @@ public abstract class Game extends JPanel
 		/* takes into account the insets of the JFrame when setting the size */
 		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
 				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
-
+		
 		/* sets this component to be double buffered when painted */
 		this.setDoubleBuffered(true);
 
@@ -619,7 +619,7 @@ public abstract class Game extends JPanel
 
 		/* draws the map in relation to the users position */
 		g2d.drawImage(paintMap, (int) (user.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
-				(int) (user.getyPosition() + getHeight() / 2), null);
+				(int) (user.getyPosition() + getHeight() / 2) - user.getSpriteHeight() / 2, null);
 
 		/*
 		 * draws every player that is not the user and is not dead as well as
@@ -631,7 +631,8 @@ public abstract class Game extends JPanel
 				/* draws the player in relation to user */
 				g2d.drawImage(p.getPlayerSprite(),
 						(int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition())) - user.getSpriteWidth() / 2,
-						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())), null);
+						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) - user.getSpriteHeight() / 2,
+						null);
 
 				/* initializes weapon drawing variables */
 				double rAngle = 0;
@@ -648,14 +649,14 @@ public abstract class Game extends JPanel
 					if (p.isFacingRight()) {
 						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - user.getSpriteWidth() / 2
 								+ p.getWeaponXTweak() + p.getInHand().getxAdjustment();
-						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) + p.getInHand().getyAdjustment()
-								+ p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
+						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) - user.getSpriteHeight() / 2
+								+ p.getInHand().getyAdjustment() + p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
 					} else {
 						x = getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - user.getSpriteWidth() / 2
 								+ p.getWeaponXTweak() + p.getInHand().getxAdjustment() + p.getInHand().getWidth();
-						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) + p.getInHand().getyAdjustment()
-								+ p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
+						y = getHeight() / 2 + (user.getyPosition() - p.getyPosition()) - user.getSpriteHeight() / 2
+								+ p.getInHand().getyAdjustment() + p.getWeaponYTweak() + p.getInHand().getHeight() / 2;
 						g2d.rotate(rAngle, x, y);
 					}
 				}
@@ -664,8 +665,8 @@ public abstract class Game extends JPanel
 				g2d.drawImage(p.getInHand().getSprite(),
 						getWidth() / 2 + (int) (user.getxPosition() - p.getxPosition()) - user.getSpriteWidth() / 2
 								+ p.getWeaponXTweak() + p.getInHand().getxAdjustment(),
-						getHeight() / 2 + (int) (user.getyPosition() - p.getyPosition()) + p.getWeaponYTweak()
-								+ p.getInHand().getyAdjustment(),
+						getHeight() / 2 + (int) (user.getyPosition() - p.getyPosition()) - user.getSpriteHeight() / 2
+								+ p.getWeaponYTweak() + p.getInHand().getyAdjustment(),
 						null);
 
 				/* 'unrotates' graphics for projectile shooter weapons */
@@ -675,14 +676,16 @@ public abstract class Game extends JPanel
 				/* draw names for players above their heads */
 				g2d.drawString(p.getName(),
 						(int) (getWidth() / 2 + (user.getxPosition() - p.getxPosition()) - p.getName().length() * 3), //
-						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) + 5);
+						(int) (getHeight() / 2 + (user.getyPosition() - p.getyPosition())) - user.getSpriteHeight() / 2
+								+ 10);
 			}
 		}
 
 		/* draws user, weapon, and name assuming user is not dead */
 		if (!user.isDead()) {
 			/* draws user in the middle of the screen */
-			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2 - user.getSpriteWidth() / 2, getHeight() / 2, null);
+			g2d.drawImage(user.getPlayerSprite(), getWidth() / 2 - user.getSpriteWidth() / 2,
+					getHeight() / 2 - user.getSpriteHeight() / 2, null);
 
 			/* initializes weapon drawing variables for user */
 			double rAngle = 0;
@@ -700,13 +703,13 @@ public abstract class Game extends JPanel
 					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
 							- user.getSpriteWidth() / 2;
 					y = getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
-							+ user.getInHand().getHeight() / 2;
+							+ user.getInHand().getHeight() / 2 - user.getSpriteHeight() / 2;
 					g2d.rotate(rAngle, x, y);
 				} else {
 					x = getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
 							+ user.getInHand().getWidth() - user.getSpriteWidth() / 2;
 					y = getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
-							+ user.getInHand().getHeight() / 2;
+							+ user.getInHand().getHeight() / 2 - user.getSpriteHeight() / 2;
 					g2d.rotate(rAngle, x, y);
 				}
 			}
@@ -715,14 +718,17 @@ public abstract class Game extends JPanel
 			g2d.drawImage(user.getInHand().getSprite(),
 					getWidth() / 2 + user.getWeaponXTweak() + user.getInHand().getxAdjustment()
 							- user.getSpriteWidth() / 2,
-					getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak(), null);
+					getHeight() / 2 + user.getInHand().getyAdjustment() + user.getWeaponYTweak()
+							- user.getSpriteHeight() / 2,
+					null);
 
 			/* 'unrotates' graphics for projectile shooter weapons */
 			if (user.getInHand() instanceof ProjectileShooter)
 				g2d.rotate(-rAngle, x, y);
 
 			/* draws name of user above their head */
-			g2d.drawString(user.getName(), getWidth() / 2 - user.getName().length() * 3, getHeight() / 2 + 5); //
+			g2d.drawString(user.getName(), getWidth() / 2 - user.getName().length() * 3,
+					getHeight() / 2 - user.getSpriteHeight() / 2 + 10); //
 		}
 
 		/*
@@ -733,11 +739,13 @@ public abstract class Game extends JPanel
 			double rAngle = p.getrAngle() + Math.PI;
 			double x = user.getxPosition() - user.getSpriteWidth() / 2 - p.getxPosition() + getWidth() / 2
 					+ p.getWidth() / 2;
-			double y = user.getyPosition() - p.getyPosition() + getHeight() / 2 + p.getHeight() / 2;
+			double y = user.getyPosition() - user.getSpriteHeight() / 2 - p.getyPosition() + getHeight() / 2
+					+ p.getHeight() / 2;
 			g2d.rotate(rAngle, x, y);
 			g2d.drawImage(p.getSprite(),
 					(int) (user.getxPosition() - p.getxPosition() + getWidth() / 2) - user.getSpriteWidth() / 2,
-					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2), null);
+					(int) (user.getyPosition() - p.getyPosition() + getHeight() / 2) - user.getSpriteHeight() / 2,
+					null);
 			g2d.rotate(-rAngle, x, y);
 		}
 
@@ -870,10 +878,10 @@ public abstract class Game extends JPanel
 			if (user.getInHand() instanceof ProjectileShooter)
 				if (user.isFacingRight())
 					((ProjectileShooter) user.getInHand())
-							.setrAngle(Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2));
+							.setrAngle(Math.atan2(e.getY() - getHeight() / 2, e.getX() - getWidth() / 2));
 				else
-					((ProjectileShooter) user.getInHand()).setrAngle(
-							Math.atan2(e.getY() - getHeight() / 2 - 32 * zoom, e.getX() - getWidth() / 2) - Math.PI);
+					((ProjectileShooter) user.getInHand())
+							.setrAngle(Math.atan2(e.getY() - getHeight() / 2, e.getX() - getWidth() / 2) - Math.PI);
 		}
 	}
 
@@ -1167,7 +1175,7 @@ public abstract class Game extends JPanel
 							p.setyPosition(p.getyPosition() + p.getVeloy());
 							p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
 						}
-
+ 
 						/*
 						 * creates an AffineTransform that will rotate the
 						 * Projectile around its center

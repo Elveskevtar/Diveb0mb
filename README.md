@@ -30,9 +30,3 @@ Adde new gamemodes<br>
 Add new maps<br>
 Add new races<br>
 Overall improve current graphics<br>
-int rgb = red;
-rgb = (rgb << 8) + green;
-rgb = (rgb << 8) + blue;
-int red = (rgb >> 16) & 0xFF;
-int green = (rgb >> 8) & 0xFF;
-int blue = rgb & 0xFF;

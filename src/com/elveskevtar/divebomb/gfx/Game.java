@@ -1381,8 +1381,8 @@ public abstract class Game extends JPanel
 		public void run() {
 			/* the TimerTask only processes keys when the game is unpaused */
 			if (state == 0) {
-				/* increases zoom by 0.1 up to 4 if '=' is pressed */
-				if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 4) {
+				/* increases zoom by 0.1 up to 3 if '=' is pressed */
+				if (keys.contains(KeyEvent.VK_EQUALS) && zoom < 2.5) {
 					zoom += 0.1;
 				}
 

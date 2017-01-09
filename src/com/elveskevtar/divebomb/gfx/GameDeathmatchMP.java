@@ -455,25 +455,40 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
-	/* server-side thread; checks to see if the game conditions have been met */
+	/**
+	 * A server side thread; checks to see if the game conditions have been met.
+	 * Then, sends an end game packet to all Players and starts a new game if a
+	 * client is present.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.net.packets.Packet07Endgame
+	 */
 	private class CheckForEndGame extends Thread {
 
 		@Override
 		public void run() {
+			/* while the game and socketServer are in the run state */
 			while (isRunning() && getSocketServer().isServerRunning()) {
+				/* if the first place kills is greater than the max kills */
 				if (firstPlaceKills >= maxKills) {
-					Packet07Endgame packet = new Packet07Endgame(firstPlaceName, firstPlaceKills);
-					packet.writeData(getSocketServer());
+					/* creates an end game packet and sends it */
+					new Packet07Endgame(firstPlaceName, firstPlaceKills).writeData(getSocketServer());
+
+					/* stop the socketServer and close it */
 					getSocketServer().setServerRunning(false);
 					getSocketServer().getSocket().close();
+
+					/* if there is a socketClient */
 					if (getSocketClient() == null) {
+						/* stop the game and start a new one */
 						getTimer().cancel();
 						setRunning(false);
 						new GameDeathmatchMP(Map.TESTMAP.getMapPath(), Map.TESTMAP.getCollisionMapPath(),
 								Map.TESTMAP.getId(), getPORT());
 					}
-					break;
 				}
+
+				/* sleeps for 100 milliseconds */
 				try {
 					Thread.sleep(100);
 				} catch (InterruptedException e) {
@@ -483,9 +498,8 @@ public class GameDeathmatchMP extends Game {
 		}
 	}
 
-	/*
-	 * checks for giant lag spikes and disconnects; has different uses for both
-	 * server and client side
+	/**
+	 * A server and client side
 	 */
 	private class CheckForPingDrops extends Thread {
 

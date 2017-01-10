@@ -458,7 +458,7 @@ public class GameDeathmatchMP extends Game {
 	/**
 	 * A server side thread; checks to see if the game conditions have been met.
 	 * Then, sends an end game packet to all Players and starts a new game if a
-	 * client is present.
+	 * client is present. Iterates every <code>100</code> milliseconds.
 	 * 
 	 * @since 0.0.1-pre-pre-alpha
 	 * @see com.elveskevtar.divebomb.net.packets.Packet07Endgame
@@ -499,56 +499,99 @@ public class GameDeathmatchMP extends Game {
 	}
 
 	/**
-	 * A server and client side
+	 * A server and client side thread that checks for ping drops or a faulty
+	 * connection. For the server, it checks the ping latency of all of the
+	 * connected Players. If the ping latency is too high, it removes the Player
+	 * from the game and sends packets to all other clients to inform them. For
+	 * the client, it disconnects itself if the ping latency is too high. It
+	 * iterates every <code>250</code> milliseconds.
+	 * 
+	 * @since 0.0.1-pre-pre-alpha
+	 * @see com.elveskevtar.divebomb.net.packets.Packet01Disconnect
 	 */
 	private class CheckForPingDrops extends Thread {
 
 		@Override
 		public void run() {
-			while (isRunning()) {
+			/*
+			 * while the game, and either the server or client are in the run
+			 * state
+			 */
+			while (isRunning() && (getSocketServer().isServerRunning() || getSocketClient().isClientRunning())) {
+				/* if a socket server is not present */
 				if (getSocketServer() == null) {
+					/* updates the user's ping latency */
 					getUser().setLatency(System.nanoTime() - getUser().getOldTimeStamp());
+
+					/* switch between states based on the ping latency */
 					if (Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999) == 999
 							&& getUser().getOldTimeStamp() != 0)
 						setState(2);
 					else if (GameDeathmatchMP.this.getState() == 2
 							&& Math.min((int) (getUser().getLatency() * Math.pow(10, -6)), 999) != 999)
 						setState(0);
+
+					/* if the latency is too high */
 					if (((int) (getUser().getLatency() * Math.pow(10, -6)) >= 5000)
 							&& getUser().getOldTimeStamp() != 0) {
+						/* stop the game in every sense */
 						setVisible(false);
 						getFrame().remove(GameDeathmatchMP.this);
 						getTimer().cancel();
 						setRunning(false);
+
+						/* stop the socketClient */
 						getSocketClient().getSocket().close();
 						getSocketClient().setClientRunning(false);
+
+						/* take the user to the start menu */
 						getFrame().add(new StartMenu(getFrame()));
 						getFrame().repaint();
+
+						/*
+						 * display an info message and set the frame to the
+						 * front
+						 */
 						JOptionPane.showMessageDialog(getFrame(),
 								"You have been unexpectedly disconnected from the server", "Server Disconnection",
 								JOptionPane.INFORMATION_MESSAGE);
 						getFrame().toFront();
 					}
+
+					/* sleep for 250 milliseconds */
 					try {
 						Thread.sleep(250);
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				} else {
+					/* if a socket server is present */
 					try {
+						/* cycle through the connectedPlayers */
 						for (Player p : getSocketServer().connectedPlayers) {
+							/* update the latency of each player */
 							p.setLatency(System.nanoTime() - p.getOldTimeStamp());
+
+							/* if the latency is too high */
 							if (((int) (p.getLatency() * Math.pow(10, -6)) >= 5000) && p.getOldTimeStamp() != 0) {
-								Packet01Disconnect packet = new Packet01Disconnect(p.getName());
-								packet.writeData(getSocketServer());
+								/* send a disconnect packet for that Player */
+								new Packet01Disconnect(p.getName()).writeData(getSocketServer());
+
 								System.out
 										.println("[" + getSocketServer().getSocket().getLocalAddress().getHostAddress()
 												+ ":" + getSocketServer().getSocket().getLocalPort() + "] "
 												+ p.getName() + " has disconnected...");
+
+								/*
+								 * remove Player from connectedPlayers and
+								 * players
+								 */
 								getSocketServer().connectedPlayers.remove(p);
 								getPlayers().remove(p);
 							}
 						}
+
+						/* sleep for 250 milliseconds */
 						Thread.sleep(250);
 					} catch (ConcurrentModificationException e) {
 						e.printStackTrace();

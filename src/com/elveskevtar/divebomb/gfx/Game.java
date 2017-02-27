@@ -332,7 +332,7 @@ public abstract class Game extends JPanel
 		/* takes into account the insets of the JFrame when setting the size */
 		this.setSize(frame.getWidth() - frame.getInsets().left - frame.getInsets().right,
 				frame.getHeight() - frame.getInsets().top - frame.getInsets().bottom);
-		
+
 		/* sets this component to be double buffered when painted */
 		this.setDoubleBuffered(true);
 
@@ -1175,7 +1175,7 @@ public abstract class Game extends JPanel
 							p.setyPosition(p.getyPosition() + p.getVeloy());
 							p.setrAngle(Math.atan2(p.getVeloy(), p.getVelox()));
 						}
- 
+
 						/*
 						 * creates an AffineTransform that will rotate the
 						 * Projectile around its center
